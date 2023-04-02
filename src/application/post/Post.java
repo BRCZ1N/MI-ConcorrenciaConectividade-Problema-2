@@ -1,19 +1,24 @@
 package application.post;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
-public class Post extends Thread {
+import org.apache.tomcat.jni.Thread;
 
-	private static String nomePosto;
-	private static String bairroPosto;
-	private static boolean connect;
-	private static int filaQtd;
-	private static String filaOpc;
-	private static Integer qtdTotalCars = 0;
-	private static int qtdTotalNow = 0;
-	private static String respostaQtd;
-	static Scanner scanner = new Scanner(System.in);
+import application.model.Users;
+
+public class Post {
+
+	private String idPost;
+	private String namePost;
+	private String addressPost;
+	private boolean connect;
+	private Integer qtdTotalCars = 0;
+	private String optionMenu;
+	private Queue<Users> currentQueue = new LinkedList<Users>();
+	private Scanner scanner = new Scanner(System.in);
 
 	/**
 	 * Metodo principal da classe UserEnergyGaugeThread, esta classe ira fazer a
@@ -27,48 +32,55 @@ public class Post extends Thread {
 	 */
 	public static void main(String[] args) {
 
-		// Loop para solicitar a entrada da matrícula do servidor até que ela seja
-		// válida
-
-		do {
-			nomePosto = null;
-			System.out.println("Digite o nome do posto:");
-			nomePosto = scanner.nextLine();
-			System.out.println("Digite o bairro:");
-			bairroPosto = scanner.nextLine();
-			System.out.print("Digite a quantidade carros que cabem no posto");
-			qtdTotalCars = scanner.nextInt();
-		} while (nomePosto == null || bairroPosto == null || connect == authenticator(nomePosto, bairroPosto) != true
-				|| !(qtdTotalCars instanceof Integer));
-		while (connect) {
-			System.out.println("(1) - Aumentar fila \n" + "(2) - Diminuir fila \n" + "(3) - Desligar sistema");
-			filaOpc = scanner.nextLine();
-			if (filaOpc.equals("1")) {
-				respostaQtd = inOutQtd("INCREMENTAR");
-				System.out.println(respostaQtd);
-			} else if (filaOpc.equals("2")) {
-				respostaQtd = inOutQtd("DECREMENTAR");
-				System.out.println(respostaQtd);
-			}
-
-			else {
-				try {
-					if (filaOpc.equals("3")) {
-						connect = false;
-					}
-
-				} catch (NumberFormatException e) {
-					// Caso a entrada não seja um número, o usuário é solicitado a inserir novamente
-					System.out.println("Entrada invalida, Digite novamente:");
-				}
-			}
-		}
+		Post post = new Post();
+		post.execPost();
 	}
 
-	// Runnable que envia a leitura do medidor para o servidor em intervalos
-	// regulares
+	public void execPost() {
+
+		do {
+
+			System.out.println("Digite o nome do posto:");
+			namePost = scanner.nextLine();
+
+			System.out.println("Digite o endereço do posto:");
+			addressPost = scanner.nextLine();
+
+			System.out.print("Digite a capacidade de veículos do posto:");
+			qtdTotalCars = scanner.nextInt();
+
+		} while (namePost == null || addressPost == null || connect == authenticator(namePost, addressPost) != true || !(qtdTotalCars instanceof Integer));
+
+		while (connect) {
+
+			System.out.println("(1) - Cadastrar usuario na fila \n (2) - Retirar usuário da fila \n (3) - Desligar sistema");
+			optionMenu = scanner.nextLine();
+
+			if (optionMenu.equals("1")) {
+
+				currentQueue.add(new Users());
+
+			} else if (optionMenu.equals("2")) {
+
+				currentQueue.remove();
+
+			} else if (optionMenu.equals("3")) {
+
+				connect = false;
+
+			} else {
+
+				System.out.println("Opcao invalida");
+
+			}
+
+		}
+
+	}
+	
 	@Override
 	public void run() {
+
 		boolean onMed = true;
 
 		while (onMed) {
@@ -76,20 +88,25 @@ public class Post extends Thread {
 			try {
 
 			} catch (InterruptedException e) {
+
 				e.printStackTrace();
+
 			} catch (IOException e) {
+
 				e.printStackTrace();
+
 			}
 		}
 	}
 
-	private static boolean authenticator(String nomePosto2, String bairroPosto2) {
+	private static boolean authenticator(String namePost, String addressPost) {
+
 		return true;
-		// TODO Auto-generated method stub
 
 	}
 
 	private static String inOutQtd(String texto) {
+
 		System.out.println("Digite a quantidade que deseja " + texto + ":");
 		filaQtd = scanner.nextInt();
 
@@ -99,20 +116,20 @@ public class Post extends Thread {
 				return "cheio";
 			} else {
 				qtdTotalNow += filaQtd;
-				
+
 				return "Quantidade de espaços Disponiveis:" + (qtdTotalCars - qtdTotalNow);
 			}
-		}else if (texto == "DECREMENTAR") {
-			if ((qtdTotalNow  - filaQtd) < 0 ) {
+		} else if (texto == "DECREMENTAR") {
+			if ((qtdTotalNow - filaQtd) < 0) {
 				System.out.println("Não é possivel reduzir essa quantidade de carros");
 				return "vazio";
 			} else {
 				qtdTotalNow -= filaQtd;
 				return "Quantidade de espaços Disponiveis:" + (qtdTotalCars - qtdTotalNow);
 			}
-		}else {
+		} else {
 			return "Digite um numero valido";
 		}
-		
+
 	}
 }
