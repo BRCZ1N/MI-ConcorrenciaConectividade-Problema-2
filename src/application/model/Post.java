@@ -2,39 +2,60 @@ package application.model;
 
 public class Post {
 
-	private String namePost;
-	private String addressPost;
-	private String totalAmountCars;
+	private String name;
+	private String address;
+	private int totalAmountCars;
+	private String id;
+	private String password;
 
-	public Post(String namePost, String addressPost, String totalAmountCars) {
+	public Post(String name, String address, int totalAmountCars, String id, String password) {
 
-		this.namePost = namePost;
-		this.addressPost = addressPost;
+		this.name = name;
+		this.address = address;
 		this.totalAmountCars = totalAmountCars;
+		this.id = id;
+		this.password = password;
+
 	}
 
-	public String getNamePost() {
-		return namePost;
+	public String getName() {
+		return name;
 	}
 
-	public void setNamePost(String namePost) {
-		this.namePost = namePost;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getAddressPost() {
-		return addressPost;
+	public String getAddress() {
+		return address;
 	}
 
-	public void setAddressPost(String addressPost) {
-		this.addressPost = addressPost;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
-	public String getTotalAmountCars() {
+	public int getTotalAmountCars() {
 		return totalAmountCars;
 	}
 
-	public void setTotalAmountCars(String totalAmountCars) {
+	public void setTotalAmountCars(int totalAmountCars) {
 		this.totalAmountCars = totalAmountCars;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

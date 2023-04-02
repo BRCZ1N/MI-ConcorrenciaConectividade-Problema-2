@@ -1,5 +1,5 @@
 package application.threadclient;
 
-public class ThreadClient {
+public class ThreadClientPost {
 
 }

@@ -39,7 +39,7 @@ public class UserController {
 	@DeleteMapping("/queue/leave/{id}")
 	public ResponseEntity<String> deleteUser(@PathVariable String id) {
 
-		if (userService.removerUser(id).isPresent()) {
+		if (userService.removeUser(id).isPresent()) {
 
 			response = new ResponseEntity<String>("Usuario removido", HttpStatus.OK);
 

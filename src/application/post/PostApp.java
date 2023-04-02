@@ -1,28 +1,18 @@
 package application.post;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
-import application.model.User;
-import application.utilities.ProtocolHttp;
-import application.utilities.RequestHttp;
-import application.utilities.ResponseHttp;
+import application.controllers.UserController;
+import application.model.Post;
 
 public class PostApp {
 
-	private User currentUser;
-	private String namePost;
-	private String addressPost;
+	private Post currentPost;
+	private UserController userControllerPost = new UserController();
 	private boolean connect;
-	private String qtdTotalCars;
 	private String optionMenu;
-	private Queue<User> currentQueue = new LinkedList<User>();
 	private Scanner scanner = new Scanner(System.in);
-	private String patternEnterQueue = "/user/enter";
-	private String patternExitQueue = "/user/remove/(\\w+)";
 
 	/**
 	 * Metodo principal da classe UserEnergyGaugeThread, esta classe ira fazer a
@@ -37,12 +27,41 @@ public class PostApp {
 	public static void main(String[] args) {
 
 		PostApp post = new PostApp();
-		post.execPost();
+		post.menuPost();
 	}
 
-	public void execPost() {
+	public void menuPost() {
+
+		System.out.println("(1) Cadastrar posto");
+		System.out.println("(2) Logar posto cadastrado");
+		System.out.println("(3) Desconectar");
+
+		optionMenu = scanner.nextLine();
+
+		if (optionMenu == "1") {
+
+			registrationPost();
+
+		} else if (optionMenu == "2") {
+
+			execPost();
+
+		} else {
+
+			connect = false;
+
+		}
+
+	}
+
+	public void registrationPost() {
 
 		boolean repeatRegistration;
+		String name = null;
+		String address = null;
+		String login = null;
+		String password = null;
+		int amountCars = 0;
 
 		do {
 
@@ -51,13 +70,19 @@ public class PostApp {
 			try {
 
 				System.out.println("Digite o nome do posto:");
-				namePost = scanner.nextLine();
+				name = scanner.nextLine();
 
 				System.out.println("Digite o endereço do posto:");
-				addressPost = scanner.nextLine();
+				address = scanner.nextLine();
 
-				System.out.print("Digite a capacidade de veículos do posto:");
-				qtdTotalCars = scanner.nextLine();
+				System.out.println("Digite login do posto:");
+				login = scanner.nextLine();
+
+				System.out.println("Digite a senha do posto:");
+				password = scanner.nextLine();
+
+				System.out.println("Digite a capacidade de veículos do posto:");
+				amountCars = scanner.nextInt();
 
 			} catch (NumberFormatException e) {
 
@@ -66,50 +91,18 @@ public class PostApp {
 
 			}
 
-		} while (namePost == null || addressPost == null || repeatRegistration == true);
-		
-		listenerRequisitons();
-		queueAction();
+		} while (repeatRegistration == true);
+
+		currentPost = new Post(name, address, amountCars, login, password);
 
 	}
 
-	private void listenerRequisitons() {
+	public void execPost() {
 
-		new Thread(() -> {
+		while (connect) {
 
-			while (connect) {
-				
-				currentRequest = ProtocolHttp.readRequest();
-
-			}
-
-		}).start();
+		}
 
 	}
 
-	private void queueAction() {
-
-		new Thread(() -> {
-
-			while (connect) {
-
-				if (currentQueue.isEmpty() || currentUser != null) {
-
-					if (Pattern.matches(patternEnterQueue, currentRequest.getPath())) {
-
-						currentQueue.add(currentUser);
-
-					} else if (Pattern.matches(patternExitQueue, currentRequest.getPath())) {
-
-						currentQueue.remove();
-
-					}
-
-				}
-
-			}
-
-		}).start();
-
-	}
 }

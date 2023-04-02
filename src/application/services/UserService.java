@@ -21,9 +21,16 @@ public class UserService {
 
 	}
 
-	public Optional<User> removerUser(String id) {
+	public Optional<User> removeUser(String id) {
 
-		return Optional.ofNullable(getUser(id));
+		Optional<User> user = Optional.ofNullable(getUser(id));
+		if(user.isPresent()) {
+			
+			users.remove(user.get());
+			
+		}
+		
+		return user;
 
 	}
 
