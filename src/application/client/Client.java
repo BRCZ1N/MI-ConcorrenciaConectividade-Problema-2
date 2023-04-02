@@ -107,17 +107,16 @@ public class Client {
 		do {
 
 			System.out.println("===================================================");
-			System.out.println("========= Consumo de energia inteligente ==========");
+			System.out.println("========= Sistema de Postos de recarrga  ==========");
 			System.out.println("===================================================");
-			System.out.println("Digite o id:");
+			System.out.println("Digite o id do automovel:");
 			clientID = scan.next();
-			System.out.println("Digite a senha:");
-			clientPassword = scan.next();
+			
 
 			Map<String, String> mapHeaders = new HashMap<>();
 			mapHeaders.put("Host", clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
 			request = new RequestHttp(HttpMethods.GET,
-					"/user/auth/id:" + clientID.replace(" ", "") + "&password:" + clientPassword.replace(" ", ""),
+					"/user/auth/id:" + clientID.replace(" ", ""),
 					"HTTP/1.1", mapHeaders);
 			ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
 			Thread.sleep(100);
@@ -146,14 +145,13 @@ public class Client {
 			System.out.println("===================================================");
 			System.out.println("================ Menu de cliente ==================");
 			System.out.println("===================================================");
-			System.out.println("====== (1) - Visualizar historico de consumo");
-			System.out.println("====== (2) - Gerar fatura");
-			System.out.println("====== (3) - Visualizar fatura");
-			System.out.println("====== (4) - Visualizar todas as faturas geradas");
-			System.out.println("====== (5) - Status de consumo do cliente");
-			System.out.println("====== (6) - Desconectar");
+			System.out.println("====== (1) - Nivel de carga de energia");
+			System.out.println("====== (2) - Buscar postos disponiveis");
+			System.out.println("====== (3) - Entrar na fila");
+			System.out.println("====== (4) - Sair da fila");
+			System.out.println("====== (5) - Desconectar");
 			System.out.println("=========== Digite a opcao desejada ===============");
-
+			// o alerta de nivel de energia devera esta aqui 
 			String opcao = scan.next();
 
 			RequestHttp request;
@@ -164,197 +162,44 @@ public class Client {
 			switch (opcao) {
 
 				case "1":
-
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/consumption/historic/" + clientID, "HTTP/1.1",
-							mapHeaders);
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
-
-					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
-
-						System.out.println("================HISTORICO DE CONSUMO===============");
-						jsonBody = new JSONObject(response.getBody());
-						System.out.println("Historico do cliente:");
-						System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
-						System.out.println("Consumo acumulado do cliente: " + jsonBody.get("accumulatedConsumption"));
-						JSONArray jsonArray = jsonBody.getJSONArray("historic");
-						System.out.println("======================CONSUMOS=====================");
-
-						if (!jsonArray.isEmpty()) {
-
-							for (int i = 0; i < jsonArray.length(); i++) {
-
-								JSONObject jsonObject = jsonArray.getJSONObject(i);
-								System.out.println("Data e hora do consumo:" + jsonObject.get("dateTime"));
-								System.out.println("Quantidade de consumo:" + jsonObject.get("amount"));
-								System.out.println("Unidade de medida do consumo:" + jsonObject.get("unitMeasurement"));
-								System.out.println("===================================================");
-
-							}
-
-						} else {
-
-							System.out.println("Lista de consumos do cliente est� vazia");
-
-						}
-						System.out.println("===================================================");
-
-					} else {
-
-						System.out.println("ERRO:");
-						System.out.println(response.getStatusLine());
-
-					}
-
-					System.out.println();
-					break;
-
+					// fazer uma classe para gerenciar o nivel de energia dos carros junto com o id dele
 				case "2":
 
 					mapHeaders = new HashMap<>();
 					mapHeaders.put("Host",
 							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/invoice/newInvoice/" + clientID, "HTTP/1.1",
+					request = new RequestHttp(HttpMethods.GET, "/battery/nivel/" + clientID, "HTTP/1.1",
 							mapHeaders);
 					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
 					Thread.sleep(100);
 					response = readResponse(clientSocket.getInputStream());
 
-					if (response.getStatusLine().equals(HttpCodes.HTTP_201.getCodeHttp())) {
-
-						jsonBody = new JSONObject(response.getBody());
-						System.out.println(
-								"=============================FATURA GERADA====================================");
-						System.out.println("Identificador do cliente:" + jsonBody.get("idClient"));
-						System.out.println(
-								"Status de consumo atual do cliente:" + jsonBody.get("currentStatusConsumption"));
-						System.out.println("Nome do cliente:" + jsonBody.get("nameClient"));
-						System.out.println("Consumo total da fatura:" + jsonBody.get("consumption"));
-						System.out.println("Valor da fatura:" + jsonBody.get("invoiceValue"));
-						System.out.println("Tarifa da fatura:" + jsonBody.get("fare"));
-						System.out.println("Data de gera��o da fatura:" + jsonBody.get("issuanceDate"));
-						System.out.println("Data em que a fatura expira:" + jsonBody.get("expirationDate"));
-						System.out.println(
-								"==============================================================================");
-
-					} else {
-
-						System.out.println("ERRO:");
-						System.out.println(response.getStatusLine());
-
-					}
-					System.out.println();
-					break;
-
-				case "3":
-
-					System.out.println("Digite o id da fatura:");
-					String idInvoice = scan.next();
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/invoice/" + idInvoice, "HTTP/1.1", mapHeaders);
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
-
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
+						System.out.println("================POSTOS DISPONIVEIS===============");
 						jsonBody = new JSONObject(response.getBody());
-						System.out.println(
-								"====================================FATURA===================================");
-						System.out.println("Identificador do cliente:" + jsonBody.get("idClient"));
-						System.out.println(
-								"Status de consumo atual do cliente:" + jsonBody.get("currentStatusConsumption"));
-						System.out.println("Nome do cliente:" + jsonBody.get("nameClient"));
-						System.out.println("Consumo total da fatura:" + jsonBody.get("consumption"));
-						System.out.println("Valor da fatura:" + jsonBody.get("invoiceValue"));
-						System.out.println("Tarifa da fatura:" + jsonBody.get("fare"));
-						System.out.println("Data de gera��o da fatura:" + jsonBody.get("issuanceDate"));
-						System.out.println("Data em que a fatura expira:" + jsonBody.get("expirationDate"));
-						System.out.println(
-								"==============================================================================");
-
-					} else {
-
-						System.out.println("ERRO:");
-						System.out.println(response.getStatusLine());
-
-					}
-					System.out.println();
-					break;
-
-				case "4":
-
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/invoice/all/" + clientID, "HTTP/1.1", mapHeaders);
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
-
-					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
-
-						jsonBody = new JSONObject(response.getBody());
-						JSONArray jsonArray = jsonBody.getJSONArray("invoices");
-						System.out.println("=================LISTA DE FATURAS==================");
+						System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
+						JSONArray jsonArray = jsonBody.getJSONArray("postos");
+						System.out.println("======================Postos=====================");
 
 						if (!jsonArray.isEmpty()) {
 
 							for (int i = 0; i < jsonArray.length(); i++) {
 
 								JSONObject jsonObject = jsonArray.getJSONObject(i);
-								System.out.println("Identificador do cliente:" + jsonObject.get("idClient"));
-								System.out.println("Status de consumo atual do cliente:"
-										+ jsonObject.get("currentStatusConsumption"));
-								System.out.println("Nome do cliente:" + jsonObject.get("nameClient"));
-								System.out.println("Consumo total da fatura:" + jsonObject.get("consumption"));
-								System.out.println("Valor da fatura:" + jsonObject.get("invoiceValue"));
-								System.out.println("Tarifa da fatura:" + jsonObject.get("fare"));
-								System.out.println("Data de gera��o da fatura:" + jsonObject.get("issuanceDate"));
-								System.out.println("Data em que a fatura expira:" + jsonObject.get("expirationDate"));
+								System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
+								System.out.println("Endereço:" + jsonObject.get("endereco"));
+								System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
 								System.out.println("===================================================");
 
 							}
 
 						} else {
 
-							System.out.println("Lista de faturas do cliente est� vazia");
+							System.out.println("Postos indisponiveis");
 
 						}
 						System.out.println("===================================================");
-
-					} else {
-
-						System.out.println(response.getStatusLine());
-
-					}
-					System.out.println();
-					break;
-
-				case "5":
-
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/user/statusConsumption/" + clientID, "HTTP/1.1",
-							mapHeaders);
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
-
-					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
-
-						jsonBody = new JSONObject(response.getBody());
-						System.out.println("=====================STATUS DE CONSUMO==================");
-						System.out.println("Identificador do cliente:" + jsonBody.get("idClient"));
-						System.out.println("Status de consumo:" + jsonBody.get("statusConsumption"));
-						System.out.println("========================================================");
 
 					} else {
 
@@ -362,11 +207,70 @@ public class Client {
 						System.out.println(response.getStatusLine());
 
 					}
+
 					System.out.println();
 					break;
 
-				case "6":
+				case "3":
+					
+					
+					
+					
+					System.out.println("Digite o posto que deseja ir:");
+					
+					
+					mapHeaders = new HashMap<>();
+					mapHeaders.put("Host",
+							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
+					request = new RequestHttp(HttpMethods.GET, "/queue/enter/" + clientID, "HTTP/1.1",
+							mapHeaders);
+					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
+					Thread.sleep(100);
+					response = readResponse(clientSocket.getInputStream());
 
+					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
+
+						System.out.println("================POSTOS DISPONIVEIS===============");
+						jsonBody = new JSONObject(response.getBody());
+						System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
+						JSONArray jsonArray = jsonBody.getJSONArray("postos");
+						System.out.println("======================Postos=====================");
+
+						if (!jsonArray.isEmpty()) {
+
+							for (int i = 0; i < jsonArray.length(); i++) {
+
+								JSONObject jsonObject = jsonArray.getJSONObject(i);
+								System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
+								System.out.println("Endereço:" + jsonObject.get("endereco"));
+								System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
+								System.out.println("===================================================");
+
+							}
+
+						} else {
+
+							System.out.println("Postos indisponiveis");
+
+						}
+						System.out.println("===================================================");
+
+					} else {
+
+						System.out.println("ERRO:");
+						System.out.println(response.getStatusLine());
+
+					}
+
+					System.out.println();
+					break;
+				
+				case"4":
+					
+					
+					
+				case "5":
+				
 					connection = false;
 					break;
 
@@ -374,9 +278,7 @@ public class Client {
 
 					System.out.println("Opção invalida");
 					break;
-
 			}
-
 		}
 
 		System.out.println("Sessão encerrada");
