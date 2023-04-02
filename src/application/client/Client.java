@@ -3,7 +3,9 @@ package application.client;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -12,11 +14,12 @@ import java.util.Scanner;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import http.ProtocolHttp;
-import http.RequestHttp;
-import http.ResponseHttp;
-import utilityclasses.HttpCodes;
-import utilityclasses.HttpMethods;
+
+import application.utilities.HttpCodes;
+import application.utilities.HttpMethods;
+import application.utilities.ProtocolHttp;
+import application.utilities.RequestHttp;
+import application.utilities.ResponseHttp;
 
 /**
  * Esta � a classe Client, que representa a aplica��o do cliente HTTP TCP que se
