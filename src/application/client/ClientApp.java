@@ -28,7 +28,7 @@ import application.utilities.ResponseHttp;
  * @author Bruno Campos de Oliveira Rocha
  * @version 1.0
  */
-public class Client {
+public class ClientApp {
 
 	private Socket clientSocket;
 	private Scanner scan = new Scanner(System.in);
@@ -47,7 +47,7 @@ public class Client {
 
 	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
 
-		Client client = new Client();
+		ClientApp client = new ClientApp();
 		client.generateSocketClient("172.16.103.3", 8000);
 		client.clientExecution();
 

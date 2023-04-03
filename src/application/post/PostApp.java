@@ -75,11 +75,11 @@ public class PostApp {
 				System.out.println("Digite o endereço do posto:");
 				address = scanner.nextLine();
 
-				System.out.println("Digite login do posto:");
-				login = scanner.nextLine();
-
-				System.out.println("Digite a senha do posto:");
-				password = scanner.nextLine();
+//				System.out.println("Digite login do posto:");
+//				login = scanner.nextLine();
+//
+//				System.out.println("Digite a senha do posto:");
+//				password = scanner.nextLine();
 
 				System.out.println("Digite a capacidade de veículos do posto:");
 				amountCars = scanner.nextInt();

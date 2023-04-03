@@ -17,6 +17,14 @@ public class Post {
 		this.password = password;
 
 	}
+	
+	public Post(String name, String address, int totalAmountCars) {
+
+		this.name = name;
+		this.address = address;
+		this.totalAmountCars = totalAmountCars;
+
+	}
 
 	public String getName() {
 		return name;
