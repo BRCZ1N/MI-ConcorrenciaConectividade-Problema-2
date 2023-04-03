@@ -1,6 +1,8 @@
 package application.client;
 
 import java.io.BufferedInputStream;
+import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -48,9 +50,13 @@ public class Client {
 	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
 
 		Client client = new Client();
-		client.generateSocketClient("172.16.103.3", 8000);
-		client.clientExecution();
-
+		String adress_broker ="tcp:127.0.0.1:8000";
+		String clientCar = "Car";
+		String topic = "postosDisponiveisServidor";
+        String topicTwo = "postosDisponiveisCarros";
+		MemoryPersistence persistenceConnect = new MemoryPersistence();
+		MqttClient mqttClient = generateClientConnect(adress_broker, clientCar, persistenceConnect, topic, topicTwo);
+		client.clientExecution(mqttClient, topic, topicTwo);
 	}
 
 	/**
@@ -59,49 +65,40 @@ public class Client {
 	 * servidor.
 	 *
 	 * @param ip   - O ip do servidor.
+	 * @param topicTwo 
+	 * @param topic 
 	 * @param port - A porta do servidor.
+	 * @return 
 	 */
-	private void generateSocketClient(String ip, int port) {
+	private static MqttClient generateClientConnect(String ip, String clientCar, MemoryPersistence persistence, String topic, String topicTwo) {
+		 try {
+	            // Cria um novo cliente MQTT
+	            MqttClient client = new MqttClient(ip, clientCar, persistence);
+	            client.connect();
+	           
+	            client.subscribe(topic);
+	            client.subscribe(topicTwo);
+	            return client;
 
-		boolean connected = false;
-		while (!connected) {
+	        } catch (MqttException e) {
+	            e.printStackTrace();
+	        }
+		return null;
+	    }
+	
+	
 
-			try {
-
-				clientSocket = new Socket(ip, port);
-				connected = true;
-
-			} catch (UnknownHostException e) {
-
-				e.printStackTrace();
-
-			} catch (ConnectException e) {
-
-				System.out.println("Server ainda n�o foi iniciado, espere um tempo");
-
-				try {
-
-					Thread.sleep(1000);
-
-				} catch (InterruptedException ex) {
-
-					ex.printStackTrace();
-
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
+		
 	/**
 	 * Esse � o metodo de execu��o do menu de login dessa aplica��o.
+	 * @param mqttClient 
+	 * @param topicTwo 
+	 * @param topic 
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void clientExecution() throws IOException, InterruptedException {
+	private void clientExecution(MqttClient mqttClient, String topic, String topicTwo) throws IOException, InterruptedException {
 
 		String clientAuthentication = "";
 		RequestHttp request;
@@ -121,9 +118,7 @@ public class Client {
 			request = new RequestHttp(HttpMethods.GET,
 					"/user/auth/id:" + clientID.replace(" ", ""),
 					"HTTP/1.1", mapHeaders);
-			ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-			Thread.sleep(100);
-			resp = readResponse(clientSocket.getInputStream());
+			mqttClient.publish(topic, new MqttMessage(request.getBytes()));
 
 		} while (!resp.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp()));
 
@@ -227,6 +222,8 @@ public class Client {
 							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
 					request = new RequestHttp(HttpMethods.GET, "/queue/enter/" + clientID, "HTTP/1.1",
 							mapHeaders);
+					String topicRequisição = "Postos";
+			        client.publish(topic, new MqttMessage(message.getBytes()));
 					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
 					Thread.sleep(100);
 					response = readResponse(clientSocket.getInputStream());

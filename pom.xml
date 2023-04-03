@@ -86,5 +86,10 @@
 			<artifactId>json</artifactId>
 			<version>20230227</version>
 		</dependency>
+		<dependency>
+    		<groupId>org.eclipse.paho</groupId>
+    		<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+   			<version>1.2.5</version>
+		</dependency>
 	</dependencies>
 </project>
