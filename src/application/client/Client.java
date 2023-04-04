@@ -106,7 +106,7 @@ public class Client {
 			mapHeaders.put("Host", clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
 			request = new RequestHttp(HttpMethods.GET, "/user/auth/id:" + clientID.replace(" ", ""), "HTTP/1.1",
 					mapHeaders);
-			mqttClient.publish(topic, new MqttMessage(request.getBytes()));
+			clientMqtt.publish(topicCar, new MqttMessage(request.getBytes()));
 
 		} while (!resp.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp()));
 
@@ -140,8 +140,6 @@ public class Client {
 			// o alerta de nivel de energia devera esta aqui
 			String opcao = scan.next();
 
-			RequestHttp request;
-			ResponseHttp response;
 			JSONObject jsonBody;
 			Map<String, String> mapHeaders = new HashMap<>();
 
