@@ -1,27 +1,19 @@
 package application.client;
 
 import java.io.BufferedInputStream;
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import application.utilities.HttpCodes;
-import application.utilities.HttpMethods;
-import application.utilities.ProtocolHttp;
-import application.utilities.RequestHttp;
-import application.utilities.ResponseHttp;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * Esta � a classe Client, que representa a aplica��o do cliente HTTP TCP que se
@@ -32,7 +24,7 @@ import application.utilities.ResponseHttp;
  */
 public class Client {
 
-	private Socket clientSocket;
+	private MqttClient clientMqtt;
 	private Scanner scan = new Scanner(System.in);
 	private String clientID;
 	private String clientPassword;
@@ -47,16 +39,17 @@ public class Client {
 	 * @throws InterruptedException Exception de thread interrompido
 	 */
 
-	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException {
+
+		String adress_broker = "tcp:127.0.0.1:8000";
+		String clientCar = "Car";
+		String topicServer = "postosDisponiveisServidor";
+		String topicCar = "postosDisponiveisCarros";
+		MemoryPersistence persistenceConnect = new MemoryPersistence();
 
 		Client client = new Client();
-		String adress_broker ="tcp:127.0.0.1:8000";
-		String clientCar = "Car";
-		String topic = "postosDisponiveisServidor";
-        String topicTwo = "postosDisponiveisCarros";
-		MemoryPersistence persistenceConnect = new MemoryPersistence();
-		MqttClient mqttClient = generateClientConnect(adress_broker, clientCar, persistenceConnect, topic, topicTwo);
-		client.clientExecution(mqttClient, topic, topicTwo);
+		client.generateClientConnect(adress_broker, clientCar, persistenceConnect, topicServer, topicCar);
+		client.clientExecution(topicServer, topicCar);
 	}
 
 	/**
@@ -64,42 +57,39 @@ public class Client {
 	 * recebe como parametros o ip e a porta do servidor ao qual fica a aplica��o
 	 * servidor.
 	 *
-	 * @param ip   - O ip do servidor.
-	 * @param topicTwo 
-	 * @param topic 
-	 * @param port - A porta do servidor.
-	 * @return 
+	 * @param ip       - O ip do servidor.
+	 * @param topicTwo
+	 * @param topic
+	 * @param port     - A porta do servidor.
+	 * @return
 	 */
-	private static MqttClient generateClientConnect(String ip, String clientCar, MemoryPersistence persistence, String topic, String topicTwo) {
-		 try {
-	            // Cria um novo cliente MQTT
-	            MqttClient client = new MqttClient(ip, clientCar, persistence);
-	            client.connect();
-	           
-	            client.subscribe(topic);
-	            client.subscribe(topicTwo);
-	            return client;
+	private void generateClientConnect(String addressBroker, String clientCar, MemoryPersistence persistence,
+			String topicServer, String topicCar) {
+		try {
+			// Cria um novo cliente MQTT
+			clientMqtt = new MqttClient(addressBroker , clientCar, persistence);
+			clientMqtt.connect();
 
-	        } catch (MqttException e) {
-	            e.printStackTrace();
-	        }
-		return null;
-	    }
-	
-	
+			clientMqtt.subscribe(topicServer);
+			clientMqtt.subscribe(topicCar);
 
-		
+		} catch (MqttException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Esse � o metodo de execu��o do menu de login dessa aplica��o.
-	 * @param mqttClient 
-	 * @param topicTwo 
-	 * @param topic 
+	 * 
+	 * @param mqttClient
+	 * @param topicTwo
+	 * @param topic
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void clientExecution(MqttClient mqttClient, String topic, String topicTwo) throws IOException, InterruptedException {
-
+	private void clientExecution(String topicServer, String topicCar) throws IOException, InterruptedException {
+		
 		String clientAuthentication = "";
 		RequestHttp request;
 		ResponseHttp resp;
@@ -107,17 +97,15 @@ public class Client {
 		do {
 
 			System.out.println("===================================================");
-			System.out.println("========= Sistema de Postos de recarrga  ==========");
+			System.out.println("========= Sistema de Postos de recarga  ==========");
 			System.out.println("===================================================");
 			System.out.println("Digite o id do automovel:");
 			clientID = scan.next();
-			
 
 			Map<String, String> mapHeaders = new HashMap<>();
 			mapHeaders.put("Host", clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-			request = new RequestHttp(HttpMethods.GET,
-					"/user/auth/id:" + clientID.replace(" ", ""),
-					"HTTP/1.1", mapHeaders);
+			request = new RequestHttp(HttpMethods.GET, "/user/auth/id:" + clientID.replace(" ", ""), "HTTP/1.1",
+					mapHeaders);
 			mqttClient.publish(topic, new MqttMessage(request.getBytes()));
 
 		} while (!resp.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp()));
@@ -149,7 +137,7 @@ public class Client {
 			System.out.println("====== (4) - Sair da fila");
 			System.out.println("====== (5) - Desconectar");
 			System.out.println("=========== Digite a opcao desejada ===============");
-			// o alerta de nivel de energia devera esta aqui 
+			// o alerta de nivel de energia devera esta aqui
 			String opcao = scan.next();
 
 			RequestHttp request;
@@ -159,125 +147,118 @@ public class Client {
 
 			switch (opcao) {
 
-				case "1":
-					// fazer uma classe para gerenciar o nivel de energia dos carros junto com o id dele
-				case "2":
+			case "1":
+				// fazer uma classe para gerenciar o nivel de energia dos carros junto com o id
+				// dele
+			case "2":
 
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/battery/nivel/" + clientID, "HTTP/1.1",
-							mapHeaders);
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
+				mapHeaders = new HashMap<>();
+				mapHeaders.put("Host",
+						clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
+				request = new RequestHttp(HttpMethods.GET, "/battery/nivel/" + clientID, "HTTP/1.1", mapHeaders);
+				ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
+				Thread.sleep(100);
+				response = readResponse(clientSocket.getInputStream());
 
-					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
+				if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
-						System.out.println("================POSTOS DISPONIVEIS===============");
-						jsonBody = new JSONObject(response.getBody());
-						System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
-						JSONArray jsonArray = jsonBody.getJSONArray("postos");
-						System.out.println("======================Postos=====================");
+					System.out.println("================POSTOS DISPONIVEIS===============");
+					jsonBody = new JSONObject(response.getBody());
+					System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
+					JSONArray jsonArray = jsonBody.getJSONArray("postos");
+					System.out.println("======================Postos=====================");
 
-						if (!jsonArray.isEmpty()) {
+					if (!jsonArray.isEmpty()) {
 
-							for (int i = 0; i < jsonArray.length(); i++) {
+						for (int i = 0; i < jsonArray.length(); i++) {
 
-								JSONObject jsonObject = jsonArray.getJSONObject(i);
-								System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
-								System.out.println("Endereço:" + jsonObject.get("endereco"));
-								System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
-								System.out.println("===================================================");
-
-							}
-
-						} else {
-
-							System.out.println("Postos indisponiveis");
+							JSONObject jsonObject = jsonArray.getJSONObject(i);
+							System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
+							System.out.println("Endereço:" + jsonObject.get("endereco"));
+							System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
+							System.out.println("===================================================");
 
 						}
-						System.out.println("===================================================");
 
 					} else {
 
-						System.out.println("ERRO:");
-						System.out.println(response.getStatusLine());
+						System.out.println("Postos indisponiveis");
 
 					}
+					System.out.println("===================================================");
 
-					System.out.println();
-					break;
+				} else {
 
-				case "3":
-					
-					
-					
-					
-					System.out.println("Digite o posto que deseja ir:");
-					
-					
-					mapHeaders = new HashMap<>();
-					mapHeaders.put("Host",
-							clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
-					request = new RequestHttp(HttpMethods.GET, "/queue/enter/" + clientID, "HTTP/1.1",
-							mapHeaders);
-					String topicRequisição = "Postos";
-			        client.publish(topic, new MqttMessage(message.getBytes()));
-					ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
-					Thread.sleep(100);
-					response = readResponse(clientSocket.getInputStream());
+					System.out.println("ERRO:");
+					System.out.println(response.getStatusLine());
 
-					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
+				}
 
-						System.out.println("================POSTOS DISPONIVEIS===============");
-						jsonBody = new JSONObject(response.getBody());
-						System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
-						JSONArray jsonArray = jsonBody.getJSONArray("postos");
-						System.out.println("======================Postos=====================");
+				System.out.println();
+				break;
 
-						if (!jsonArray.isEmpty()) {
+			case "3":
 
-							for (int i = 0; i < jsonArray.length(); i++) {
+				System.out.println("Digite o posto que deseja ir:");
 
-								JSONObject jsonObject = jsonArray.getJSONObject(i);
-								System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
-								System.out.println("Endereço:" + jsonObject.get("endereco"));
-								System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
-								System.out.println("===================================================");
+				mapHeaders = new HashMap<>();
+				mapHeaders.put("Host",
+						clientSocket.getLocalAddress().getHostAddress() + ":" + clientSocket.getLocalPort());
+				request = new RequestHttp(HttpMethods.GET, "/queue/enter/" + clientID, "HTTP/1.1", mapHeaders);
+				String topicRequisição = "Postos";
+				client.publish(topic, new MqttMessage(message.getBytes()));
+				ProtocolHttp.sendMessage(clientSocket.getOutputStream(), request.toString());
+				Thread.sleep(100);
+				response = readResponse(clientSocket.getInputStream());
 
-							}
+				if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
-						} else {
+					System.out.println("================POSTOS DISPONIVEIS===============");
+					jsonBody = new JSONObject(response.getBody());
+					System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
+					JSONArray jsonArray = jsonBody.getJSONArray("postos");
+					System.out.println("======================Postos=====================");
 
-							System.out.println("Postos indisponiveis");
+					if (!jsonArray.isEmpty()) {
+
+						for (int i = 0; i < jsonArray.length(); i++) {
+
+							JSONObject jsonObject = jsonArray.getJSONObject(i);
+							System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
+							System.out.println("Endereço:" + jsonObject.get("endereco"));
+							System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
+							System.out.println("===================================================");
 
 						}
-						System.out.println("===================================================");
 
 					} else {
 
-						System.out.println("ERRO:");
-						System.out.println(response.getStatusLine());
+						System.out.println("Postos indisponiveis");
 
 					}
+					System.out.println("===================================================");
 
-					System.out.println();
-					break;
-				
-				case"4":
-					
-					
-					
-				case "5":
-				
-					connection = false;
-					break;
+				} else {
 
-				default:
+					System.out.println("ERRO:");
+					System.out.println(response.getStatusLine());
 
-					System.out.println("Opção invalida");
-					break;
+				}
+
+				System.out.println();
+				break;
+
+			case "4":
+
+			case "5":
+
+				connection = false;
+				break;
+
+			default:
+
+				System.out.println("Opção invalida");
+				break;
 			}
 		}
 
