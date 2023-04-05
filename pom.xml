@@ -92,19 +92,23 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.projectreactor</groupId>
+			<groupId>
+				io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
 			<version>3.4.13</version>
 		</dependency>
 		<dependency>
-			<groupId>io.projectreactor.addons</groupId>
-			<artifactId>reactor-extra</artifactId>
-			<version>3.4.13</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>5.3.14</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>
+				org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
-			<version>${spring.version}</version>
+			<version>
+				${spring.version}</version>
 		</dependency>
 	</dependencies>
 	<properties>

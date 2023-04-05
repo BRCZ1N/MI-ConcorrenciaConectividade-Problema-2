@@ -13,7 +13,7 @@ public class Gateway {
 	private ServerSocket socketServer;
 	private MqttClient clientMqtt;
 	private Socket clientSocket;
-	private String clientCar = "Gateway";
+	private String client = "Gateway";
 	private String topicA = "sendRequisition";
 	private String topicB = "catchResponse";
 	private MemoryPersistence persistence = new MemoryPersistence();
@@ -33,17 +33,15 @@ public class Gateway {
 
 	}
 
-	private void generateClientMqtt(String addressBroker, String clientCar, MemoryPersistence persistence,
-			String topicA, String topicB) {
+	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence,
+			String topicA, String B) {
 
 		try {
+			
 			// Cria um novo cliente MQTT
-			clientMqtt = new MqttClient(addressBroker, clientCar, persistence);
+			clientMqtt = new MqttClient(addressBroker, client, persistence);
 			clientMqtt.connect();
-
-			clientMqtt.subscribe(topicA);
-			clientMqtt.subscribe(topicB);
-
+			
 		} catch (MqttException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +55,7 @@ public class Gateway {
 	 */
 	private void generateAndStartThreadClientTCP(Socket socketClientTCP, MqttClient clientMqtt) {
 
-		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP, clientMqtt, topicA, topicB);
+		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP, clientMqtt);
 		new Thread(threadTcpClient).start();
 
 	}
@@ -75,7 +73,7 @@ public class Gateway {
 		boolean connection = true;
 
 		generateSocketServer(portServerSocket);
-		generateClientMqtt(adressBroker, clientCar, persistence, topicA, topicB);
+		generateClientMqtt(adressBroker, client, persistence, topicA, topicB);
 
 		while (connection) {
 
