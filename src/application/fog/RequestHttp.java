@@ -1,4 +1,4 @@
-package application.gateway;
+package application.fog;
 
 import java.util.Map;
 import java.util.Map.Entry;

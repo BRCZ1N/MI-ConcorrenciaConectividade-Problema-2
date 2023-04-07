@@ -1,4 +1,4 @@
-package application.gateway;
+package application.fog;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,14 +8,12 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class Gateway {
+public class Fog {
 
 	private ServerSocket socketServer;
 	private MqttClient clientMqtt;
 	private Socket clientSocket;
-	private String client = "Gateway";
-	private String topicA = "sendRequisition";
-	private String topicB = "catchResponse";
+	private String client = "Fog";
 	private MemoryPersistence persistence = new MemoryPersistence();
 
 	/**
@@ -33,15 +31,13 @@ public class Gateway {
 
 	}
 
-	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence,
-			String topicA, String B) {
+	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
 
 		try {
-			
-			// Cria um novo cliente MQTT
+
 			clientMqtt = new MqttClient(addressBroker, client, persistence);
 			clientMqtt.connect();
-			
+
 		} catch (MqttException e) {
 			e.printStackTrace();
 		}
@@ -68,12 +64,12 @@ public class Gateway {
 	 * @param portDatagramSocket - Porta UDP para o servidor
 	 * @throws IOException
 	 */
-	private void execServer(int portServerSocket, String adressBroker) throws IOException {
+	private void execFog(int portServerSocket, String adressBroker, double latitude, double longitude) throws IOException {
 
 		boolean connection = true;
 
 		generateSocketServer(portServerSocket);
-		generateClientMqtt(adressBroker, client, persistence, topicA, topicB);
+		generateClientMqtt(adressBroker, client, persistence);
 
 		while (connection) {
 
@@ -96,8 +92,8 @@ public class Gateway {
 	 */
 	public static void main(String[] args) throws IOException {
 
-		Gateway gateway = new Gateway();
-		gateway.execServer(8000, "tcp:127.0.0.1:8000");
+		Fog gateway = new Fog();
+		gateway.execFog(8000, "tcp:127.0.0.1:8000",0.0,50.0);
 
 	}
 

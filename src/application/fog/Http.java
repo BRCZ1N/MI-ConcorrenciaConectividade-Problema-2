@@ -1,4 +1,4 @@
-package application.gateway;
+package application.fog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

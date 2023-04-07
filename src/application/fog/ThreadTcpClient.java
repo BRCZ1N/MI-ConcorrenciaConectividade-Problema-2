@@ -1,3 +1,4 @@
+package application.fog;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -70,8 +71,7 @@ public class ThreadTcpClient implements Runnable {
 
 				if (socket.getInputStream().available() > 0) {
 
-					mqttClient.subscribe("send/" + idClient);
-					mqttClient.subscribe("receive/" + idClient);
+					RequestHttp http = Http.readRequest(socket.getInputStream());
 
 				}
 
@@ -80,10 +80,7 @@ public class ThreadTcpClient implements Runnable {
 		} catch (IOException e) {
 
 			Thread.currentThread().interrupt();
-
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
+		
 		}
 
 	}

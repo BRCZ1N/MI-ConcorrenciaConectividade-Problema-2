@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import application.controllers.UserController;
-import application.model.Post;
+import application.model.ChargingStation;
 
 public class PostApp {
 
-	private Post currentPost;
-	private UserController userControllerPost = new UserController();
+	private ChargingStation currentPost;
 	private boolean connect;
 	private String optionMenu;
 	private Scanner scanner = new Scanner(System.in);
@@ -93,7 +92,7 @@ public class PostApp {
 
 		} while (repeatRegistration == true);
 
-		currentPost = new Post(name, address, amountCars, login, password);
+		currentPost = new ChargingStation(name, address, amountCars, login, password);
 
 	}
 

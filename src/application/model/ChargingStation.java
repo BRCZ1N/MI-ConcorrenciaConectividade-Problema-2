@@ -1,21 +1,26 @@
 package application.model;
 
-public class Post {
+public class ChargingStation {
 
 	private String name;
-	private String address;
+	private long addressX;
+	private long addressY;
 	private int totalAmountCars;
 	private String id;
 	private String password;
 
-	public Post(String name, String address, int totalAmountCars, String id, String password) {
+	public ChargingStation() {
+
+	}
+
+	public ChargingStation(String name, long addressX, long addressY, int totalAmountCars, String id, String password) {
 
 		this.name = name;
-		this.address = address;
+		this.addressX = addressX;
+		this.addressY = addressY;
 		this.totalAmountCars = totalAmountCars;
 		this.id = id;
 		this.password = password;
-
 	}
 
 	public String getName() {
@@ -26,12 +31,20 @@ public class Post {
 		this.name = name;
 	}
 
-	public String getAddress() {
-		return address;
+	public long getAddressX() {
+		return addressX;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setAddressX(long addressX) {
+		this.addressX = addressX;
+	}
+
+	public long getAddressY() {
+		return addressY;
+	}
+
+	public void setAddressY(long addressY) {
+		this.addressY = addressY;
 	}
 
 	public int getTotalAmountCars() {
