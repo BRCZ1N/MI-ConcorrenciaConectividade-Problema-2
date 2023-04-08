@@ -61,7 +61,7 @@ public class Fog {
 	 */
 	private void generateAndStartThreadClientTCP(Socket socketClientTCP) {
 
-		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP);
+		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP, controllerStations);
 		new Thread(threadTcpClient).start();
 
 	}

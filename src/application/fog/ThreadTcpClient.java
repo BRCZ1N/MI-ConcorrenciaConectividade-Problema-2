@@ -3,6 +3,8 @@ package application.fog;
 import java.io.IOException;
 import java.net.Socket;
 
+import application.controllers.ChargingStationController;
+
 /**
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar
  * de uma thread de um cliente TCP que se conecta ao servidor para auxiliar no
@@ -11,8 +13,9 @@ import java.net.Socket;
  * @author Bruno Campos de Oliveira Rocha
  * @version 1.0
  */
-public class ThreadTcpClient implements Runnable {
 
+public class ThreadTcpClient implements Runnable {
+	private ChargingStationController controller;
 	private Socket socket;
 	private String connection;
 
@@ -45,10 +48,11 @@ public class ThreadTcpClient implements Runnable {
 	 * @param socket - Socket TCP do cliente
 	 */
 
-	public ThreadTcpClient(Socket socket) {
+	public ThreadTcpClient(Socket socket,ChargingStationController controller ) {
 
 		this.socket = socket;
 		this.connection = (socket.getInetAddress() + ":" + socket.getPort());
+		this.controller = controller;
 
 	}
 
@@ -67,7 +71,7 @@ public class ThreadTcpClient implements Runnable {
 				if (socket.getInputStream().available() > 0) {
 
 					RequestHttp http = Http.readRequest(socket.getInputStream());
-
+					http.getPath();
 				}
 
 			}
@@ -75,7 +79,7 @@ public class ThreadTcpClient implements Runnable {
 		} catch (IOException e) {
 
 			Thread.currentThread().interrupt();
-		
+
 		}
 
 	}
