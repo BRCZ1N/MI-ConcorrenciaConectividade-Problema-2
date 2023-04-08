@@ -2,8 +2,6 @@ package application.post;
 
 import java.io.IOException;
 import java.util.Scanner;
-
-import application.controllers.UserController;
 import application.model.ChargingStation;
 
 public class PostApp {
@@ -57,10 +55,11 @@ public class PostApp {
 
 		boolean repeatRegistration;
 		String name = null;
-		String address = null;
-		String login = null;
+		Double addressX = null;
+		Double addressY = null;
+		String id = null;
 		String password = null;
-		int amountCars = 0;
+		int totalAmountCars = 0;
 
 		do {
 
@@ -71,28 +70,31 @@ public class PostApp {
 				System.out.println("Digite o nome do posto:");
 				name = scanner.nextLine();
 
-				System.out.println("Digite o endereço do posto:");
-				address = scanner.nextLine();
+				System.out.println("Digite a latitude do posto:");
+				addressX = scanner.nextDouble();
+				
+				System.out.println("Digite a longitude do posto:");
+				addressY = scanner.nextDouble();
 
-				System.out.println("Digite login do posto:");
-				login = scanner.nextLine();
+				System.out.println("Digite o id do posto:");
+				id = scanner.nextLine();
 
 				System.out.println("Digite a senha do posto:");
 				password = scanner.nextLine();
 
 				System.out.println("Digite a capacidade de veículos do posto:");
-				amountCars = scanner.nextInt();
+				totalAmountCars = scanner.nextInt();
 
 			} catch (NumberFormatException e) {
 
-				System.out.print("Capacidade de veículos do invalida, faça o cadastro novamente do posto");
+				System.out.print("Algumas informações podem ter sido digitadas erradas, digite novamente");
 				repeatRegistration = true;
 
 			}
 
 		} while (repeatRegistration == true);
 
-		currentPost = new ChargingStation(name, address, amountCars, login, password);
+		currentPost = new ChargingStation(name,addressX,addressY,totalAmountCars,id,password);
 
 	}
 

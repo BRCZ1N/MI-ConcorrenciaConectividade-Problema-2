@@ -13,7 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.springframework.web.reactive.function.client.WebClient;
+
+import application.fog.RequestHttp;
 
 /**
  * Esta � a classe Client, que representa a aplica��o do cliente HTTP TCP que se

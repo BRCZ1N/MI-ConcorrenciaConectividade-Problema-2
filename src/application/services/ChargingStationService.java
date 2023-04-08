@@ -1,16 +1,17 @@
 package application.services;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+
 import application.model.ChargingStation;
 
 public class ChargingStationService {
 
 	private Map<String, ChargingStation> stations;
-	private long idPost = 0;
+	private Long currentId = 0L;
 
 	public ChargingStationService() {
 
@@ -18,23 +19,25 @@ public class ChargingStationService {
 
 	}
 
-	public void addStation(ChargingStation post) {
+	public void addStation(ChargingStation station) {
 
-		if (stations.containsValue(post)) {
-
-			post.setId(Long.toString(idPost));
-			idPost++;
-			stations.put(post.getId(), post);
-
-		}
+		station.setId(Long.toString(currentId));
+		currentId++;
+		stations.put(station.getId(), station);
 
 	}
 
-	public Optional<ChargingStation> getStationShorterQueue() {
+	public Optional<ChargingStation> getShorterQueueStation() {
 
 		ChargingStation stationShorterQueue = null;
 
-		for (Entry<String, ChargingStation> station : stations.entrySet()) {
+		if (stations.isEmpty()) {
+
+			return Optional.empty();
+
+		}
+
+		for (Map.Entry<String, ChargingStation> station : stations.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
@@ -51,56 +54,70 @@ public class ChargingStationService {
 			}
 
 		}
-		
+
 		return Optional.ofNullable(stationShorterQueue);
 
 	}
 
-	public Optional<ChargingStation> getStationBestProximity(double locationX, double locationY) {
+	public Optional<ChargingStation> getBestLocationStation(Double locationX, Double locationY) {
 
 		ChargingStation stationShorterQueue = null;
 		double currentDistance = 0;
 		double previousDistance = 0;
 
-		for (Entry<String, ChargingStation> currentStation : stations.entrySet()) {
+		if (stations.isEmpty()) {
+
+			return Optional.empty();
+
+		}
+
+		for (Map.Entry<String, ChargingStation> currentStation : stations.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
 				stationShorterQueue = currentStation.getValue();
-				previousDistance = Point2D.distance(locationX, locationY, stationShorterQueue.getAddressX(), stationShorterQueue.getAddressY());
-				
+				previousDistance = distanceValue(locationX, locationY, stationShorterQueue.getAddressX(),
+						stationShorterQueue.getAddressY());
+
 			} else {
 
-				currentDistance = Point2D.distance(locationX, locationY, currentStation.getValue().getAddressX(), currentStation.getValue().getAddressY());
-				
+				currentDistance = distanceValue(locationX, locationY, currentStation.getValue().getAddressX(),
+						currentStation.getValue().getAddressY());
+
 				if (previousDistance > currentDistance) {
 
 					stationShorterQueue = currentStation.getValue();
+					previousDistance = currentDistance;
 
 				}
 
 			}
 
 		}
-		
-		return Optional.ofNullable(stationShorterQueue);
 
+		return Optional.ofNullable(stationShorterQueue);
 
 	}
 
 	public Optional<ArrayList<ChargingStation>> getAllStations() {
-		
-		ArrayList<ChargingStation> stations;
-		
-		if(stations)
-		
+
+		if (stations.isEmpty()) {
+
+			return Optional.empty();
+
+		}
+
+		ArrayList<ChargingStation> stationsList = new ArrayList<ChargingStation>();
+		stationsList.addAll(stations.values());
+		return Optional.of(stationsList);
+
 	}
 
-	public void editStation(ChargingStation post) {
+	public void editStation(ChargingStation station) {
 
-		if (stations.containsValue(post)) {
+		if (stations.containsKey(station.getId())) {
 
-			stations.replace(post.getId(), post);
+			stations.replace(station.getId(), station);
 
 		}
 
@@ -108,36 +125,19 @@ public class ChargingStationService {
 
 	public void removeStation(String id) {
 
-		Optional<ChargingStation> post = Optional.ofNullable(getPost(id));
-		if (post.isPresent()) {
+		if (stations.containsKey(id)) {
 
-			stations.remove(post.get().getId());
-
-		}
-
-	}
-
-	public ChargingStation getPost(String id) {
-
-		for (Entry<String, ChargingStation> post : stations.entrySet()) {
-
-			if (post.getKey().equals(id)) {
-
-				return post.getValue();
-
-			}
+			stations.remove(id);
 
 		}
-
-		return null;
 
 	}
 
 	public boolean authenticateStation(String id, String password) {
 
-		for (Entry<String, ChargingStation> post : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStation> station : stations.entrySet()) {
 
-			if (post.getValue().getId().equals(id) && post.getValue().getPassword().equals(password)) {
+			if (station.getValue().getId().equals(id) && station.getValue().getPassword().equals(password)) {
 
 				return true;
 
@@ -147,6 +147,14 @@ public class ChargingStationService {
 
 		return false;
 
+	}
+
+	public double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,
+			Double currentStationLocationY) {
+
+		double distance = Point2D.distance(locationX, locationY, currentStationLocationX, currentStationLocationY);
+
+		return distance;
 	}
 
 }

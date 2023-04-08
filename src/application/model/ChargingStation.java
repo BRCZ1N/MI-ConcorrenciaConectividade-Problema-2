@@ -3,17 +3,13 @@ package application.model;
 public class ChargingStation {
 
 	private String name;
-	private long addressX;
-	private long addressY;
+	private Double addressX;
+	private Double addressY;
 	private int totalAmountCars;
 	private String id;
 	private String password;
 
-	public ChargingStation() {
-
-	}
-
-	public ChargingStation(String name, long addressX, long addressY, int totalAmountCars, String id, String password) {
+	public ChargingStation(String name, Double addressX, Double addressY, int totalAmountCars, String id, String password) {
 
 		this.name = name;
 		this.addressX = addressX;
@@ -31,19 +27,19 @@ public class ChargingStation {
 		this.name = name;
 	}
 
-	public long getAddressX() {
+	public Double getAddressX() {
 		return addressX;
 	}
 
-	public void setAddressX(long addressX) {
+	public void setAddressX(Double addressX) {
 		this.addressX = addressX;
 	}
 
-	public long getAddressY() {
+	public Double getAddressY() {
 		return addressY;
 	}
 
-	public void setAddressY(long addressY) {
+	public void setAddressY(Double addressY) {
 		this.addressY = addressY;
 	}
 
