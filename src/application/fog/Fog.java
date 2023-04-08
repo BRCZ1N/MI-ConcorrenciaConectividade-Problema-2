@@ -41,17 +41,17 @@ public class Fog {
 
 	}
 
-	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
-
-		try {
-
-			clientMqtt = new MqttClient(addressBroker, client, persistence);
-			clientMqtt.connect();
-
-		} catch (MqttException e) {
-			e.printStackTrace();
-		}
-	}
+//	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
+//
+//		try {
+//
+//			clientMqtt = new MqttClient(addressBroker, client, persistence);
+//			clientMqtt.connect();
+//
+//		} catch (MqttException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * Esse é o método que gera e inicia uma Thread para clientes TCP da aplicação
@@ -79,7 +79,7 @@ public class Fog {
 		boolean connection = true;
 
 		generateSocketServer(portServerSocket);
-		generateClientMqtt(adressBroker, client, persistence);
+//		generateClientMqtt(adressBroker, client, persistence);
 
 		while (connection) {
 
