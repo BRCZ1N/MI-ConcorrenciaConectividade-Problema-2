@@ -8,14 +8,24 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import application.controllers.ChargingStationController;
+
 public class Fog {
 
 	private ServerSocket socketServer;
 	private MqttClient clientMqtt;
 	private Socket clientSocket;
 	private String client = "Fog";
-	private MemoryPersistence persistence = new MemoryPersistence();
+	private ChargingStationController controllerStations;
+	private MemoryPersistence persistence;
 
+	public Fog() {
+		
+		controllerStations = new ChargingStationController();
+		persistence = new MemoryPersistence();
+		
+	}
+	
 	/**
 	 * Esse é o método que instancia sockets para o servidor para conexões TCP para
 	 * clientes http e conexões UDP para os medidores, para isso ele recebe como
@@ -49,9 +59,9 @@ public class Fog {
 	 *
 	 * @param socketClientTCP - Socket do cliente TCP
 	 */
-	private void generateAndStartThreadClientTCP(Socket socketClientTCP, MqttClient clientMqtt) {
+	private void generateAndStartThreadClientTCP(Socket socketClientTCP) {
 
-		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP, clientMqtt);
+		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP);
 		new Thread(threadTcpClient).start();
 
 	}
@@ -64,7 +74,7 @@ public class Fog {
 	 * @param portDatagramSocket - Porta UDP para o servidor
 	 * @throws IOException
 	 */
-	private void execFog(int portServerSocket, String adressBroker, double latitude, double longitude) throws IOException {
+	private void execFog(int portServerSocket, String adressBroker) throws IOException {
 
 		boolean connection = true;
 
@@ -75,7 +85,7 @@ public class Fog {
 
 			clientSocket = socketServer.accept();
 			System.out.println("Cliente conectado a partir da porta:" + clientSocket.getPort());
-			generateAndStartThreadClientTCP(clientSocket, clientMqtt);
+			generateAndStartThreadClientTCP(clientSocket);
 
 		}
 
@@ -93,7 +103,7 @@ public class Fog {
 	public static void main(String[] args) throws IOException {
 
 		Fog gateway = new Fog();
-		gateway.execFog(8000, "tcp:127.0.0.1:8000",0.0,50.0);
+		gateway.execFog(8000, "tcp:127.0.0.1:8000");
 
 	}
 

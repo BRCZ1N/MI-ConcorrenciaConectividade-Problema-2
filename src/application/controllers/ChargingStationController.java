@@ -18,8 +18,7 @@ public class ChargingStationController {
 	@GetMapping("/shorterQueue")
 	public ResponseEntity<String> getShorterQueueStation() {
 
-		return chargingStationService.getShorterQueueStation().map(station -> ResponseEntity.ok(station.toString()))
-				.orElse(ResponseEntity.notFound().build());
+		return chargingStationService.getShorterQueueStation().map(station -> ResponseEntity.ok(station.toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 
@@ -27,8 +26,7 @@ public class ChargingStationController {
 	public ResponseEntity<String> getBestLocationStation(@PathVariable double locationX,
 			@PathVariable double locationY) {
 
-		return chargingStationService.getBestLocationStation(locationX, locationY)
-				.map(station -> ResponseEntity.ok(station.toString())).orElse(ResponseEntity.notFound().build());
+		return chargingStationService.getBestLocationStation(locationX, locationY).map(station -> ResponseEntity.ok(station.toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 

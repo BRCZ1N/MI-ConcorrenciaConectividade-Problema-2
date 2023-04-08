@@ -3,8 +3,6 @@ package application.fog;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-
 /**
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar
  * de uma thread de um cliente TCP que se conecta ao servidor para auxiliar no
@@ -17,8 +15,6 @@ public class ThreadTcpClient implements Runnable {
 
 	private Socket socket;
 	private String connection;
-	private MqttClient mqttClient;
-	private int qos = 2;
 
 	/**
 	 * Esse � o m�todo, que retorna o ip e a porta em conjunto e em formato string
@@ -49,10 +45,9 @@ public class ThreadTcpClient implements Runnable {
 	 * @param socket - Socket TCP do cliente
 	 */
 
-	public ThreadTcpClient(Socket socket, MqttClient mqttClient) {
+	public ThreadTcpClient(Socket socket) {
 
 		this.socket = socket;
-		this.mqttClient = mqttClient;
 		this.connection = (socket.getInetAddress() + ":" + socket.getPort());
 
 	}
