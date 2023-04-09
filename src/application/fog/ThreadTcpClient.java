@@ -3,6 +3,9 @@ package application.fog;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
 import application.controllers.ChargingStationController;
 
 /**
@@ -71,7 +74,10 @@ public class ThreadTcpClient implements Runnable {
 				if (socket.getInputStream().available() > 0) {
 
 					RequestHttp http = Http.readRequest(socket.getInputStream());
-					http.getPath();
+					RestTemplate restTemplate = new RestTemplate();
+					ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8080"+http.getPath(), String.class);
+					System.out.println(response.toString());
+					
 				}
 
 			}

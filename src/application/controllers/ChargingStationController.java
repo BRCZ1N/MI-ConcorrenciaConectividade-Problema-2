@@ -35,7 +35,7 @@ public class ChargingStationController {
 	}
 
 	@GetMapping("/all")
-	public ResponseEntity<String> getAllStations(@PathVariable double locationX, @PathVariable double locationY) {
+	public ResponseEntity<String> getAllStations() {
 
 		return chargingStationService.getAllStations().map(stations -> ResponseEntity.ok(stations.toString())).orElse(ResponseEntity.notFound().build());
 
