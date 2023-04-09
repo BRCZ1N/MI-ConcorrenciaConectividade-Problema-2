@@ -26,7 +26,7 @@ public class Http {
 		String[] request = requestStringBuilder.toString().split("\r\n\r\n");
 		String[] headers = request[0].split("\r\n");
 		String[] requestFirstLine = headers[0].split(" ");
-		Map<String, String> mapHeaders = new HashMap<String, String>();
+		Map<String, String> mapHeaders = new HashMap<>();
 
 		String method = requestFirstLine[0];
 		String path = requestFirstLine[1];

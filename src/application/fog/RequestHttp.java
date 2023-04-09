@@ -3,10 +3,13 @@ package application.fog;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 /**
  * Esta � a classe RequestHttp, que representa a requisi��o http do cliente
  * conectado ao servidor.
- * 
+ *
  * @author Bruno Campos de Oliveira Rocha
  * @version 1.0
  */
@@ -21,7 +24,7 @@ public class RequestHttp {
 	/**
 	 * Esse � o construtor da classe RequestHttp, que constroe o objeto http que
 	 * representa a requisi��o do cliente em formato completo
-	 * 
+	 *
 	 * @param method      - Representa o m�todo da requisi��o http.
 	 * @param path        - Armazena o caminho da requisi��o http.
 	 * @param versionHttp - Representa a vers�o atual da requisi��o http.
@@ -80,7 +83,7 @@ public class RequestHttp {
 	/**
 	 * Esse � o m�todo, que formata os cabe�alhos da requisi��o no modelo padr�o de
 	 * cabe�alhos http
-	 * 
+	 *
 	 * @return Os cabe�alhos da requisi��o http em string
 	 */
 	public String headersToString() {
@@ -96,10 +99,24 @@ public class RequestHttp {
 
 	}
 
+	public MultiValueMap<String, String> MapToMultiValueMap() {
+
+		MultiValueMap<String, String> headersConvert = new LinkedMultiValueMap<>();
+
+		for (Map.Entry<String, String> mapContent : headers.entrySet()) {
+
+			headersConvert.add(mapContent.getKey(),mapContent.getValue());
+
+		}
+
+		return headersConvert;
+
+	}
+
 	/**
 	 * Esse � o m�todo, que formata todo o objeto da requisi��o no modelo padr�o de
 	 * uma requisi��o http
-	 * 
+	 *
 	 * @return O objeto formatado em uma requisi��o http padr�o em formato String
 	 */
 	@Override

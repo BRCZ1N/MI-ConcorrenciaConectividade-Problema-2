@@ -18,7 +18,7 @@ public class ChargingStationService {
 
 	public ChargingStationService() {
 
-		stations = new HashMap<String, ChargingStation>();
+		stations = new HashMap<>();
 
 	}
 
@@ -110,7 +110,7 @@ public class ChargingStationService {
 
 		}
 
-		ArrayList<ChargingStation> stationsList = new ArrayList<ChargingStation>();
+		ArrayList<ChargingStation> stationsList = new ArrayList<>();
 		stationsList.addAll(stations.values());
 		return Optional.of(stationsList);
 

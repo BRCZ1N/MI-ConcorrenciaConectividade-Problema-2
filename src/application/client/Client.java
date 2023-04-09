@@ -19,7 +19,7 @@ import application.fog.RequestHttp;
 /**
  * Esta � a classe Client, que representa a aplica��o do cliente HTTP TCP que se
  * conecta ao servidor.
- * 
+ *
  * @author Bruno Campos de Oliveira Rocha
  * @version 1.0
  */
@@ -81,16 +81,16 @@ public class Client {
 
 	/**
 	 * Esse � o metodo de execu��o do menu de login dessa aplica��o.
-	 * 
+	 *
 	 * @param mqttClient
 	 * @param topicTwo
 	 * @param topic
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	private void clientExecution(String topicServer, String topicCar) throws IOException, InterruptedException {
-		
+
 		String clientAuthentication = "";
 		RequestHttp request;
 		ResponseHttp resp;
@@ -117,7 +117,7 @@ public class Client {
 
 	/**
 	 * Esse � o metodo de execu��o do menu de cliente dessa aplica��o.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
@@ -267,7 +267,7 @@ public class Client {
 
 	/**
 	 * Esse � o metodo que vai ler a resposta http enviada pelo servidor.
-	 * 
+	 *
 	 * @param input - O InputStream do socket que cont�m a resposta advinda do
 	 *              servidor.
 	 * @return A resposta http enviada pelo servidor formatada e colocada em um
@@ -277,7 +277,7 @@ public class Client {
 	public ResponseHttp readResponse(InputStream input) throws IOException {
 
 		ResponseHttp req = new ResponseHttp();
-		Queue<String> httpData = new LinkedList<String>();
+		Queue<String> httpData = new LinkedList<>();
 		String reqLine = null;
 		String responseHeaders;
 		Map<String, String> mapHeaders = null;
@@ -303,7 +303,7 @@ public class Client {
 			}
 
 			responseHeaders = httpData.poll();
-			mapHeaders = new HashMap<String, String>();
+			mapHeaders = new HashMap<>();
 
 			while (!httpData.isEmpty() && !(reqLine = httpData.poll()).isBlank()) {
 

@@ -5,27 +5,30 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import application.controllers.ChargingStationController;
 
+@Service
 public class Fog {
 
+	@Autowired
+	private Environment env;
+
+	@Autowired
+	private ChargingStationController controllerStations;
 	private ServerSocket socketServer;
 	private MqttClient clientMqtt;
 	private Socket clientSocket;
 	private String client = "Fog";
-	private ChargingStationController controllerStations;
 	private MemoryPersistence persistence;
+	@Value("${socket.port}")
+	private int portServerSocket;
 
-	public Fog() {
-		
-		controllerStations = new ChargingStationController();
-		persistence = new MemoryPersistence();
-		
-	}
-	
 	/**
 	 * Esse é o método que instancia sockets para o servidor para conexões TCP para
 	 * clientes http e conexões UDP para os medidores, para isso ele recebe como
@@ -35,9 +38,11 @@ public class Fog {
 	 * @param portDatagramSocket - Porta do servidor UDP
 	 * @throws IOException
 	 */
-	private void generateSocketServer(int portServerSocket) throws IOException {
+	private void generateSocketServer() throws IOException {
 
 		socketServer = new ServerSocket(portServerSocket);
+		 String myProp = env.getProperty("socket.port");
+		 System.out.println(myProp);
 
 	}
 
@@ -69,16 +74,16 @@ public class Fog {
 	/**
 	 * Esse é o método que executa o servidor desde as proprias threads do servidor
 	 * até as proprios sockets UDP e TCP
-	 * 
+	 *
 	 * @param portServerSocket   - Porta TCP para o servidor
 	 * @param portDatagramSocket - Porta UDP para o servidor
 	 * @throws IOException
 	 */
-	private void execFog(int portServerSocket, String adressBroker) throws IOException {
+	private void execFog() throws IOException {
 
 		boolean connection = true;
 
-		generateSocketServer(portServerSocket);
+		generateSocketServer();
 //		generateClientMqtt(adressBroker, client, persistence);
 
 		while (connection) {
@@ -103,7 +108,7 @@ public class Fog {
 	public static void main(String[] args) throws IOException {
 
 		Fog gateway = new Fog();
-		gateway.execFog(8000, "tcp:127.0.0.1:8000");
+		gateway.execFog();
 
 	}
 

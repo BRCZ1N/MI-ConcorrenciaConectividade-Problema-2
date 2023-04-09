@@ -3,7 +3,8 @@ package application.fog;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
 import application.controllers.ChargingStationController;
@@ -12,20 +13,21 @@ import application.controllers.ChargingStationController;
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar
  * de uma thread de um cliente TCP que se conecta ao servidor para auxiliar no
  * processamennto de dados
- * 
+ *
  * @author Bruno Campos de Oliveira Rocha
  * @version 1.0
  */
 
 public class ThreadTcpClient implements Runnable {
-	private ChargingStationController controller;
-	private Socket socket;
-	private String connection;
+
+	private final ChargingStationController controller;
+	private final Socket socket;
+	private final String connection;
 
 	/**
 	 * Esse � o m�todo, que retorna o ip e a porta em conjunto e em formato string
 	 * para exibi��o no console do servidor
-	 * 
+	 *
 	 * @return Representa��o em conjunto em string do ip e da porta do servidor
 	 */
 
@@ -34,24 +36,13 @@ public class ThreadTcpClient implements Runnable {
 	}
 
 	/**
-	 * Esse � o m�todo, que seta o ip e a porta em conjunto e em formato string para
-	 * exibi��o no console do servidor
-	 * 
-	 * @param connection - Representa��o em conjunto usando string do ip e da porta
-	 *                   do servidor
-	 */
-	public void setConnection(String connection) {
-		this.connection = connection;
-	}
-
-	/**
 	 * Esse � o construtor da classe ThreadTcpClient, que constroe os objetos que
 	 * representam as threads do cliente TCP
-	 * 
+	 *
 	 * @param socket - Socket TCP do cliente
 	 */
 
-	public ThreadTcpClient(Socket socket,ChargingStationController controller ) {
+	public ThreadTcpClient(Socket socket, ChargingStationController controller) {
 
 		this.socket = socket;
 		this.connection = (socket.getInetAddress() + ":" + socket.getPort());
@@ -73,10 +64,12 @@ public class ThreadTcpClient implements Runnable {
 
 				if (socket.getInputStream().available() > 0) {
 
-					RequestHttp http = Http.readRequest(socket.getInputStream());
 					RestTemplate restTemplate = new RestTemplate();
-					ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8080"+http.getPath(), String.class);
-					System.out.println(response.toString());
+					RequestHttp http = Http.readRequest(socket.getInputStream());
+					HttpHeaders headers = new HttpHeaders(http.MapToMultiValueMap());
+					HttpEntity<String> requestEntity = new HttpEntity<String>(http.getBody(), headers);
+					restTemplate.postForObject("http://localhost:8080" + http.getPath(), requestEntity, Void.class);
+
 					
 				}
 

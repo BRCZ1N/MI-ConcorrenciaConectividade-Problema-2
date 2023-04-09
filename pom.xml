@@ -108,7 +108,8 @@
 				org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
 			<version>
-				${spring.version}</version>
+				${spring.version}
+			</version>
 		</dependency>
 	</dependencies>
 	<properties>

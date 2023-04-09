@@ -2,6 +2,7 @@ package application.post;
 
 import java.io.IOException;
 import java.util.Scanner;
+
 import application.model.ChargingStation;
 
 public class PostApp {
@@ -72,7 +73,7 @@ public class PostApp {
 
 				System.out.println("Digite a latitude do posto:");
 				addressX = scanner.nextDouble();
-				
+
 				System.out.println("Digite a longitude do posto:");
 				addressY = scanner.nextDouble();
 
@@ -92,7 +93,7 @@ public class PostApp {
 
 			}
 
-		} while (repeatRegistration == true);
+		} while (repeatRegistration);
 
 		currentPost = new ChargingStation(name,addressX,addressY,totalAmountCars,id,password);
 
