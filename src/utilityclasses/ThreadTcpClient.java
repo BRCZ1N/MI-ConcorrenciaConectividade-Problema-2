@@ -5,12 +5,9 @@ import java.net.Socket;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import io.netty.handler.codec.http.HttpResponse;
-import reactor.core.publisher.Mono;
+import okhttp3.Response;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar
@@ -59,59 +56,43 @@ public class ThreadTcpClient implements Runnable {
 	@Override
 	public void run() {
 
-		try {
 
 			RequestHttp http;
 
 			while (true) {
 
-				if (socket.getInputStream().available() > 0) {
+				try {
+					if (socket.getInputStream().available() > 0) {
 
-					http = Http.readRequest(socket.getInputStream());
+						http = Http.readRequest(socket.getInputStream());
+						OkHttpClient client = new OkHttpClient();
 
-					if (http != null) {
-						
-						HttpMethod method = HttpMethod.resolve(http.getMethod());
-						HttpHeaders headers = new HttpHeaders();
-						headers.addAll(http.MapToMultiValueMap());
-						String url = "http://localhost:8010" + http.getPath();
-						WebClient webClient = WebClient.create();
-						Mono<ResponseEntity<HttpResponse>> responseHttp = webClient.method(method).uri(url)
-								.headers(h -> h.addAll(headers)).retrieve()
-								.onStatus(HttpStatus::is4xxClientError, response -> Mono.empty())
-								.toEntity(HttpResponse.class);
-						ResponseEntity<HttpResponse> responseEntity = responseHttp.block();
-						responseHttp.subscribe(response -> {
-						    ResponseHttp httpResponse;
-						    if (responseEntity.getBody() == null) {
-						        httpResponse = new ResponseHttp(
-						                HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
-						                responseEntity.getHeaders().toSingleValueMap());
-						    } else {
-						        httpResponse = new ResponseHttp(
-						                HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
-						                responseEntity.getHeaders().toSingleValueMap(),
-						                responseEntity.getBody().toString());
-						    }
-						    try {
-								Http.sendResponse(socket.getOutputStream(), httpResponse.toString());
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						});
+						if (http != null) {
+
+							HttpMethod method = HttpMethod.resolve(http.getMethod());
+							HttpHeaders headers = new HttpHeaders();
+							headers.addAll(http.MapToMultiValueMap());
+							String url = "http://localhost:8010" + http.getPath();
+							Request request = new Request.Builder().url(url)
+									.build();
+							try (Response response = client.newCall(request).execute()) {
+					            if (response.isSuccessful()) {
+					                System.out.println(response.body().string());
+					            } else {
+					                System.out.println("Erro: " + response.code());
+					            }
+					        }
+							
 
 					}
 
+}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
-			}
-
-		} catch (IOException e) {
-
-			Thread.currentThread().interrupt();
-
-		}
+		} 
 
 	}
 
