@@ -119,7 +119,14 @@ public class CarApp {
 
 				if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
 
-					// ENVIAR A REQUISIÇÃO AQ
+					if(clientMqtt.isConnected()) {
+						
+						
+					}else {
+						
+						
+						
+					}
 
 				}
 
@@ -132,12 +139,8 @@ public class CarApp {
 	private void menuClient() {
 
 		Scanner scanner = new Scanner(System.in);
- 
-		while (connected) {
 
-			System.out.println(
-					"ATENCAO: EXISTEM DUAS OPCOES OU VOCÊ SE CONECTA DIRETAMENTE AO BROKER DA NÉVOA PARA RECEBER DIRETAMENTE"
-							+ "OU É POSSIVEL ENVIAR ATRAVÉS DE UMA API REST PARA A NÉVOA");
+		while (connected) {
 
 			System.out.println("===================================================");
 			System.out.println("========= Consumo de energia inteligente ==========");
@@ -145,35 +148,66 @@ public class CarApp {
 			System.out.println("================ Menu de cliente ==================");
 			System.out.println("===================================================");
 			System.out.println("====== (1) - Nivel de carga de energia");
-			System.out.println("====== (2) - Conectar ao broker");
+			System.out.println("====== (3) - Menu do broker");
 			System.out.println("====== (3) - Menu de requisicoes");
 			System.out.println("====== (4) - Desconectar");
 			System.out.println("=========== Digite a opcao desejada ===============");
 			String opcao = scanner.next();
 
-			switch (opcao) {				
-			
+			switch (opcao) {
+
 			case "1":
 
 				System.out.println("O nivel de bateria atual é:" + batteryCar + "%");
 
 			case "2":
+
+				System.out.println("===================================================");
+				System.out.println("========= Consumo de energia inteligente ==========");
+				System.out.println("===================================================");
+				System.out.println("======== Menu de requisicoes de cliente ===========");
+				System.out.println("===================================================");
+				System.out.println("====== (1) - Buscar posto com menor fila");
+				System.out.println("====== (2) - Buscar posto mais proximo");
+				System.out.println("====== (3) - Buscar todos os postos proximos");
+//				System.out.println("====== (4) - Buscar melhor posto");
+				System.out.println("=========== Digite a opcao desejada ===============");
+				String opcaoMenuReq = scanner.next();
+
+				switch (opcaoMenuReq) {
+
+				case "1":
+
+					break;
+
+				case "2":
+
+					break;
+
+				default:
+
+					System.out.println("Opcao não encontrada, tente novamente");
+					break;
+
+				}
+
+				break;
+
+			case "3":
 				
 				System.out.println("===================================================");
 				System.out.println("========= Consumo de energia inteligente ==========");
 				System.out.println("===================================================");
 				System.out.println("=========== Menu secundario de cliente ============");
 				System.out.println("===================================================");
-				System.out.println("====== (1) - Nivel de carga de energia");
-				System.out.println("====== (2) - Conectar ao broker");
-				System.out.println("====== (3) - Menu de requisicoes");
-				System.out.println("====== (4) - Desconectar");
-				System.out.println("=========== Digite a opcao desejada ===============");
-				String opcao = scanner.next();
-
-			case "3":
+				System.out.println("====== (1) - Conectar broker");
+				System.out.println("====== (2) - Desconectar broker");
+				break;
 
 			default:
+				
+				System.out.println("Opcao não encontrada, tente novamente");
+				break;
 
 			}
 
