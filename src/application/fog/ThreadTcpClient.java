@@ -3,14 +3,12 @@ package application.fog;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import ch.qos.logback.core.util.Duration;
 import io.netty.handler.codec.http.HttpResponse;
 import reactor.core.publisher.Mono;
 import utilityclasses.HttpCodes;
@@ -72,19 +70,7 @@ public class ThreadTcpClient implements Runnable {
 
 					http = Http.readRequest(socket.getInputStream());
 
-					
-					
 					if (http != null) {
-
-						new Thread(() ->{
-							
-							
-							
-							
-							
-							
-						});
-						
 						
 						HttpMethod method = HttpMethod.resolve(http.getMethod());
 						HttpHeaders headers = new HttpHeaders();
@@ -96,23 +82,25 @@ public class ThreadTcpClient implements Runnable {
 								.onStatus(HttpStatus::is4xxClientError, response -> Mono.empty())
 								.toEntity(HttpResponse.class);
 						ResponseEntity<HttpResponse> responseEntity = responseHttp.block();
-						ResponseHttp httpResponse;
-						if (responseEntity.getBody() == null) {
-
-							httpResponse = new ResponseHttp(
-									HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
-									responseEntity.getHeaders().toSingleValueMap());
-
-						} else {
-
-							httpResponse = new ResponseHttp(
-									HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
-									responseEntity.getHeaders().toSingleValueMap(),
-									responseEntity.getBody().toString());
-
-						}
-				
-						Http.sendResponse(socket.getOutputStream(), httpResponse.toString());
+						responseHttp.subscribe(response -> {
+						    ResponseHttp httpResponse;
+						    if (responseEntity.getBody() == null) {
+						        httpResponse = new ResponseHttp(
+						                HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
+						                responseEntity.getHeaders().toSingleValueMap());
+						    } else {
+						        httpResponse = new ResponseHttp(
+						                HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
+						                responseEntity.getHeaders().toSingleValueMap(),
+						                responseEntity.getBody().toString());
+						    }
+						    try {
+								Http.sendResponse(socket.getOutputStream(), httpResponse.toString());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						});
 
 					}
 
