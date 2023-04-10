@@ -1,12 +1,12 @@
 package application.model;
 
-public class User {
+public class UserModel {
 
 	private String id;
 	private String name;
 	private String location;
 
-	public User(String name, String location) {
+	public UserModel(String name, String location) {
 
 		this.name = name;
 		this.location = location;

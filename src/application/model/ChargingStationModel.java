@@ -1,6 +1,6 @@
 package application.model;
 
-public class ChargingStation {
+public class ChargingStationModel {
 
 	private String name;
 	private Double addressX;
@@ -9,7 +9,7 @@ public class ChargingStation {
 	private String id;
 	private String password;
 
-	public ChargingStation(String name, Double addressX, Double addressY, int totalAmountCars, String id, String password) {
+	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id, String password) {
 
 		this.name = name;
 		this.addressX = addressX;

@@ -14,7 +14,7 @@
 //import org.eclipse.paho.client.mqttv3.MqttMessage;
 //import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 //
-//import application.fog.RequestHttp;
+//import utilityclasses.RequestHttp;
 //
 ///**
 // * Esta � a classe Client, que representa a aplica��o do cliente HTTP TCP que se

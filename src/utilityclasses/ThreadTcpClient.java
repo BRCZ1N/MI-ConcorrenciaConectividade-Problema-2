@@ -1,4 +1,4 @@
-package application.fog;
+package utilityclasses;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import io.netty.handler.codec.http.HttpResponse;
 import reactor.core.publisher.Mono;
-import utilityclasses.HttpCodes;
 
 /**
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar

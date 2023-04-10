@@ -8,12 +8,12 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import application.model.ChargingStation;
+import application.model.ChargingStationModel;
 
 @Service
 public class ChargingStationService {
 
-	private Map<String, ChargingStation> stations;
+	private Map<String, ChargingStationModel> stations;
 	private Long currentId = 0L;
 
 	public ChargingStationService() {
@@ -22,7 +22,7 @@ public class ChargingStationService {
 
 	}
 
-	public void addStation(ChargingStation station) {
+	public void addStation(ChargingStationModel station) {
 
 		station.setId(Long.toString(currentId));
 		currentId++;
@@ -30,9 +30,9 @@ public class ChargingStationService {
 
 	}
 
-	public Optional<ChargingStation> getShorterQueueStation() {
+	public Optional<ChargingStationModel> getShorterQueueStation() {
 
-		ChargingStation stationShorterQueue = null;
+		ChargingStationModel stationShorterQueue = null;
 
 		if (stations.isEmpty()) {
 
@@ -40,7 +40,7 @@ public class ChargingStationService {
 
 		}
 
-		for (Map.Entry<String, ChargingStation> station : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
@@ -62,9 +62,9 @@ public class ChargingStationService {
 
 	}
 
-	public Optional<ChargingStation> getBestLocationStation(Double locationX, Double locationY) {
+	public Optional<ChargingStationModel> getBestLocationStation(Double locationX, Double locationY) {
 
-		ChargingStation stationShorterQueue = null;
+		ChargingStationModel stationShorterQueue = null;
 		double currentDistance = 0;
 		double previousDistance = 0;
 
@@ -74,7 +74,7 @@ public class ChargingStationService {
 
 		}
 
-		for (Map.Entry<String, ChargingStation> currentStation : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStationModel> currentStation : stations.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
@@ -102,7 +102,7 @@ public class ChargingStationService {
 
 	}
 
-	public Optional<ArrayList<ChargingStation>> getAllStations() {
+	public Optional<ArrayList<ChargingStationModel>> getAllStations() {
 
 		if (stations.isEmpty()) {
 
@@ -110,13 +110,13 @@ public class ChargingStationService {
 
 		}
 
-		ArrayList<ChargingStation> stationsList = new ArrayList<>();
+		ArrayList<ChargingStationModel> stationsList = new ArrayList<>();
 		stationsList.addAll(stations.values());
 		return Optional.of(stationsList);
 
 	}
 
-	public void editStation(ChargingStation station) {
+	public void editStation(ChargingStationModel station) {
 
 		if (stations.containsKey(station.getId())) {
 
@@ -138,7 +138,7 @@ public class ChargingStationService {
 
 	public boolean authenticateStation(String id, String password) {
 
-		for (Map.Entry<String, ChargingStation> station : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
 
 			if (station.getValue().getId().equals(id) && station.getValue().getPassword().equals(password)) {
 

@@ -1,4 +1,4 @@
-package application.fog;
+package utilityclasses;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

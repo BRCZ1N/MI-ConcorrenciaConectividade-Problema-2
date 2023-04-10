@@ -3,7 +3,6 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     ports:
-      - "8000:8000"
       - "8100:8100"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf

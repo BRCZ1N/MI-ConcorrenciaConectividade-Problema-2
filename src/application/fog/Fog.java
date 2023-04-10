@@ -1,9 +1,10 @@
 package application.fog;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+//import java.net.ServerSocket;
+//import java.net.Socket;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.SpringApplication;
@@ -20,9 +21,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Fog {
 
-	private ServerSocket socketServer;
+//	private ServerSocket socketServer;
 	private MqttClient clientMqtt;
-	private Socket clientSocket;
+//	private Socket clientSocket;
 	private String client = "Fog";
 	private MemoryPersistence persistence;
 
@@ -35,22 +36,48 @@ public class Fog {
 	 * @param portDatagramSocket - Porta do servidor UDP
 	 * @throws IOException
 	 */
-	private void generateSocketServer(int portServerSocket) throws IOException {
-
-		socketServer = new ServerSocket(portServerSocket);
-
-	}
+//	private void generateSocketServer(int portServerSocket) throws IOException {
+//
+//		socketServer = new ServerSocket(portServerSocket);
+//
+//	}
 
 	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
 
 		try {
 
 			clientMqtt = new MqttClient(addressBroker, client, persistence);
-			clientMqtt.connect();
 
 		} catch (MqttException e) {
+
 			e.printStackTrace();
+
 		}
+	}
+
+	private void connectMqtt() throws InterruptedException {
+
+		MqttConnectOptions connOpts = new MqttConnectOptions();
+		connOpts.setCleanSession(true);
+		boolean notConnected = true;
+
+		while (notConnected) {
+
+			try {
+
+				clientMqtt.connect(connOpts);
+				notConnected = false;
+
+			} catch (MqttException e) {
+
+				System.out.println("Broker nao encontrado");
+
+			}
+
+			Thread.sleep(1000);
+
+		}
+
 	}
 
 	/**
@@ -59,12 +86,12 @@ public class Fog {
 	 *
 	 * @param socketClientTCP - Socket do cliente TCP
 	 */
-	private void generateAndStartThreadClientTCP(Socket socketClientTCP) {
-
-		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP);
-		new Thread(threadTcpClient).start();
-
-	}
+//	private void generateAndStartThreadClientTCP(Socket socketClientTCP) {
+//
+//		ThreadTcpClient threadTcpClient = new ThreadTcpClient(socketClientTCP);
+//		new Thread(threadTcpClient).start();
+//
+//	}
 
 	/**
 	 * Esse é o método que executa o servidor desde as proprias threads do servidor
@@ -73,24 +100,25 @@ public class Fog {
 	 * @param portServerSocket   - Porta TCP para o servidor
 	 * @param portDatagramSocket - Porta UDP para o servidor
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	private void execFog(int portServerSocket, String adressBroker) throws IOException {
+//	private void execFog(int portServerSocket, String adressBroker) throws IOException {
+	private void execFog(String adressBroker) throws IOException, InterruptedException {
 
-		boolean connection = true;
-
-		generateSocketServer(portServerSocket);
-//		generateClientMqtt(adressBroker, client, persistence);
-		System.out.println("Server listening on port: " + socketServer.getLocalPort());
-
-		while (connection) {
-
-			clientSocket = socketServer.accept();
-			System.out.println("Cliente conectado a partir da porta:" + clientSocket.getPort());
-			generateAndStartThreadClientTCP(clientSocket);
-
-		}
-
-		socketServer.close();
+//		generateSocketServer(portServerSocket);
+		generateClientMqtt(adressBroker, client, persistence);
+		connectMqtt();
+//		System.out.println("Server listening on port: " + socketServer.getLocalPort());
+//
+//		while (connection) {
+//
+//			clientSocket = socketServer.accept();
+//			System.out.println("Cliente conectado a partir da porta:" + clientSocket.getPort());
+//			generateAndStartThreadClientTCP(clientSocket);
+//
+//		}
+//
+//		socketServer.close();
 
 	}
 
@@ -100,12 +128,13 @@ public class Fog {
 	 *
 	 * @param args - O array de argumentos de linhas de comando.
 	 * @throws IOException Erro de entrada e saida
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 
 		SpringApplication.run(Fog.class, args);
 		Fog gateway = new Fog();
-		gateway.execFog(8000, "tcp:127.0.0.1:8100");
+		gateway.execFog("tcp://localhost:8100");
 
 	}
 

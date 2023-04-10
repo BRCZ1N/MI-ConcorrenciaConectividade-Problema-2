@@ -1,13 +1,13 @@
-package application.post;
+package application.station;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-import application.model.ChargingStation;
+import application.model.ChargingStationModel;
 
-public class PostApp {
+public class StationApp {
 
-	private ChargingStation currentPost;
+	private ChargingStationModel currentPost;
 	private boolean connect;
 	private String optionMenu;
 	private Scanner scanner = new Scanner(System.in);
@@ -24,7 +24,7 @@ public class PostApp {
 	 */
 	public static void main(String[] args) {
 
-		PostApp post = new PostApp();
+		StationApp post = new StationApp();
 		post.menuPost();
 	}
 
@@ -95,7 +95,7 @@ public class PostApp {
 
 		} while (repeatRegistration);
 
-		currentPost = new ChargingStation(name,addressX,addressY,totalAmountCars,id,password);
+		currentPost = new ChargingStationModel(name,addressX,addressY,totalAmountCars,id,password);
 
 	}
 
