@@ -5,9 +5,15 @@ import java.net.Socket;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import application.controllers.ChargingStationController;
+import ch.qos.logback.core.util.Duration;
+import io.netty.handler.codec.http.HttpResponse;
+import reactor.core.publisher.Mono;
+import utilityclasses.HttpCodes;
 
 /**
  * Esta � a classe ThreadTcpClient, que � utilizada para representar e utilizar
@@ -20,7 +26,6 @@ import application.controllers.ChargingStationController;
 
 public class ThreadTcpClient implements Runnable {
 
-	private final ChargingStationController controller;
 	private final Socket socket;
 	private final String connection;
 
@@ -42,11 +47,10 @@ public class ThreadTcpClient implements Runnable {
 	 * @param socket - Socket TCP do cliente
 	 */
 
-	public ThreadTcpClient(Socket socket, ChargingStationController controller) {
+	public ThreadTcpClient(Socket socket) {
 
 		this.socket = socket;
 		this.connection = (socket.getInetAddress() + ":" + socket.getPort());
-		this.controller = controller;
 
 	}
 
@@ -60,17 +64,58 @@ public class ThreadTcpClient implements Runnable {
 
 		try {
 
+			RequestHttp http;
+
 			while (true) {
 
 				if (socket.getInputStream().available() > 0) {
 
-					RestTemplate restTemplate = new RestTemplate();
-					RequestHttp http = Http.readRequest(socket.getInputStream());
-					HttpHeaders headers = new HttpHeaders(http.MapToMultiValueMap());
-					HttpEntity<String> requestEntity = new HttpEntity<String>(http.getBody(), headers);
-					restTemplate.postForObject("http://localhost:8080" + http.getPath(), requestEntity, Void.class);
+					http = Http.readRequest(socket.getInputStream());
 
 					
+					
+					if (http != null) {
+
+						new Thread(() ->{
+							
+							
+							
+							
+							
+							
+						});
+						
+						
+						HttpMethod method = HttpMethod.resolve(http.getMethod());
+						HttpHeaders headers = new HttpHeaders();
+						headers.addAll(http.MapToMultiValueMap());
+						String url = "http://localhost:8010" + http.getPath();
+						WebClient webClient = WebClient.create();
+						Mono<ResponseEntity<HttpResponse>> responseHttp = webClient.method(method).uri(url)
+								.headers(h -> h.addAll(headers)).retrieve()
+								.onStatus(HttpStatus::is4xxClientError, response -> Mono.empty())
+								.toEntity(HttpResponse.class);
+						ResponseEntity<HttpResponse> responseEntity = responseHttp.block();
+						ResponseHttp httpResponse;
+						if (responseEntity.getBody() == null) {
+
+							httpResponse = new ResponseHttp(
+									HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
+									responseEntity.getHeaders().toSingleValueMap());
+
+						} else {
+
+							httpResponse = new ResponseHttp(
+									HttpCodes.valueOf("HTTP_" + responseEntity.getStatusCodeValue()).getCodeHttp(),
+									responseEntity.getHeaders().toSingleValueMap(),
+									responseEntity.getBody().toString());
+
+						}
+				
+						Http.sendResponse(socket.getOutputStream(), httpResponse.toString());
+
+					}
+
 				}
 
 			}

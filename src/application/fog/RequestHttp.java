@@ -39,6 +39,15 @@ public class RequestHttp {
 		this.headers = headers;
 		this.body = body;
 	}
+	
+	public RequestHttp(String method, String path, String versionHttp, Map<String, String> headers) {
+
+		this.method = method;
+		this.path = path;
+		this.versionHttp = versionHttp;
+		this.headers = headers;
+	
+	}
 
 	public String getMethod() {
 		return method;

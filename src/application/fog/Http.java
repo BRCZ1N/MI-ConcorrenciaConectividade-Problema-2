@@ -15,11 +15,17 @@ public class Http {
 
 		BufferedInputStream buffer = new BufferedInputStream(input);
 		StringBuilder requestStringBuilder = new StringBuilder();
-		int c;
 
-		while ((c = buffer.read()) != -1) {
+		if(!(buffer.available() > 0)) {
+			
+			return null;
+			
+		}
+		
+		
+		while (buffer.available() > 0) {
 
-			requestStringBuilder.append((char) c);
+			requestStringBuilder.append((char) buffer.read());
 
 		}
 
@@ -35,17 +41,22 @@ public class Http {
 		for (int headerLine = 1; headerLine < headers.length; headerLine++) {
 
 			String[] headerKeyValue = headers[headerLine].split(":");
-			mapHeaders.put(headerKeyValue[0], headerKeyValue[1]);
+			mapHeaders.put(headerKeyValue[0],headerKeyValue[1].trim());
 
 		}
 
-		String jsonBody = request[1];
+		if(request.length > 1) {
+			
+			String jsonBody = request[1];
+			return new RequestHttp(method, path, httpVersion, mapHeaders, jsonBody);
+		}
 
-		return new RequestHttp(method, path, httpVersion, mapHeaders, jsonBody);
+		return new RequestHttp(method, path, httpVersion, mapHeaders);
 
 	}
 
-	public static void sendResponse(OutputStream out,String response) throws UnsupportedEncodingException, IOException {
+	public static void sendResponse(OutputStream out, String response)
+			throws UnsupportedEncodingException, IOException {
 
 		BufferedOutputStream buffer = new BufferedOutputStream(out);
 		buffer.write(response.getBytes("UTF-8"));
