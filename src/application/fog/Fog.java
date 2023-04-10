@@ -1,12 +1,10 @@
 package application.fog;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +12,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import application.controllers.ChargingStationController;
-import server.UdpSocketServer;
 
 @Service
 public class Fog {
@@ -49,16 +46,17 @@ public class Fog {
 
 	}
 
-	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
-
-		try {
-			clientMqtt = new MqttClient(addressBroker, client, persistence);
-			clientMqtt.connect();
-
-		} catch (MqttException e) {
-			e.printStackTrace();
-		}
-	}
+//	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
+//
+//		try {
+//
+//			clientMqtt = new MqttClient(addressBroker, client, persistence);
+//			clientMqtt.connect();
+//
+//		} catch (MqttException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * Esse é o método que gera e inicia uma Thread para clientes TCP da aplicação
@@ -87,21 +85,7 @@ public class Fog {
 
 		generateSocketServer();
 //		generateClientMqtt(adressBroker, client, persistence);
-		new Thread(() -> {
-		    while (connection) {
-		    	FogMqtt fogMqtt = null;
-				try {
-					fogMqtt = new FogMqtt("tcp://localhost:8000", "postoDisponiveis");
-				} catch (MqttException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		         Thread thread = new Thread(fogMqtt);
-		         thread.start();
-		    	
-		       
-		    }
-		}).start();
+
 		while (connection) {
 
 			clientSocket = socketServer.accept();

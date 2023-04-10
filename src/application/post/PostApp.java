@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import application.model.ChargingStation;
 
-public class PostApp extends Thread {
+public class PostApp {
 
 	private ChargingStation currentPost;
 	private boolean connect;
@@ -100,8 +100,6 @@ public class PostApp extends Thread {
 	}
 
 	public void execPost() {
-		ThreadEnvioPosto mqttThread = new ThreadEnvioPosto("tcp://localhost:1883", "meu-topico", "minha-mensagem", 0);
-		mqttThread.start();
 
 		while (connect) {
 
