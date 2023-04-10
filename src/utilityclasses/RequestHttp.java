@@ -3,9 +3,6 @@ package utilityclasses;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
 /**
  * Esta � a classe RequestHttp, que representa a requisi��o http do cliente
  * conectado ao servidor.
@@ -105,20 +102,6 @@ public class RequestHttp {
 		}
 
 		return stringHeaders.toString();
-
-	}
-
-	public MultiValueMap<String, String> MapToMultiValueMap() {
-
-		MultiValueMap<String, String> headersConvert = new LinkedMultiValueMap<>();
-
-		for (Map.Entry<String, String> mapContent : headers.entrySet()) {
-
-			headersConvert.add(mapContent.getKey(),mapContent.getValue());
-
-		}
-
-		return headersConvert;
 
 	}
 

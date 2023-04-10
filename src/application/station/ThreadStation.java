@@ -1,5 +1,7 @@
 package application.station;
 
+import java.io.UnsupportedEncodingException;
+
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -33,13 +35,16 @@ public class ThreadStation extends Thread {
 
 			client.connect(options);
 
-			MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+			MqttMessage mqttMessage = new MqttMessage(message.getBytes("UTF-8"));
 			mqttMessage.setQos(qos);
 
 			client.publish(topic, mqttMessage);
 
 			client.disconnect();
 		} catch (MqttException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

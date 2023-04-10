@@ -1,6 +1,9 @@
 package application.car;
 
+import java.util.Map;
 import java.util.Scanner;
+import java.io.IOException;
+import java.util.HashMap;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -9,6 +12,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import utilityclasses.BatteryConsumptionStatus;
 import utilityclasses.BatteryLevel;
+import utilityclasses.Http;
+import utilityclasses.RequestHttp;
 
 public class CarApp {
 
@@ -17,7 +22,7 @@ public class CarApp {
 	private MqttClient clientMqtt;
 	private String clientID;
 	private MemoryPersistence persistence;
-	private boolean connected;
+	private boolean connected = true;
 
 	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
 
@@ -82,9 +87,15 @@ public class CarApp {
 
 	private void execCar() {
 
-		generateRandomInitialConditions();
-		listeningBatteryLevel();
-		reduceBatteryCar();
+//		generateRandomInitialConditions();
+//		listeningBatteryLevel();
+//		reduceBatteryCar();
+		try {
+			menuClient();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -137,9 +148,16 @@ public class CarApp {
 
 	}
 
-	private void menuClient() {
+	private void menuClient() throws IOException {
 
 		Scanner scanner = new Scanner(System.in);
+		
+		Map<String,String> header = new HashMap<String, String>();
+		header.put("Host","localhost:8000");
+		header.put("User-Agent", "insomnia/2023.1.0");
+		header.put("Accept", "*/*");
+		Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp("GET", "/station/shorterQueue", "HTTP/1.1", header), "localhost");
+		
 
 		while (connected) {
 
@@ -216,7 +234,7 @@ public class CarApp {
 
 	}
 
-	public void main(String[] args) {
+	public static void main(String[] args) {
 
 		CarApp car = new CarApp();
 		car.execCar();
