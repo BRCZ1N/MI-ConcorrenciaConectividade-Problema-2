@@ -20,8 +20,6 @@ public class CarApp {
 	private volatile int batteryCar;
 	private BatteryConsumptionStatus currentDischargeLevel;
 	private MqttClient clientMqtt;
-	private String clientID;
-	private MemoryPersistence persistence;
 	private boolean connected = true;
 
 	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
