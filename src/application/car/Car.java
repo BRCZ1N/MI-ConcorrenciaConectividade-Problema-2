@@ -1,3 +1,4 @@
+package application.car;
 //package application.client;
 //
 //import java.io.BufferedInputStream;
@@ -26,9 +27,6 @@
 //public class Client {
 //
 //	private MqttClient clientMqtt;
-//	private Scanner scan = new Scanner(System.in);
-//	private String clientID;
-//	private String clientPassword;
 //
 //	/**
 //	 * Este � o metodo principal dessa aplica��o que inicia a mesma. Ele recebe um
