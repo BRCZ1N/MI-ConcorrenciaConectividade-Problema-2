@@ -66,7 +66,7 @@ public class Http {
 				.headers(Headers.of(requestHttp.getHeaders())).build();
 		Response response = client.newCall(request).execute();
 		ResponseHttp responseHttp = formatHTTPResponse(response);
-
+		
 		return responseHttp;
 
 	}

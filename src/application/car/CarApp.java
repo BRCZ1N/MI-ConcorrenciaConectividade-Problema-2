@@ -9,11 +9,15 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import utilityclasses.BatteryConsumptionStatus;
 import utilityclasses.BatteryLevel;
 import utilityclasses.Http;
+import utilityclasses.HttpCodes;
 import utilityclasses.RequestHttp;
+import utilityclasses.ResponseHttp;
 
 public class CarApp {
 
@@ -21,44 +25,6 @@ public class CarApp {
 	private BatteryConsumptionStatus currentDischargeLevel;
 	private MqttClient clientMqtt;
 	private boolean connected = true;
-
-	private void generateClientMqtt(String addressBroker, String client, MemoryPersistence persistence) {
-
-		try {
-
-			clientMqtt = new MqttClient(addressBroker, client, persistence);
-
-		} catch (MqttException e) {
-
-			e.printStackTrace();
-
-		}
-	}
-
-	private void connectMqtt() throws InterruptedException {
-
-		MqttConnectOptions connOpts = new MqttConnectOptions();
-		connOpts.setCleanSession(true);
-		boolean notConnected = true;
-
-		while (notConnected) {
-
-			try {
-
-				clientMqtt.connect(connOpts);
-				notConnected = false;
-
-			} catch (MqttException e) {
-
-				System.out.println("Conexao nao encontrada, buscando nova conexao");
-
-			}
-
-			Thread.sleep(1000);
-
-		}
-
-	}
 
 	private void generateRandomInitialConditions() {
 
@@ -128,16 +94,6 @@ public class CarApp {
 			while (true) {
 
 				if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
-
-					if(clientMqtt.isConnected()) {
-						
-						
-					}else {
-						
-						
-						
-					}
-
 				}
 
 			}
@@ -149,13 +105,13 @@ public class CarApp {
 	private void menuClient() throws IOException {
 
 		Scanner scanner = new Scanner(System.in);
-		
-		Map<String,String> header = new HashMap<String, String>();
-		header.put("Host","localhost:8000");
+
+		Map<String, String> header = new HashMap<String, String>();
+		header.put("Host", "localhost:8000");
 		header.put("User-Agent", "insomnia/2023.1.0");
 		header.put("Accept", "*/*");
-		Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp("GET", "/station/shorterQueue", "HTTP/1.1", header), "localhost");
-		
+		Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp("GET", "/station/shorterQueue", "HTTP/1.1", header),
+				"localhost");
 
 		while (connected) {
 
@@ -165,9 +121,8 @@ public class CarApp {
 			System.out.println("================ Menu de cliente ==================");
 			System.out.println("===================================================");
 			System.out.println("====== (1) - Nivel de carga de energia");
-			System.out.println("====== (3) - Menu do broker");
-			System.out.println("====== (3) - Menu de requisicoes");
-			System.out.println("====== (4) - Desconectar");
+			System.out.println("====== (2) - Menu de requisicoes");
+			System.out.println("====== (3) - Desconectar");
 			System.out.println("=========== Digite a opcao desejada ===============");
 			String opcao = scanner.next();
 
@@ -192,15 +147,20 @@ public class CarApp {
 				String opcaoMenuReq = scanner.next();
 
 				switch (opcaoMenuReq) {
-
 				case "1":
-
+					messageReturn("/shorterQueue","================ POSTOS DISPONIVEIS COM MENOR FILA ==================");
 					break;
 
 				case "2":
-
+					System.out.println("Digite o seu ponto X:");
+					String coordenadasX = scanner.next();
+					System.out.println("Digite o seu ponto Y:");
+					String coordenadasY = scanner.next();
+					messageReturn("/bestLocation/location?x={"+ coordenadasX +"}&y={"+ coordenadasY + "}","================ POSTOS DISPONIVEIS NA PROXIMIDADE ==================");
 					break;
-
+				case "3":
+					messageReturn("/all","================ TODOS OS POSTOS DISPONIVEIS ==================");
+					break;
 				default:
 
 					System.out.println("Opcao não encontrada, tente novamente");
@@ -211,18 +171,10 @@ public class CarApp {
 				break;
 
 			case "3":
-				
-				System.out.println("===================================================");
-				System.out.println("========= Consumo de energia inteligente ==========");
-				System.out.println("===================================================");
-				System.out.println("=========== Menu secundario de cliente ============");
-				System.out.println("===================================================");
-				System.out.println("====== (1) - Conectar broker");
-				System.out.println("====== (2) - Desconectar broker");
-				break;
+				connected = false;
 
 			default:
-				
+
 				System.out.println("Opcao não encontrada, tente novamente");
 				break;
 
@@ -230,6 +182,40 @@ public class CarApp {
 
 		}
 
+	}
+
+	public static void messageReturn(String endpoint, String tipo) throws IOException {
+		JSONObject jsonBody;
+		Map<String, String> header = new HashMap<String, String>();
+		header.put("Host", "localhost:8000");
+		header.put("User-Agent", "insomnia/2023.1.0");
+		header.put("Accept", "*/*");
+		header.put("Content-Type", "application/json");
+		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
+				new RequestHttp("GET", endpoint, "HTTP/1.1", header), "localhost");
+		if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
+			System.out.println(String.format(tipo));
+			jsonBody = new JSONObject(response.getBody());
+			System.out.println("Idenficador do cliente: " + jsonBody.get("idClient"));
+			JSONArray jsonArray = jsonBody.getJSONArray("postos");
+			System.out.println("======================Postos=====================");
+
+			if (!jsonArray.isEmpty()) {
+
+				for (int i = 0; i < jsonArray.length(); i++) {
+
+					JSONObject jsonObject = jsonArray.getJSONObject(i);
+					System.out.println("Nome do posto:" + jsonObject.get("nomePosto"));
+					System.out.println("Endereço:" + jsonObject.get("endereco"));
+					System.out.println("Quantidade de carros na fila:" + jsonObject.get("quantidadeCarros"));
+					System.out.println("===================================================");
+
+				}
+
+			}
+		}else {
+			System.out.println("Não Existe postos disponiveis");
+		}
 	}
 
 	public static void main(String[] args) {
