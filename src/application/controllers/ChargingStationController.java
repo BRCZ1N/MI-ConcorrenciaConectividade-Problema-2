@@ -17,6 +17,13 @@ public class ChargingStationController {
 	@Autowired
 	private ChargingStationService chargingStationService;
 
+	@GetMapping("/ping")
+	public HttpEntity<String> getPingServer() {
+
+		return ResponseEntity.ok("Conexao aceita");
+
+	}
+
 	@GetMapping("/shorterQueue")
 	public HttpEntity<String> getShorterQueueStation() {
 

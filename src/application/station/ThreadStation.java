@@ -8,7 +8,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class ThreadStation extends Thread {
+public class ThreadStation implements Runnable {
 
 	private String broker;
 	private String topic;
@@ -16,18 +16,22 @@ public class ThreadStation extends Thread {
 	private int qos;
 
 	public ThreadStation(String broker, String topic, String message, int qos) {
+		
 		this.broker = broker;
 		this.topic = topic;
 		this.message = message;
 		this.qos = qos;
+		
 	}
 
 	@Override
 	public void run() {
+		
 		String clientId = MqttClient.generateClientId();
 		MemoryPersistence persistence = new MemoryPersistence();
 
 		try {
+			
 			MqttClient client = new MqttClient(broker, clientId, persistence);
 
 			MqttConnectOptions options = new MqttConnectOptions();
@@ -41,10 +45,13 @@ public class ThreadStation extends Thread {
 			client.publish(topic, mqttMessage);
 
 			client.disconnect();
+			
 		} catch (MqttException e) {
+
 			e.printStackTrace();
+			
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
