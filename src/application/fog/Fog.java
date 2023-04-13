@@ -152,9 +152,9 @@ public class Fog {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void execFog(String adressBroker) throws IOException, InterruptedException {
+	private void execFog(String addressBroker) throws IOException, InterruptedException {
 
-		configureAndExecClientMqtt(ServerConfig.LOCALHOST.getAddress()+":8100","Fog",mqttOptions);
+		configureAndExecClientMqtt(addressBroker,"Fog",mqttOptions);
 
 	}
 
@@ -170,7 +170,7 @@ public class Fog {
 
 		SpringApplication.run(Fog.class, args);
 		Fog gateway = new Fog();
-		gateway.execFog("tcp://localhost:8100");
+		gateway.execFog(ServerConfig.LOCALHOST.getAddress());
 
 	}
 
