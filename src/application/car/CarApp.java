@@ -1,9 +1,12 @@
 package application.car;
 
-import java.util.Map;
-import java.util.Scanner;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,6 +21,7 @@ import utilityclasses.ResponseHttp;
 public class CarApp {
 
 	private volatile int batteryCar;
+	private ScheduledExecutorService executor;
 	private BatteryConsumptionStatus currentDischargeLevel;
 	private boolean connected = true;
 	private String currentIpApi;
@@ -52,34 +56,27 @@ public class CarApp {
 
 		generateRandomInitialConditions();
 		configIpApi();
-		listeningBatteryLevel();
-		reduceBatteryCar();
-		generatePosUser();
+		generateThreads();
 		menuClient();
 
 	}
 
+	public void generateThreads() {
+		
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0 , currentDischargeLevel.getDischargeLevel(), TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
+		generatePosUser();
+		
+		
+	}
+
 	public void reduceBatteryCar() {
 
-		new Thread(() -> {
+		while (true) {
 
-			while (true) {
+			batteryCar -= 1;
 
-				try {
-
-					batteryCar -= 1;
-					Thread.sleep(currentDischargeLevel.getDischargeLevel());
-
-				} catch (InterruptedException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-				}
-
-			}
-
-		});
+		}
 
 	}
 
@@ -118,25 +115,26 @@ public class CarApp {
 				if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
 
 					try {
-						
+
 						Map<String, String> header = new HashMap<String, String>();
 						header.put("Content-Lenght", "0");
 						System.out.println();
 						System.out.println("================================ALERTA===============================");
 						System.out.println("=======================NÍVEL DE BATÉRIA BAIXO=========================");
-						System.out.println("NIVEL DE BATERIA ATUAL: "+batteryCar+"%");
+						System.out.println("NIVEL DE BATERIA ATUAL: " + batteryCar + "%");
 						System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ===================");
-						ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, currentIpApi);
+						ResponseHttp response = messageReturn("GET",
+								"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
+								"HTTP/1.1", header, currentIpApi);
 						JSONObject jsonObject = new JSONObject(response.getBody());
 						System.out.println("Nome do posto:" + jsonObject.get("name"));
 						System.out.println("Latitude:" + jsonObject.get("addressX"));
 						System.out.println("Longitude:" + jsonObject.get("addressY"));
 						System.out.println("Quantidade de carros na fila:" + jsonObject.get("totalAmountCars"));
-						
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					
 
 				}
 
@@ -212,12 +210,12 @@ public class CarApp {
 				header.put("Content-Lenght", "0");
 				ResponseHttp response;
 				JSONObject jsonObject;
-				
+
 				switch (opcaoMenuReq) {
 				case "1":
 
 					System.out.print("================ POSTO COM MENOR A FILA ==================");
-					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, currentIpApi);	
+					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, currentIpApi);
 					jsonObject = new JSONObject(response.getBody());
 					System.out.println("Nome do posto:" + jsonObject.get("name"));
 					System.out.println("Latitude:" + jsonObject.get("addressX"));
@@ -228,7 +226,9 @@ public class CarApp {
 				case "2":
 
 					System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ==================");
-					response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, currentIpApi);
+					response = messageReturn("GET",
+							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
+							"HTTP/1.1", header, currentIpApi);
 					jsonObject = new JSONObject(response.getBody());
 					System.out.println("Nome do posto:" + jsonObject.get("name"));
 					System.out.println("Latitude:" + jsonObject.get("addressX"));
@@ -240,7 +240,7 @@ public class CarApp {
 
 					System.out.println("================ TODOS OS POSTOS DISPONIVEIS ==================");
 					response = messageReturn("GET", "/station/all", "HTTP/1.1", header, currentIpApi);
-					
+
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
 						JSONObject jsonBody = new JSONObject(response.getBody());
@@ -296,10 +296,10 @@ public class CarApp {
 	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header,
 			String currentIpApi) throws IOException {
 
-		
-		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
+		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
+				new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
 		return response;
-		
+
 	}
 
 	public static void main(String[] args) throws IOException, UnableToConnectException {

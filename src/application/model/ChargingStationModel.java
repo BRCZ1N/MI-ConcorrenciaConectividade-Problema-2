@@ -7,16 +7,15 @@ public class ChargingStationModel {
 	private Double addressY;
 	private int totalAmountCars;
 	private String id;
-	private String password;
 
-	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id, String password) {
+	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars) {
 
 		this.name = name;
 		this.addressX = addressX;
 		this.addressY = addressY;
 		this.totalAmountCars = totalAmountCars;
-		this.id = id;
-		this.password = password;
+//		this.id = id;
+
 	}
 
 	public String getName() {
@@ -58,13 +57,5 @@ public class ChargingStationModel {
 	public void setId(String id) {
 		this.id = id;
 	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
+	
 }

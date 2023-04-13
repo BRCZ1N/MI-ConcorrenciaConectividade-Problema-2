@@ -2,7 +2,7 @@ package utilityclasses;
 
 public enum BatteryConsumptionStatus {
 
-	HIGH(1000), NORMAL(5000), LOW(10000);
+	HIGH(5), NORMAL(10), LOW(15);
 
 	private int dischargeLevel;
 

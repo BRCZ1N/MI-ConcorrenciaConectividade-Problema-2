@@ -136,21 +136,21 @@ public class ChargingStationService {
 
 	}
 
-	public boolean authenticateStation(String id, String password) {
-
-		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
-
-			if (station.getValue().getId().equals(id) && station.getValue().getPassword().equals(password)) {
-
-				return true;
-
-			}
-
-		}
-
-		return false;
-
-	}
+//	public boolean authenticateStation(String id, String password) {
+//
+//		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
+//
+//			if (station.getValue().getId().equals(id) && station.getValue().getPassword().equals(password)) {
+//
+//				return true;
+//
+//			}
+//
+//		}
+//
+//		return false;
+//
+//	}
 
 	public double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,
 			Double currentStationLocationY) {
