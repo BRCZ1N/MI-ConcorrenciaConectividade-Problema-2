@@ -2,10 +2,10 @@ package utilityclasses;
 
 public enum ServerConfig {
 	
-	LOCALHOST("tcp://localhost:8100"),
-	LARSID_3(""),
-	LARSID_4(""),
-	LARSID_5("");
+	Norte_LOCALHOST("tcp://localhost:8100"),
+	Oeste_LARSID_3(""),
+	Leste_LARSID_4(""),
+	Sul_LARSID_5("");
 	
 	private String address;
 

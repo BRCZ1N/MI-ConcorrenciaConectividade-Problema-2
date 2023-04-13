@@ -17,6 +17,7 @@ import utilityclasses.Http;
 import utilityclasses.HttpCodes;
 import utilityclasses.RequestHttp;
 import utilityclasses.ResponseHttp;
+import utilityclasses.ServerConfig;
 
 public class CarApp {
 
@@ -24,10 +25,10 @@ public class CarApp {
 	private ScheduledExecutorService executor;
 	private BatteryConsumptionStatus currentDischargeLevel;
 	private boolean connected = true;
-	private String currentIpApi;
 	private volatile double latitudeUser;
 	private volatile double longitudeUser;
 	private Scanner scanner = new Scanner(System.in);
+	private volatile String carArea;
 
 	private void generateRandomInitialConditions() {
 
@@ -55,19 +56,19 @@ public class CarApp {
 	private void execCar() throws IOException, UnableToConnectException {
 
 		generateRandomInitialConditions();
-		configIpApi();
+		configArea();
 		generateThreads();
 		menuClient();
 
 	}
 
 	public void generateThreads() {
-		
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0 , currentDischargeLevel.getDischargeLevel(), TimeUnit.SECONDS);
+
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
+				TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		generatePosUser();
-		
-		
+
 	}
 
 	public void reduceBatteryCar() {
@@ -125,7 +126,7 @@ public class CarApp {
 						System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ===================");
 						ResponseHttp response = messageReturn("GET",
 								"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
-								"HTTP/1.1", header, currentIpApi);
+								"HTTP/1.1", header, carArea);
 						JSONObject jsonObject = new JSONObject(response.getBody());
 						System.out.println("Nome do posto:" + jsonObject.get("name"));
 						System.out.println("Latitude:" + jsonObject.get("addressX"));
@@ -144,32 +145,75 @@ public class CarApp {
 
 	}
 
-	public void configIpApi() throws UnableToConnectException {
-
-		boolean unconnected = true;
-
-		while (unconnected) {
-
-			try {
-
-				System.out.println("Digite o IP da conexao:");
-				currentIpApi = scanner.next();
-
-				Map<String, String> header = new HashMap<String, String>();
-				header.put("Content-Lenght", "0");
-				Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp("GET", "/station/ping", "HTTP/1.1", header),
-						currentIpApi);
-				unconnected = false;
-
-			} catch (IOException e) {
-
-				unconnected = true;
-				throw new UnableToConnectException(currentIpApi);
-
+	/*
+	 * public void configIpApi() throws UnableToConnectException {
+	 * 
+	 * boolean unconnected = true;
+	 * 
+	 * while (unconnected) {
+	 * 
+	 * try {
+	 * 
+	 * System.out.println("Digite o IP da conexao:"); currentIpApi = scanner.next();
+	 * 
+	 * Map<String, String> header = new HashMap<String, String>();
+	 * header.put("Content-Lenght", "0"); Http.sendHTTPRequestAndGetHttpResponse(new
+	 * RequestHttp("GET", "/station/ping", "HTTP/1.1", header), currentIpApi);
+	 * unconnected = false;
+	 * 
+	 * } catch (IOException e) {
+	 * 
+	 * unconnected = true; throw new UnableToConnectException(currentIpApi);
+	 * 
+	 * }
+	 * 
+	 * }
+	 * 
+	 * }
+	 */
+	private void testePingBruninho(String ip) throws IOException {
+		 Map<String, String> header = new HashMap<String, String>();
+		 header.put("Content-Lenght", "0"); Http.sendHTTPRequestAndGetHttpResponse(new
+		 RequestHttp("GET", "/station/ping", "HTTP/1.1", header), ip);
+	}
+	private void configArea() throws IOException {
+		boolean configConnect = true;
+		while (configConnect) {
+			System.out.println("===================================================");
+			System.out.println("========= ESCOLHA A ZONA DO CARRO ==========");
+			System.out.println("===================================================");
+			System.out.println("====== (1) - NORTE");
+			System.out.println("====== (2) - LESTE");
+			System.out.println("====== (3) - OESTE");
+			System.out.println("====== (4) - SUL");
+			System.out.println("=========== Digite a opcao desejada ===============");
+			String opcao = scanner.next();
+			switch (opcao) {
+			case "1":
+				carArea = ServerConfig.Norte_LOCALHOST.getAddress();
+				configConnect = false;
+				testePingBruninho(carArea);
+				break;
+			case "2":
+				carArea = ServerConfig.Leste_LARSID_4.getAddress();
+				configConnect = false;
+				testePingBruninho(carArea);
+				break;
+			case "3":
+				carArea = ServerConfig.Oeste_LARSID_3.getAddress();
+				configConnect = false;
+				testePingBruninho(carArea);
+				break;
+			case "4":
+				carArea = ServerConfig.Sul_LARSID_5.getAddress();
+				configConnect = false;
+				testePingBruninho(carArea);
+				break;
+			default:
+				System.out.println("Digite uma zona valida");
+				break;
 			}
-
 		}
-
 	}
 
 	private void menuClient() throws IOException {
@@ -215,7 +259,7 @@ public class CarApp {
 				case "1":
 
 					System.out.print("================ POSTO COM MENOR A FILA ==================");
-					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, currentIpApi);
+					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, carArea);
 					jsonObject = new JSONObject(response.getBody());
 					System.out.println("Nome do posto:" + jsonObject.get("name"));
 					System.out.println("Latitude:" + jsonObject.get("addressX"));
@@ -228,7 +272,7 @@ public class CarApp {
 					System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ==================");
 					response = messageReturn("GET",
 							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
-							"HTTP/1.1", header, currentIpApi);
+							"HTTP/1.1", header, carArea);
 					jsonObject = new JSONObject(response.getBody());
 					System.out.println("Nome do posto:" + jsonObject.get("name"));
 					System.out.println("Latitude:" + jsonObject.get("addressX"));
@@ -239,7 +283,7 @@ public class CarApp {
 				case "3":
 
 					System.out.println("================ TODOS OS POSTOS DISPONIVEIS ==================");
-					response = messageReturn("GET", "/station/all", "HTTP/1.1", header, currentIpApi);
+					response = messageReturn("GET", "/station/all", "HTTP/1.1", header, carArea);
 
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
@@ -296,8 +340,7 @@ public class CarApp {
 	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header,
 			String currentIpApi) throws IOException {
 
-		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
-				new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
+		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
 		return response;
 
 	}
