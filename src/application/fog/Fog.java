@@ -2,6 +2,8 @@ package application.fog;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +13,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,8 +21,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
-import utilityclasses.MqttGeneralTopics;
+import application.services.ChargingStationService;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
 
@@ -30,45 +34,63 @@ import utilityclasses.ServerConfig;
 @Component
 public class Fog {
 
+	@Autowired
+	private ChargingStationController controller;
+	@Autowired
+	private ChargingStationService service;
 	private ScheduledExecutorService executor;
-	private ChargingStationModel bestChargingStationRegion;
-	private String messageFog;
+	private ChargingStationModel bestChargingStation;
+	private String message;
 	private MqttClient clientMqtt;
-	private String client = "Fog";
+	private String idClientMqtt = "FOG" + UUID.randomUUID().toString();
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 
 	public Fog() {
-		
+
+		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
-		
-	}
-	
-	public void desconnectMqtt() {
-
-		try {
-			clientMqtt.disconnect();
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.idClientMqtt = "FOG" + UUID.randomUUID().toString();
 
 	}
-	
+
+	public static void main(String[] args) throws IOException, InterruptedException {
+
+		SpringApplication.run(Fog.class, args);
+		Fog gateway = new Fog();
+		gateway.execFog(ServerConfig.Norte_LOCALHOST.getAddress());
+
+	}
+
+	private void execFog(String addressBroker) throws IOException, InterruptedException {
+
+		configureAndExecClientMqtt(addressBroker, idClientMqtt, mqttOptions);
+		generateThreads();
+
+	}
+
 	private void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> refreshStatusStation(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> refreshMessage(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic()+ currentStatusStation), 0, 5,TimeUnit.SECONDS);
-		
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(message), 0, 5, TimeUnit.SECONDS);
+
 	}
-	
+
 	private void refreshMessage() {
 
 		while (clientMqtt.isConnected()) {
 
-			messageFog = new JSONObject(bestChargingStationRegion).toString();
+			message = new JSONObject(bestChargingStation).toString();
+
+		}
+
+	}
+
+	private void refreshStatusStation() {
+
+		while (clientMqtt.isConnected()) {
 
 		}
 
@@ -78,11 +100,11 @@ public class Fog {
 
 		while (clientMqtt.isConnected()) {
 
-			if (!messageFog.isEmpty()) {
+			if (!message.isEmpty()) {
 
 				try {
 
-					mqttMessage.setPayload(messageFog.getBytes("UTF-8"));
+					mqttMessage.setPayload(message.getBytes("UTF-8"));
 					clientMqtt.publish(topic, mqttMessage);
 
 				} catch (MqttException e) {
@@ -152,11 +174,6 @@ public class Fog {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void execFog(String addressBroker) throws IOException, InterruptedException {
-
-		configureAndExecClientMqtt(addressBroker,"Fog",mqttOptions);
-
-	}
 
 	/**
 	 * Este é o metodo principal dessa aplicação que inicia a mesma. Ele recebe um
@@ -166,11 +183,18 @@ public class Fog {
 	 * @throws IOException          Erro de entrada e saida
 	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) throws IOException, InterruptedException {
 
-		SpringApplication.run(Fog.class, args);
-		Fog gateway = new Fog();
-		gateway.execFog(ServerConfig.LOCALHOST.getAddress());
+	public void desconnectMqtt() {
+
+		try {
+
+			clientMqtt.disconnect();
+
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
 
 	}
 

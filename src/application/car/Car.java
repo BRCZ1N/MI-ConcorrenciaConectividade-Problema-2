@@ -19,7 +19,7 @@ import utilityclasses.RequestHttp;
 import utilityclasses.ResponseHttp;
 import utilityclasses.ServerConfig;
 
-public class CarApp {
+public class Car {
 
 	private volatile int batteryCar;
 	private ScheduledExecutorService executor;
@@ -347,7 +347,7 @@ public class CarApp {
 
 	public static void main(String[] args) throws IOException, UnableToConnectException {
 
-		CarApp car = new CarApp();
+		Car car = new Car();
 		car.execCar();
 
 	}

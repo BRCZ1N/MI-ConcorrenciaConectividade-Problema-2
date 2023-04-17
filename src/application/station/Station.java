@@ -3,6 +3,7 @@ package application.station;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +20,7 @@ import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
 
-public class StationApp {
+public class Station {
 
 	private ScheduledExecutorService executor;
 	private MqttMessage mqttMessage;
@@ -27,7 +28,7 @@ public class StationApp {
 	private ChargingStationModel currentStatusStation;
 	private MqttClient clientMqtt;
 	private Scanner scanner = new Scanner(System.in);
-	private String messageStation;
+	private String message;
 
 	/**
 	 * Metodo principal da classe UserEnergyGaugeThread, esta classe ira fazer a
@@ -40,7 +41,7 @@ public class StationApp {
 	 * @throws IOException          se ocorrer um erro de entrada/saída
 	 */
 
-	public StationApp() {
+	public Station() {
 
 		this.executor = Executors.newScheduledThreadPool(3);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
@@ -50,7 +51,7 @@ public class StationApp {
 
 	public static void main(String[] args) {
 
-		StationApp station = new StationApp();
+		Station station = new Station();
 		station.execStation();
 
 	}
@@ -58,7 +59,8 @@ public class StationApp {
 	public void execStation() {
 
 		configureStation();
-		configureAndExecClientMqtt(ServerConfig.LOCALHOST.getAddress()+":8100",currentStatusStation.getName(),mqttOptions);
+		configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress() + ":8100", currentStatusStation.getName(),
+				mqttOptions);
 		generateThreads();
 
 	}
@@ -67,72 +69,56 @@ public class StationApp {
 
 		executor.scheduleAtFixedRate(() -> refreshStatusStation(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> refreshMessage(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic()+ currentStatusStation), 0, 5,TimeUnit.SECONDS);
-		
-	}
+		executor.scheduleAtFixedRate(
+				() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + currentStatusStation), 0, 5,
+				TimeUnit.SECONDS);
 
-	private void refreshStatusStation() {
-		
-		while (clientMqtt.isConnected()) {
-			
-			
-			
-		}
-		
 	}
 
 	private void refreshMessage() {
 
 		while (clientMqtt.isConnected()) {
 
-			messageStation = new JSONObject(currentStatusStation).toString();
+			message = new JSONObject(currentStatusStation).toString();
 
 		}
 
 	}
 
-	public void configureStation() {
+	private void refreshStatusStation() {
 
-		boolean repeatRegistration;
-		String name = null;
-		Double addressX = null;
-		Double addressY = null;
-		int totalAmountCars = 0;
+		while (clientMqtt.isConnected()) {
 
-		do {
+		}
 
-			repeatRegistration = false;
+	}
 
-			try {
+	public void publishMessageMqtt(String topic) {
 
-				System.out.println("Digite o nome do posto:");
-				name = scanner.nextLine();
+		while (clientMqtt.isConnected()) {
 
-				System.out.println("Digite a latitude do posto:");
-				addressX = scanner.nextDouble();
+			if (!message.isEmpty()) {
 
-				System.out.println("Digite a longitude do posto:");
-				addressY = scanner.nextDouble();
+				try {
 
-//				System.out.println("Digite o id do posto:");
-//				id = scanner.nextLine();
-//
-//				System.out.println("Digite a senha do posto:");
-//				password = scanner.nextLine();
+					mqttMessage.setPayload(message.getBytes("UTF-8"));
+					clientMqtt.publish(topic, mqttMessage);
 
-//				System.out.println("Digite a capacidade de veículos do posto:");
-//				totalAmountCars = scanner.nextInt();
+				} catch (MqttException e) {
 
-			} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 
-				System.out.print("Algumas informações podem ter sido digitadas erradas, digite novamente");
-				repeatRegistration = true;
+				} catch (UnsupportedEncodingException e) {
+
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+
+				}
 
 			}
 
-		} while (repeatRegistration);
-
-		currentStatusStation = new ChargingStationModel(name, addressX, addressY, totalAmountCars);
+		}
 
 	}
 
@@ -175,42 +161,53 @@ public class StationApp {
 		}
 
 	}
+	
+	public void configureStation() {
+
+		boolean repeatRegistration;
+		String name = null;
+		Double addressX = null;
+		Double addressY = null;
+		int totalAmountCars = 0;
+
+		do {
+
+			repeatRegistration = false;
+
+			try {
+
+				System.out.println("Digite o nome do posto:");
+				name = scanner.nextLine();
+
+				System.out.println("Digite a latitude do posto:");
+				addressX = scanner.nextDouble();
+
+				System.out.println("Digite a longitude do posto:");
+				addressY = scanner.nextDouble();
+
+			} catch (NumberFormatException e) {
+
+				System.out.print("Algumas informações podem ter sido digitadas erradas, digite novamente");
+				repeatRegistration = true;
+
+			}
+
+		} while (repeatRegistration);
+
+		currentStatusStation = new ChargingStationModel(name, addressX, addressY, totalAmountCars,
+				"STA" + UUID.randomUUID().toString());
+
+	}
 
 	public void desconnectMqtt() {
 
 		try {
+
 			clientMqtt.disconnect();
+
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-
-	}
-
-	public void publishMessageMqtt(String topic) {
-
-		while (clientMqtt.isConnected()) {
-
-			if (!messageStation.isEmpty()) {
-
-				try {
-
-					mqttMessage.setPayload(messageStation.getBytes("UTF-8"));
-					clientMqtt.publish(topic, mqttMessage);
-
-				} catch (MqttException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-				} catch (UnsupportedEncodingException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-				}
-
-			}
 
 		}
 

@@ -8,13 +8,13 @@ public class ChargingStationModel {
 	private int totalAmountCars;
 	private String id;
 
-	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars) {
+	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id) {
 
 		this.name = name;
 		this.addressX = addressX;
 		this.addressY = addressY;
 		this.totalAmountCars = totalAmountCars;
-//		this.id = id;
+		this.id = id;
 
 	}
 
