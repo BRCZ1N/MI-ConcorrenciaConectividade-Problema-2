@@ -6,7 +6,9 @@ public enum BatteryConsumptionStatus {
 
 	private int dischargeLevel;
 
-	private BatteryConsumptionStatus(int i) {
+	private BatteryConsumptionStatus(int dischargeLevel) {
+		
+		this.dischargeLevel = dischargeLevel;
 
 	}
 

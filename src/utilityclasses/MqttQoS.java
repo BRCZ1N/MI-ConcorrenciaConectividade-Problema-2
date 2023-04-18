@@ -6,8 +6,10 @@ public enum MqttQoS {
 
 	private int qos;
 
-	private MqttQoS(int i) {
+	private MqttQoS(int qos) {
 
+		this.qos = qos;
+		
 	}
 
 	public int getQos() {

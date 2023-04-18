@@ -1,18 +1,21 @@
 package application.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ChargingStationModel {
 
 	private String name;
-	private Double addressX;
-	private Double addressY;
+	private Double latitude;
+	private Double longitude;
 	private int totalAmountCars;
 	private String id;
 
 	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id) {
 
 		this.name = name;
-		this.addressX = addressX;
-		this.addressY = addressY;
+		this.latitude = addressX;
+		this.longitude = addressY;
 		this.totalAmountCars = totalAmountCars;
 		this.id = id;
 
@@ -25,37 +28,68 @@ public class ChargingStationModel {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public Double getAddressX() {
-		return addressX;
+	
+	public Double getLatitude() {
+		
+		return latitude;
+		
 	}
 
-	public void setAddressX(Double addressX) {
-		this.addressX = addressX;
+	public void setLatitude(Double latitude) {
+		
+		this.latitude = latitude;
+		
 	}
 
-	public Double getAddressY() {
-		return addressY;
+	public Double getLongitude() {
+		
+		return longitude;
+		
 	}
 
-	public void setAddressY(Double addressY) {
-		this.addressY = addressY;
+	public void setLongitude(Double longitude) {
+		
+		this.longitude = longitude;
+		
 	}
 
 	public int getTotalAmountCars() {
+		
 		return totalAmountCars;
+		
 	}
 
 	public void setTotalAmountCars(int totalAmountCars) {
+		
 		this.totalAmountCars = totalAmountCars;
+		
 	}
 
 	public String getId() {
+		
 		return id;
+		
 	}
 
 	public void setId(String id) {
+		
 		this.id = id;
+		
+	}
+	
+	public static ChargingStationModel JsonToChargingStationModel(String stationJson) throws JSONException {
+		
+		JSONObject json = new JSONObject(stationJson);
+		
+		String name = json.getString("name");
+		Double addressX = json.getDouble("addressX");
+		Double addressY = json.getDouble("addressY");
+		int totalAmountCars = json.getInt("totalAmountCars");
+		String id = json.getString("id");
+
+		ChargingStationModel station = new ChargingStationModel(name, addressX, addressY, totalAmountCars, id);
+		return station;
+		
 	}
 	
 }

@@ -6,8 +6,10 @@ public enum BatteryLevel {
 
 	private int batteryLevel;
 
-	private BatteryLevel(int i) {
+	private BatteryLevel(int batteryLevel) {
 
+		this.batteryLevel = batteryLevel;
+		
 	}
 
 	public int getBatteryLevel() {

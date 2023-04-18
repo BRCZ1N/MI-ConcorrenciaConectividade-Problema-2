@@ -6,7 +6,8 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -20,10 +21,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-
-import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
 import application.services.ChargingStationService;
+import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
 
@@ -35,23 +35,19 @@ import utilityclasses.ServerConfig;
 public class Fog {
 
 	@Autowired
-	private ChargingStationController controller;
-	@Autowired
 	private ChargingStationService service;
 	private ScheduledExecutorService executor;
-	private ChargingStationModel bestChargingStation;
-	private String message;
 	private MqttClient clientMqtt;
-	private String idClientMqtt = "FOG" + UUID.randomUUID().toString();
+	private String idClientMqtt;
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 
 	public Fog() {
 
-		this.executor = Executors.newScheduledThreadPool(2);
+		this.executor = Executors.newScheduledThreadPool(1);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
-		this.idClientMqtt = "FOG" + UUID.randomUUID().toString();
+		this.idClientMqtt = "FOG-" + UUID.randomUUID().toString();
 
 	}
 
@@ -67,57 +63,59 @@ public class Fog {
 
 		configureAndExecClientMqtt(addressBroker, idClientMqtt, mqttOptions);
 		generateThreads();
+		generateCallBackMqttClient();
 
 	}
 
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> refreshStatusStation(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> refreshMessage(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(message), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic()+ idClientMqtt), 0, 5, TimeUnit.SECONDS);
 
 	}
 
-	private void refreshMessage() {
+	public void generateCallBackMqttClient() {
 
-		while (clientMqtt.isConnected()) {
+		clientMqtt.setCallback(new MqttCallback() {
+			@Override
+			public void connectionLost(Throwable cause) {
+			}
 
-			message = new JSONObject(bestChargingStation).toString();
+			@Override
+			public void messageArrived(String topic, MqttMessage message) throws Exception {
 
-		}
+				String payload = new String(message.getPayload());
+				System.out.println("Mensagem recebida: " + payload);
+				service.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
 
-	}
+			}
 
-	private void refreshStatusStation() {
+			@Override
+			public void deliveryComplete(IMqttDeliveryToken token) {
+			}
 
-		while (clientMqtt.isConnected()) {
-
-		}
+		});
 
 	}
 
 	public void publishMessageMqtt(String topic) {
 
-		while (clientMqtt.isConnected()) {
+		if(clientMqtt != null && clientMqtt.isConnected()) {
 
-			if (!message.isEmpty()) {
+			try {
 
-				try {
+				String message = new JSONObject(service.getShorterQueueStation().get()).toString();
+				mqttMessage.setPayload(message.getBytes("UTF-8"));
+				clientMqtt.publish(topic, mqttMessage);
 
-					mqttMessage.setPayload(message.getBytes("UTF-8"));
-					clientMqtt.publish(topic, mqttMessage);
+			} catch (MqttException e) {
 
-				} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
 
-				} catch (UnsupportedEncodingException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-				}
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 
 			}
 
@@ -145,16 +143,13 @@ public class Fog {
 
 	public void configureAndExecClientMqtt(String broker, String nameFog, MqttConnectOptions mqttOptions) {
 
-		boolean connected = false;
 
-		while (!connected) {
+		if(clientMqtt == null || !clientMqtt.isConnected()) {
 
 			try {
 
 				clientMqtt = new MqttClient(broker, nameFog, new MemoryPersistence());
-
 				clientMqtt.connect(mqttOptions);
-				connected = true;
 
 			} catch (MqttException e) {
 

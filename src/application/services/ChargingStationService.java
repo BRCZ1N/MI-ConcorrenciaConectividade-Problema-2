@@ -79,13 +79,13 @@ public class ChargingStationService {
 			if (stationShorterQueue == null) {
 
 				stationShorterQueue = currentStation.getValue();
-				previousDistance = distanceValue(locationX, locationY, stationShorterQueue.getAddressX(),
-						stationShorterQueue.getAddressY());
+				previousDistance = distanceValue(locationX, locationY, stationShorterQueue.getLatitude(),
+						stationShorterQueue.getLongitude());
 
 			} else {
 
-				currentDistance = distanceValue(locationX, locationY, currentStation.getValue().getAddressX(),
-						currentStation.getValue().getAddressY());
+				currentDistance = distanceValue(locationX, locationY, currentStation.getValue().getLatitude(),
+						currentStation.getValue().getLongitude());
 
 				if (previousDistance > currentDistance) {
 

@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -22,6 +21,9 @@ import utilityclasses.ServerConfig;
 
 public class Station {
 
+	private Double latitudeStation;
+	private Double longitudeStation;
+	private int amountCars = 0;
 	private ScheduledExecutorService executor;
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
@@ -29,6 +31,7 @@ public class Station {
 	private MqttClient clientMqtt;
 	private Scanner scanner = new Scanner(System.in);
 	private String message;
+	private String idClientMqtt;
 
 	/**
 	 * Metodo principal da classe UserEnergyGaugeThread, esta classe ira fazer a
@@ -43,9 +46,10 @@ public class Station {
 
 	public Station() {
 
-		this.executor = Executors.newScheduledThreadPool(3);
+		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
+		this.idClientMqtt = "STA-" + UUID.randomUUID().toString();
 
 	}
 
@@ -58,63 +62,37 @@ public class Station {
 
 	public void execStation() {
 
-		configureStation();
-		configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress() + ":8100", currentStatusStation.getName(),
-				mqttOptions);
+		initialConfigurationStation();
 		generateThreads();
 
 	}
 
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> refreshStatusStation(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> refreshMessage(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(
-				() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + currentStatusStation), 0, 5,
-				TimeUnit.SECONDS);
-
-	}
-
-	private void refreshMessage() {
-
-		while (clientMqtt.isConnected()) {
-
-			message = new JSONObject(currentStatusStation).toString();
-
-		}
-
-	}
-
-	private void refreshStatusStation() {
-
-		while (clientMqtt.isConnected()) {
-
-		}
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress(),currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
 
 	public void publishMessageMqtt(String topic) {
 
-		while (clientMqtt.isConnected()) {
+		if (clientMqtt != null && clientMqtt.isConnected()) {
 
-			if (!message.isEmpty()) {
+			try {
 
-				try {
+				message = new JSONObject(currentStatusStation).toString();
+				mqttMessage.setPayload(message.getBytes("UTF-8"));
+				clientMqtt.publish(topic, mqttMessage);
 
-					mqttMessage.setPayload(message.getBytes("UTF-8"));
-					clientMqtt.publish(topic, mqttMessage);
+			} catch (MqttException e) {
 
-				} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
 
-				} catch (UnsupportedEncodingException e) {
-
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-				}
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 
 			}
 
@@ -141,61 +119,52 @@ public class Station {
 	}
 
 	public void configureAndExecClientMqtt(String broker, String nameStation, MqttConnectOptions mqttOptions) {
-
-		boolean connected = false;
-
-		while (!connected) {
-
+		
+		if (clientMqtt == null || !clientMqtt.isConnected()) {
+			
 			try {
 
 				clientMqtt = new MqttClient(broker, nameStation, new MemoryPersistence());
-
 				clientMqtt.connect(mqttOptions);
-				connected = true;
 
 			} catch (MqttException e) {
 
+				System.out.println("=====================");
 				System.out.println("Broker nao encontrado");
+				System.out.println("=====================");
 
 			}
+
 		}
 
 	}
-	
-	public void configureStation() {
 
-		boolean repeatRegistration;
-		String name = null;
-		Double addressX = null;
-		Double addressY = null;
-		int totalAmountCars = 0;
+	public void initialConfigurationStation() {
 
-		do {
+		generatePosStation();
 
-			repeatRegistration = false;
+		System.out.println("Digite o nome do posto:");
+		System.out.println();
+		String name = scanner.nextLine();
 
-			try {
+		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars,
+				idClientMqtt);
+		System.out.println("=====================================================");
+		System.out.println("===============Status inicial do posto===============");
+		System.out.println("=====================================================");
+		System.out.println("Nome do posto: " + currentStatusStation.getName());
+		System.out.println("ID do posto: " + currentStatusStation.getId());
+		System.out.println("Latitude do posto: " + currentStatusStation.getLatitude());
+		System.out.println("Longitude do posto: " + currentStatusStation.getLongitude());
+		System.out.println("Quantidade inicial de carros no posto: " + currentStatusStation.getTotalAmountCars());
+		System.out.println("=====================================================");
 
-				System.out.println("Digite o nome do posto:");
-				name = scanner.nextLine();
+	}
 
-				System.out.println("Digite a latitude do posto:");
-				addressX = scanner.nextDouble();
+	public void generatePosStation() {
 
-				System.out.println("Digite a longitude do posto:");
-				addressY = scanner.nextDouble();
-
-			} catch (NumberFormatException e) {
-
-				System.out.print("Algumas informações podem ter sido digitadas erradas, digite novamente");
-				repeatRegistration = true;
-
-			}
-
-		} while (repeatRegistration);
-
-		currentStatusStation = new ChargingStationModel(name, addressX, addressY, totalAmountCars,
-				"STA" + UUID.randomUUID().toString());
+		latitudeStation = Math.random() * 100;
+		longitudeStation = Math.random() * 100;
 
 	}
 
