@@ -2,6 +2,7 @@ package utilityclasses;
 
 public enum ServerConfig {
 	
+	HTTP_LOCALHOST("http://localhost:8000"),
 	Norte_LOCALHOST("tcp://localhost:8100"),
 	Oeste_LARSID_3("tcp://localhost:8100"),
 	Leste_LARSID_4("tcp://localhost:8100"),

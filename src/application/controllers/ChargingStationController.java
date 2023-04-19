@@ -1,4 +1,5 @@
 package application.controllers;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
@@ -31,24 +32,17 @@ public class ChargingStationController {
 	
 	}
 
-	@GetMapping("/ping")
-	public HttpEntity<String> getPingServer() {
-
-		return ResponseEntity.ok("Conexao aceita");
-
-	}
-
 	@GetMapping("/shorterQueue")
 	public HttpEntity<String> getShorterQueueStation() {
 
-		return ChargingStationService.getShorterQueueStation().map(station -> ResponseEntity.ok(station.toString())).orElse(ResponseEntity.notFound().build());
+		return ChargingStationService.getShorterQueueStation().map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 
 	@GetMapping("/bestLocation/location?x={locationX}&y={locationY}")
 	public HttpEntity<String> getBestLocationStation(@RequestParam double locationX, @RequestParam double locationY) {
 
-		return ChargingStationService.getBestLocationStation(locationX, locationY).map(station -> ResponseEntity.ok(station.toString())).orElse(ResponseEntity.notFound().build());
+		return ChargingStationService.getBestLocationStation(locationX, locationY).map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 

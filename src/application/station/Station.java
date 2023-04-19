@@ -144,8 +144,8 @@ public class Station {
 		generatePosStation();
 
 		System.out.println("Digite o nome do posto:");
-		System.out.println();
 		String name = scanner.nextLine();
+		System.out.println();
 
 		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars,
 				idClientMqtt);

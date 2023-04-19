@@ -60,10 +60,8 @@ public class Http {
 	public static ResponseHttp sendHTTPRequestAndGetHttpResponse(RequestHttp requestHttp, String ip) throws IOException {
 
 		OkHttpClient client = new OkHttpClient();
-		String url = "http://" + ip + ":8000" + requestHttp.getPath();
-		Request request = new Request.Builder().url(url).method(requestHttp.getMethod(),
-				(requestHttp.getBody() == null ? null : RequestBody.create(requestHttp.getBody().getBytes("UTF-8"))))
-				.headers(Headers.of(requestHttp.getHeaders())).build();
+		String url = ip + requestHttp.getPath();
+		Request request = new Request.Builder().url(url).method(requestHttp.getMethod(),(requestHttp.getBody() == null ? null : RequestBody.create(requestHttp.getBody().getBytes("UTF-8")))).headers(Headers.of(requestHttp.getHeaders())).build();
 		Response response;
 		response = client.newCall(request).execute();
 		ResponseHttp responseHttp = formatHTTPResponse(response);
@@ -72,7 +70,7 @@ public class Http {
 
 	}
 
-	public static ResponseHttp formatHTTPResponse(Response responseHttp) {
+	public static ResponseHttp formatHTTPResponse(Response responseHttp) throws IOException {
 
 		Map<String, String> headersMap = new HashMap<String, String>();
 
@@ -83,9 +81,8 @@ public class Http {
 			headersMap.put(name, value);
 
 		}
-
-		ResponseHttp response = new ResponseHttp(HttpCodes.valueOf("HTTP_" + responseHttp.code()).getCodeHttp(),
-				headersMap, responseHttp.body().toString());
+		
+		ResponseHttp response = new ResponseHttp(HttpCodes.valueOf("HTTP_" + responseHttp.code()).getCodeHttp(),headersMap, responseHttp.body().string());
 
 		return response;
 

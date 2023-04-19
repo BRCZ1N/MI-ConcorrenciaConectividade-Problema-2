@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,12 @@ public class Car {
 	private volatile double longitudeUser;
 	private Scanner scanner = new Scanner(System.in);
 	private volatile String carArea;
+
+	public Car() {
+
+		this.executor = Executors.newScheduledThreadPool(3);
+
+	}
 
 	private void generateRandomInitialConditions() {
 
@@ -64,7 +71,8 @@ public class Car {
 
 	public void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
+				TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> generatePosUser(), 0, 5, TimeUnit.SECONDS);
 
@@ -72,11 +80,7 @@ public class Car {
 
 	public void reduceBatteryCar() {
 
-		while (true) {
-
-			batteryCar -= 1;
-
-		}
+		batteryCar -= 1;
 
 	}
 
@@ -87,123 +91,90 @@ public class Car {
 		latitudeUser = Math.random() * 100;
 		longitudeUser = Math.random() * 100;
 
-		while (true) {
+		double minLat = latitudeUser - (latitudeUser * variationPercentage);
+		double maxLat = latitudeUser + (latitudeUser * variationPercentage);
 
-			double minLat = latitudeUser - (latitudeUser * variationPercentage);
-			double maxLat = latitudeUser + (latitudeUser * variationPercentage);
+		double minLong = longitudeUser - (longitudeUser * variationPercentage);
+		double maxLong = longitudeUser + (longitudeUser * variationPercentage);
 
-			double minLong = longitudeUser - (longitudeUser * variationPercentage);
-			double maxLong = longitudeUser + (longitudeUser * variationPercentage);
-
-			latitudeUser = Math.random() * (maxLat - minLat) + minLat;
-			longitudeUser = Math.random() * (maxLong - minLong) + minLong;
-
-		}
+		latitudeUser = Math.random() * (maxLat - minLat) + minLat;
+		longitudeUser = Math.random() * (maxLong - minLong) + minLong;
 
 	}
 
 	public void listeningBatteryLevel() {
 
-		while (true) {
+		if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
 
-			if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
+			try {
 
-				try {
+				Map<String, String> header = new HashMap<String, String>();
+				header.put("Content-Lenght", "0");
+				System.out.println("===============================Alerta=================================");
+				System.out.println("=======================Nivel de bateria baixo=========================");
+				System.out.println("Nivel de bateria atual: " + batteryCar + "%");
+				System.out.println("================ Posto mais proximo da localizacao ===================");
+				ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",header, carArea);
+				JSONObject jsonObject = new JSONObject(response.getBody());
+				System.out.println("Nome do posto:" + jsonObject.getString("name"));
+				System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
+				System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
+				System.out.println("Quantidade de carros na fila:" + jsonObject.getString("totalAmountCars"));
 
-					Map<String, String> header = new HashMap<String, String>();
-					header.put("Content-Lenght", "0");
-					System.out.println();
-					System.out.println("================================ALERTA===============================");
-					System.out.println("=======================NÍVEL DE BATÉRIA BAIXO=========================");
-					System.out.println("NIVEL DE BATERIA ATUAL: " + batteryCar + "%");
-					System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ===================");
-					ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, carArea);
-					JSONObject jsonObject = new JSONObject(response.getBody());
-					System.out.println("Nome do posto:" + jsonObject.get("name"));
-					System.out.println("Latitude:" + jsonObject.get("addressX"));
-					System.out.println("Longitude:" + jsonObject.get("addressY"));
-					System.out.println("Quantidade de carros na fila:" + jsonObject.get("totalAmountCars"));
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 
 		}
 
 	}
 
-	/*
-	 * public void configIpApi() throws UnableToConnectException {
-	 * 
-	 * boolean unconnected = true;
-	 * 
-	 * while (unconnected) {
-	 * 
-	 * try {
-	 * 
-	 * System.out.println("Digite o IP da conexao:"); currentIpApi = scanner.next();
-	 * 
-	 * Map<String, String> header = new HashMap<String, String>();
-	 * header.put("Content-Lenght", "0"); Http.sendHTTPRequestAndGetHttpResponse(new
-	 * RequestHttp("GET", "/station/ping", "HTTP/1.1", header), currentIpApi);
-	 * unconnected = false;
-	 * 
-	 * } catch (IOException e) {
-	 * 
-	 * unconnected = true; throw new UnableToConnectException(currentIpApi);
-	 * 
-	 * }
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
-	private void testePingBruninho(String ip) throws IOException {
-		
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Content-Lenght", "0");
-		Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp("GET", "/station/ping", "HTTP/1.1", header), ip);
-		
-	}
-
 	private void configArea() throws IOException {
 		boolean configConnect = true;
+		
 		while (configConnect) {
+			
 			System.out.println("===================================================");
-			System.out.println("========= ESCOLHA A ZONA DO CARRO ==========");
+			System.out.println("============ Escolha a zona do carro ==============");
 			System.out.println("===================================================");
-			System.out.println("====== (1) - NORTE");
-			System.out.println("====== (2) - LESTE");
-			System.out.println("====== (3) - OESTE");
-			System.out.println("====== (4) - SUL");
+			System.out.println("====== (1) - Norte");
+			System.out.println("====== (2) - Leste");
+			System.out.println("====== (3) - Oeste");
+			System.out.println("====== (4) - Sul");
 			System.out.println("=========== Digite a opcao desejada ===============");
 			String opcao = scanner.next();
+			
 			switch (opcao) {
+			
 			case "1":
-				carArea = ServerConfig.Norte_LOCALHOST.getAddress();
+				
+				carArea = ServerConfig.HTTP_LOCALHOST.getAddress();
 				configConnect = false;
-				testePingBruninho(carArea);
 				break;
+				
 			case "2":
+				
 				carArea = ServerConfig.Leste_LARSID_4.getAddress();
 				configConnect = false;
-				testePingBruninho(carArea);
 				break;
+				
 			case "3":
+				
 				carArea = ServerConfig.Oeste_LARSID_3.getAddress();
 				configConnect = false;
-				testePingBruninho(carArea);
 				break;
+				
 			case "4":
+				
 				carArea = ServerConfig.Sul_LARSID_5.getAddress();
 				configConnect = false;
-				testePingBruninho(carArea);
 				break;
+				
 			default:
+				
 				System.out.println("Digite uma zona valida");
 				break;
+				
 			}
 		}
 	}
@@ -227,7 +198,8 @@ public class Car {
 
 			case "1":
 
-				System.out.println("O nivel de bateria atual é:" + batteryCar + "%");
+				System.out.println("O nivel de bateria atual:" + batteryCar + "%");
+				break;
 
 			case "2":
 
@@ -242,56 +214,75 @@ public class Car {
 //				System.out.println("====== (4) - Buscar melhor posto");
 				System.out.println("=========== Digite a opcao desejada ===============");
 				String opcaoMenuReq = scanner.next();
+				
 				Map<String, String> header = new HashMap<String, String>();
 				header.put("Content-Lenght", "0");
+				
 				ResponseHttp response;
 				JSONObject jsonObject;
 
 				switch (opcaoMenuReq) {
+				
 				case "1":
 
-					System.out.print("================ POSTO COM MENOR A FILA ==================");
 					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, carArea);
-					jsonObject = new JSONObject(response.getBody());
-					System.out.println("Nome do posto:" + jsonObject.get("name"));
-					System.out.println("Latitude:" + jsonObject.get("addressX"));
-					System.out.println("Longitude:" + jsonObject.get("addressY"));
-					System.out.println("Quantidade de carros na fila:" + jsonObject.get("totalAmountCars"));
+
+					if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
+
+						System.out.print("================ Posto com a menor fila ==================");
+						jsonObject = new JSONObject(response.getBody());
+						System.out.println("Nome do posto:" + jsonObject.getString("name"));
+						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
+						System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
+						System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+
+					} else {
+
+						System.out.println(response.toString());
+
+					}
 					break;
 
 				case "2":
 
-					System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ==================");
-					response = messageReturn("GET",
-							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
-							"HTTP/1.1", header, carArea);
-					jsonObject = new JSONObject(response.getBody());
-					System.out.println("Nome do posto:" + jsonObject.get("name"));
-					System.out.println("Latitude:" + jsonObject.get("addressX"));
-					System.out.println("Longitude:" + jsonObject.get("addressY"));
-					System.out.println("Quantidade de carros na fila:" + jsonObject.get("totalAmountCars"));
+					response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, carArea);
+
+					if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
+
+						System.out.println("================ Posto mais proximo da localização ==================");
+						jsonObject = new JSONObject(response.getBody());
+						System.out.println("Nome do posto:" + jsonObject.getString("name"));
+						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
+						System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
+						System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+
+					} else {
+
+						System.out.println(response.toString());
+
+					}
+
 					break;
 
 				case "3":
 
-					System.out.println("================ TODOS OS POSTOS DISPONIVEIS ==================");
 					response = messageReturn("GET", "/station/all", "HTTP/1.1", header, carArea);
 
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
 						JSONObject jsonBody = new JSONObject(response.getBody());
 						JSONArray jsonArray = jsonBody.getJSONArray("postos");
-						System.out.println("======================Postos=====================");
+						System.out.println("================ TODOS OS POSTOS DISPONIVEIS NA REGIÃO ==================");
 
 						if (!jsonArray.isEmpty()) {
 
 							for (int i = 0; i < jsonArray.length(); i++) {
 
 								jsonObject = jsonArray.getJSONObject(i);
-								System.out.println("Nome do posto:" + jsonObject.get("name"));
-								System.out.println("Latitude:" + jsonObject.get("addressX"));
-								System.out.println("Longitude:" + jsonObject.get("addressY"));
-								System.out.println("Quantidade de carros na fila:" + jsonObject.get("totalAmountCars"));
+								System.out.println("Nome do posto:" + jsonObject.getString("name"));
+								System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
+								System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
+								System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
 								System.out.println("===================================================");
 
 							}
@@ -300,7 +291,7 @@ public class Car {
 
 					} else {
 
-						System.out.println("Nao existe postos disponiveis");
+						System.out.println(response.toString());
 
 					}
 					break;
@@ -317,6 +308,7 @@ public class Car {
 			case "3":
 
 				connected = false;
+				break;
 
 			default:
 
@@ -329,11 +321,9 @@ public class Car {
 
 	}
 
-	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header,
-			String currentIpApi) throws IOException {
+	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header, String currentIpApi) throws IOException {
 
-		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
-				new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
+		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
 		return response;
 
 	}
