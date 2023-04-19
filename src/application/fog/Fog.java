@@ -18,7 +18,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
@@ -28,14 +27,12 @@ import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
 
 @SpringBootApplication
-@ComponentScan("application")
-@ComponentScan("services")
-@Configuration
 @EnableConfigurationProperties
+@ComponentScan("application.controllers")
+@ComponentScan("application.services")
 @Component
 public class Fog {
 
-	private ChargingStationController controller;
 	private ScheduledExecutorService executor;
 	private MqttClient clientMqtt = null;
 	private String idClientMqtt;
@@ -48,7 +45,6 @@ public class Fog {
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
 		this.idClientMqtt = "FOG-" + UUID.randomUUID().toString();
-		this.controller = new ChargingStationController(new ChargingStationService());
 
 	}
 
@@ -87,12 +83,11 @@ public class Fog {
 			}
 
 			@Override
-			public void messageArrived(String topic, MqttMessage message) throws Exception {
+			public void messageArrived(String topic, MqttMessage message) {
 					
 				String payload = new String(message.getPayload());
-				controller.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
-				System.out.println(controller.getChargingStationService().getAllStations().get().size());
-				System.out.println("Mensagem recebida: " + payload);
+//				System.out.println("Mensagem recebida: " + payload);
+				ChargingStationController.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
 
 			}
 
@@ -110,7 +105,7 @@ public class Fog {
 
 			try {
 
-				String message = new JSONObject(controller.getChargingStationService().getShorterQueueStation().get()).toString();
+				String message = new JSONObject(ChargingStationService.getShorterQueueStation().get()).toString();
 				mqttMessage.setPayload(message.getBytes("UTF-8"));
 				clientMqtt.publish(topic, mqttMessage);
 

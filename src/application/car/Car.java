@@ -117,9 +117,7 @@ public class Car {
 					System.out.println("=======================NÍVEL DE BATÉRIA BAIXO=========================");
 					System.out.println("NIVEL DE BATERIA ATUAL: " + batteryCar + "%");
 					System.out.println("================ POSTO MAIS PROXIMO DA LOCALIZAÇÃO ===================");
-					ResponseHttp response = messageReturn("GET",
-							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
-							"HTTP/1.1", header, carArea);
+					ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, carArea);
 					JSONObject jsonObject = new JSONObject(response.getBody());
 					System.out.println("Nome do posto:" + jsonObject.get("name"));
 					System.out.println("Latitude:" + jsonObject.get("addressX"));

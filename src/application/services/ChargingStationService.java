@@ -2,40 +2,38 @@ package application.services;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Component;
 import application.model.ChargingStationModel;
 
-@Service
+@Component
 public class ChargingStationService {
 
-	private Map<String, ChargingStationModel> stations;
+	private static Map<String, ChargingStationModel> stations;
 
 	public ChargingStationService() {
 
-		stations = new HashMap<String, ChargingStationModel>();
+		ChargingStationService.stations = new ConcurrentHashMap<String, ChargingStationModel>();
 
 	}
-
-	public Map<String, ChargingStationModel> getStations() {
+	
+	public static Map<String, ChargingStationModel> getStations() {
 		return stations;
 	}
 
-	public void setStations(Map<String, ChargingStationModel> stations) {
-		this.stations = stations;
+	public static void setStations(Map<String, ChargingStationModel> stations) {
+		ChargingStationService.stations = stations;
 	}
 
-	public void addStation(ChargingStationModel station) {
+	public static void addStation(ChargingStationModel station) {
 
 		stations.put(station.getId(), station);
 
 	}
 
-	public Optional<ChargingStationModel> getShorterQueueStation() {
+	public static Optional<ChargingStationModel> getShorterQueueStation() {
 
 		ChargingStationModel stationShorterQueue = null;
 
@@ -67,7 +65,7 @@ public class ChargingStationService {
 
 	}
 
-	public Optional<ChargingStationModel> getBestLocationStation(Double locationX, Double locationY) {
+	public static Optional<ChargingStationModel> getBestLocationStation(Double locationX, Double locationY) {
 
 		ChargingStationModel stationShorterQueue = null;
 		double currentDistance = 0;
@@ -107,7 +105,7 @@ public class ChargingStationService {
 
 	}
 
-	public Optional<ArrayList<ChargingStationModel>> getAllStations() {
+	public static Optional<ArrayList<ChargingStationModel>> getAllStations() {
 
 		if (stations.isEmpty()) {
 
@@ -121,7 +119,7 @@ public class ChargingStationService {
 
 	}
 
-	public void editStation(ChargingStationModel station) {
+	public static void editStation(ChargingStationModel station) {
 
 		if (stations.containsKey(station.getId())) {
 
@@ -131,7 +129,7 @@ public class ChargingStationService {
 
 	}
 
-	public void removeStation(String id) {
+	public static void removeStation(String id) {
 
 		if (stations.containsKey(id)) {
 
@@ -141,8 +139,7 @@ public class ChargingStationService {
 
 	}
 
-	public double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,
-			Double currentStationLocationY) {
+	public static double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,Double currentStationLocationY) {
 
 		double distance = Point2D.distance(locationX, locationY, currentStationLocationX, currentStationLocationY);
 
