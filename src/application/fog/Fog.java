@@ -14,13 +14,13 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
 import application.services.ChargingStationService;
 import utilityclasses.MqttGeneralTopics;
@@ -29,25 +29,26 @@ import utilityclasses.ServerConfig;
 
 @SpringBootApplication
 @ComponentScan("application")
+@ComponentScan("services")
 @Configuration
 @EnableConfigurationProperties
 @Component
 public class Fog {
 
-	@Autowired
-	private ChargingStationService service;
+	private ChargingStationController controller;
 	private ScheduledExecutorService executor;
-	private MqttClient clientMqtt;
+	private MqttClient clientMqtt = null;
 	private String idClientMqtt;
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 
 	public Fog() {
 
-		this.executor = Executors.newScheduledThreadPool(1);
+		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
 		this.idClientMqtt = "FOG-" + UUID.randomUUID().toString();
+		this.controller = new ChargingStationController(new ChargingStationService());
 
 	}
 
@@ -61,15 +62,20 @@ public class Fog {
 
 	private void execFog(String addressBroker) throws IOException, InterruptedException {
 
-		configureAndExecClientMqtt(addressBroker, idClientMqtt, mqttOptions);
 		generateThreads();
-		generateCallBackMqttClient();
+
+	}
+
+	public void inscribeTopics() throws MqttException {
+
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#");
 
 	}
 
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic()+ idClientMqtt), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
 
 	}
 
@@ -82,10 +88,11 @@ public class Fog {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-
+					
 				String payload = new String(message.getPayload());
+				controller.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
+				System.out.println(controller.getChargingStationService().getAllStations().get().size());
 				System.out.println("Mensagem recebida: " + payload);
-				service.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
 
 			}
 
@@ -99,11 +106,11 @@ public class Fog {
 
 	public void publishMessageMqtt(String topic) {
 
-		if(clientMqtt != null && clientMqtt.isConnected()) {
+		if (clientMqtt != null && clientMqtt.isConnected()) {
 
 			try {
 
-				String message = new JSONObject(service.getShorterQueueStation().get()).toString();
+				String message = new JSONObject(controller.getChargingStationService().getShorterQueueStation().get()).toString();
 				mqttMessage.setPayload(message.getBytes("UTF-8"));
 				clientMqtt.publish(topic, mqttMessage);
 
@@ -141,19 +148,22 @@ public class Fog {
 
 	}
 
-	public void configureAndExecClientMqtt(String broker, String nameFog, MqttConnectOptions mqttOptions) {
+	public void configureAndExecClientMqtt(String broker, String idFog, MqttConnectOptions mqttOptions) {
 
-
-		if(clientMqtt == null || !clientMqtt.isConnected()) {
+		if (clientMqtt == null || !clientMqtt.isConnected()) {
 
 			try {
 
-				clientMqtt = new MqttClient(broker, nameFog, new MemoryPersistence());
+				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
+				inscribeTopics();
+				generateCallBackMqttClient();
 
 			} catch (MqttException e) {
 
+				System.out.println("=====================");
 				System.out.println("Broker nao encontrado");
+				System.out.println("=====================");
 
 			}
 		}

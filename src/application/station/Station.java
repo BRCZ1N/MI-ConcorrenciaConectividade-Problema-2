@@ -28,7 +28,7 @@ public class Station {
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 	private ChargingStationModel currentStatusStation;
-	private MqttClient clientMqtt;
+	private MqttClient clientMqtt = null;
 	private Scanner scanner = new Scanner(System.in);
 	private String message;
 	private String idClientMqtt;
@@ -119,7 +119,7 @@ public class Station {
 	}
 
 	public void configureAndExecClientMqtt(String broker, String nameStation, MqttConnectOptions mqttOptions) {
-		
+	
 		if (clientMqtt == null || !clientMqtt.isConnected()) {
 			
 			try {

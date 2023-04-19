@@ -10,7 +10,7 @@ public class ChargingStationModel {
 	private Double longitude;
 	private int totalAmountCars;
 	private String id;
-
+	
 	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id) {
 
 		this.name = name;
@@ -82,12 +82,12 @@ public class ChargingStationModel {
 		JSONObject json = new JSONObject(stationJson);
 		
 		String name = json.getString("name");
-		Double addressX = json.getDouble("addressX");
-		Double addressY = json.getDouble("addressY");
+		Double latitude = json.getDouble("latitude");
+		Double longitude = json.getDouble("longitude");
 		int totalAmountCars = json.getInt("totalAmountCars");
 		String id = json.getString("id");
 
-		ChargingStationModel station = new ChargingStationModel(name, addressX, addressY, totalAmountCars, id);
+		ChargingStationModel station = new ChargingStationModel(name, latitude, longitude, totalAmountCars, id);
 		return station;
 		
 	}

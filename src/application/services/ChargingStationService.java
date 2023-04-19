@@ -14,18 +14,23 @@ import application.model.ChargingStationModel;
 public class ChargingStationService {
 
 	private Map<String, ChargingStationModel> stations;
-	private Long currentId = 0L;
 
 	public ChargingStationService() {
 
-		stations = new HashMap<>();
+		stations = new HashMap<String, ChargingStationModel>();
 
+	}
+
+	public Map<String, ChargingStationModel> getStations() {
+		return stations;
+	}
+
+	public void setStations(Map<String, ChargingStationModel> stations) {
+		this.stations = stations;
 	}
 
 	public void addStation(ChargingStationModel station) {
 
-		station.setId(Long.toString(currentId));
-		currentId++;
 		stations.put(station.getId(), station);
 
 	}
@@ -135,22 +140,6 @@ public class ChargingStationService {
 		}
 
 	}
-
-//	public boolean authenticateStation(String id, String password) {
-//
-//		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
-//
-//			if (station.getValue().getId().equals(id) && station.getValue().getPassword().equals(password)) {
-//
-//				return true;
-//
-//			}
-//
-//		}
-//
-//		return false;
-//
-//	}
 
 	public double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,
 			Double currentStationLocationY) {
