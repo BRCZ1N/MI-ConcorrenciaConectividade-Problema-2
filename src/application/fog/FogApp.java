@@ -31,7 +31,7 @@ import utilityclasses.ServerConfig;
 @ComponentScan("application.controllers")
 @ComponentScan("application.services")
 @Component
-public class Fog {
+public class FogApp {
 
 	private ScheduledExecutorService executor;
 	private MqttClient clientMqtt = null;
@@ -39,7 +39,7 @@ public class Fog {
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 
-	public Fog() {
+	public FogApp() {
 
 		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
@@ -50,9 +50,9 @@ public class Fog {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 
-		SpringApplication.run(Fog.class, args);
-		Fog gateway = new Fog();
-		gateway.execFog(ServerConfig.Norte_LOCALHOST.getAddress());
+		SpringApplication.run(FogApp.class, args);
+		FogApp gateway = new FogApp();
+		gateway.execFog(ServerConfig.lARSID_2.getAddress());
 
 	}
 
@@ -69,8 +69,8 @@ public class Fog {
 	}
 
 	private void generateThreads() {
-
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
+		
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.lARSID_2.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
 
 	}
@@ -86,7 +86,6 @@ public class Fog {
 			public void messageArrived(String topic, MqttMessage message) {
 					
 				String payload = new String(message.getPayload());
-//				System.out.println("Mensagem recebida: " + payload);
 				ChargingStationController.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
 
 			}

@@ -2,7 +2,7 @@ package utilityclasses;
 
 public enum MqttGeneralTopics {
 
-	MQTT_STATION("station/"), MQTT_FOG("fog/");
+	MQTT_STATION("station/"), MQTT_FOG("fog/"), MQTT_CLOUD("cloud/");
 
 	public String topic;
 

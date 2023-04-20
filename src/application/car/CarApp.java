@@ -20,7 +20,7 @@ import utilityclasses.RequestHttp;
 import utilityclasses.ResponseHttp;
 import utilityclasses.ServerConfig;
 
-public class Car {
+public class CarApp {
 
 	private volatile int batteryCar;
 	private ScheduledExecutorService executor;
@@ -31,7 +31,7 @@ public class Car {
 	private Scanner scanner = new Scanner(System.in);
 	private volatile String carArea;
 
-	public Car() {
+	public CarApp() {
 
 		this.executor = Executors.newScheduledThreadPool(3);
 
@@ -71,8 +71,7 @@ public class Car {
 
 	public void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
-				TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> generatePosUser(), 0, 5, TimeUnit.SECONDS);
 
@@ -154,19 +153,19 @@ public class Car {
 				
 			case "2":
 				
-				carArea = ServerConfig.Leste_LARSID_4.getAddress();
+				carArea = ServerConfig.LARSID_4.getAddress();
 				configConnect = false;
 				break;
 				
 			case "3":
 				
-				carArea = ServerConfig.Oeste_LARSID_3.getAddress();
+				carArea = ServerConfig.LARSID_3.getAddress();
 				configConnect = false;
 				break;
 				
 			case "4":
 				
-				carArea = ServerConfig.Sul_LARSID_5.getAddress();
+				carArea = ServerConfig.LARSID_5.getAddress();
 				configConnect = false;
 				break;
 				
@@ -330,7 +329,7 @@ public class Car {
 
 	public static void main(String[] args) throws IOException, UnableToConnectException {
 
-		Car car = new Car();
+		CarApp car = new CarApp();
 		car.execCar();
 
 	}
