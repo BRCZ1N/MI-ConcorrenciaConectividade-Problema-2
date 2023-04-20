@@ -33,17 +33,7 @@ public class Station {
 	private String message;
 	private String idClientMqtt;
 
-	/**
-	 * Metodo principal da classe UserEnergyGaugeThread, esta classe ira fazer a
-	 * conexão do medidor com o sistema e permitira a passagem das medições para o
-	 * servidor por meio das threads
-	 *
-	 * @param args - argumentos de linha de comando (não utilizados)
-	 * @throws InterruptedException se a thread for interrompida enquanto estiver
-	 *                              dormindo
-	 * @throws IOException          se ocorrer um erro de entrada/saída
-	 */
-
+	
 	public Station() {
 
 		this.executor = Executors.newScheduledThreadPool(2);
@@ -59,21 +49,30 @@ public class Station {
 		station.execStation();
 
 	}
-
+	/**
+	 * Método responsável por iniciar a execução da estação, realizando as configurações iniciais e gerando as threads para
+	 * execução do cliente MQTT e publicação de mensagens MQTT.
+	 */
 	public void execStation() {
 
 		initialConfigurationStation();
 		generateThreads();
 
 	}
-
+	/**
+	 * Método responsável por gerar as threads de execução para o cliente MQTT e publicação de mensagens MQTT.
+	 */
 	private void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.Norte_LOCALHOST.getAddress(),currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
-
+	/**
+	 * Método responsável por publicar uma mensagem MQTT com as informações do status atual da estação em um tópico MQTT.
+	 * 
+	 * @param topic o tópico MQTT em que a mensagem será publicada
+	 */
 	public void publishMessageMqtt(String topic) {
 
 		if (clientMqtt != null && clientMqtt.isConnected()) {
@@ -99,7 +98,14 @@ public class Station {
 		}
 
 	}
+	/**
 
+	Método responsável por configurar a mensagem MQTT com o QoS especificado.
+
+	@param qos o QoS a ser configurado na mensagem
+
+	@return a mensagem MQTT configurada
+	*/
 	public MqttMessage configureMessageMqtt(int qos) {
 
 		MqttMessage mqttMessage = new MqttMessage();
@@ -117,7 +123,12 @@ public class Station {
 		return options;
 
 	}
+	/**
 
+	Método responsável por configurar as opções de conexão e conectar o MQTT.
+
+	@return as opções de conexão MQTT configuradas
+	*/	
 	public void configureAndExecClientMqtt(String broker, String nameStation, MqttConnectOptions mqttOptions) {
 	
 		if (clientMqtt == null || !clientMqtt.isConnected()) {
@@ -138,7 +149,10 @@ public class Station {
 		}
 
 	}
+	/**
 
+	Método responsável por configurar a estação de carregamento no momento de sua inicialização.
+	*/
 	public void initialConfigurationStation() {
 
 		generatePosStation();
@@ -160,7 +174,9 @@ public class Station {
 		System.out.println("=====================================================");
 
 	}
-
+	/**
+	 * responsável por gerar a posição aleatória de uma estação de carregamento de veículos elétricos 
+	*/
 	public void generatePosStation() {
 
 		latitudeStation = Math.random() * 100;

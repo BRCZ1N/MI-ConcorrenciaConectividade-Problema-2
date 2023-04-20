@@ -36,7 +36,14 @@ public class RequestHttp {
 		this.headers = headers;
 		this.body = body;
 	}
-	
+	/**
+
+	Construtor da classe.
+	@param method o método HTTP da requisição
+	@param path o caminho do recurso solicitado
+	@param versionHttp a versão do protocolo HTTP
+	@param headers um mapa com os cabeçalhos da requisição
+	*/	
 	public RequestHttp(String method, String path, String versionHttp, Map<String, String> headers) {
 
 		this.method = method;
@@ -45,43 +52,84 @@ public class RequestHttp {
 		this.headers = headers;
 	
 	}
+	/**
 
+	Retorna o método HTTP da requisição.
+	@return o método HTTP da requisição
+	*/
 	public String getMethod() {
 		return method;
 	}
+	/**
 
+	Define o método HTTP da requisição.
+	@param method o método HTTP da requisição
+	*/
 	public void setMethod(String method) {
 		this.method = method;
 	}
+	/**
 
+	Retorna o caminho do recurso solicitado.
+	@return o caminho do recurso solicitado
+	*/
 	public String getPath() {
 		return path;
 	}
+	/**
 
+	Define o caminho do recurso solicitado.
+	@param path o caminho do recurso solicitado
+	*/
 	public void setPath(String path) {
 		this.path = path;
 	}
+	/**
 
+	Retorna a versão do protocolo HTTP.
+	@return a versão do protocolo HTTP
+	*/
 	public String getVersionHttp() {
 		return versionHttp;
 	}
+	/**
 
+	Define a versão do protocolo HTTP.
+	@param versionHttp a versão do protocolo HTTP
+	*/
 	public void setVersionHttp(String versionHttp) {
 		this.versionHttp = versionHttp;
 	}
+	/**
 
+	Retorna um mapa com os cabeçalhos da requisição.
+	@return um mapa com os cabeçalhos da requisição
+	*/
 	public Map<String, String> getHeaders() {
 		return headers;
 	}
+	/**
 
+	Define os cabeçalhos da requisição.
+	@param headers um mapa com os cabeçalhos da requisição
+	*/
 	public void setHeaders(Map<String, String> headers) {
 		this.headers = headers;
 	}
+	/**
+
+	Retorna o corpo da requisição.
+	@return o corpo da requisição
+	*/
 
 	public String getBody() {
 		return body;
 	}
+	/**
 
+	Define o corpo da requisição.
+	@param body o corpo da requisição
+	*/
 	public void setBody(String body) {
 		this.body = body;
 	}

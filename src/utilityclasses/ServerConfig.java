@@ -9,16 +9,27 @@ public enum ServerConfig {
 	Sul_LARSID_5("tcp://localhost:8100");
 	
 	private String address;
-
+	 /**
+     * Construtor do enum ServerConfig.
+     * @param address o endereço do servidor
+     */
 	private ServerConfig(String address) {
 		
 		this.address = address;
 	}
 
+    /**
+     * Retorna o endereço do servidor.
+     * @return o endereço do servidor
+     */
 	public String getAddress() {
 		return address;
 	}
 
+    /**
+     * Define o endereço do servidor.
+     * @param address o endereço do servidor
+     */
 	public void setAddress(String address) {
 		this.address = address;
 	}

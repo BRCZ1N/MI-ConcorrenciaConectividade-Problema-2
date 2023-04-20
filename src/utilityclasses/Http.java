@@ -13,7 +13,13 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Http {
-
+	/**
+	 * Lê uma requisição HTTP a partir de um InputStream e retorna um objeto RequestHttp contendo os dados da requisição.
+	 * 
+	 * @param input InputStream contendo a requisição HTTP
+	 * @return um objeto RequestHttp contendo os dados da requisição, ou null se não houver dados na InputStream
+	 * @throws IOException se ocorrer um erro ao ler a InputStream
+	 */
 	public static RequestHttp readRequest(InputStream input) throws IOException {
 
 		BufferedInputStream buffer = new BufferedInputStream(input);
@@ -56,7 +62,14 @@ public class Http {
 		return new RequestHttp(method, path, httpVersion, mapHeaders);
 
 	}
-
+	/**
+	 * Envia uma requisição HTTP e retorna a resposta HTTP correspondente em um objeto ResponseHttp.
+	 * 
+	 * @param requestHttp objeto RequestHttp contendo os dados da requisição
+	 * @param ip o endereço IP ou URL do servidor para o qual a requisição será enviada
+	 * @return um objeto ResponseHttp contendo a resposta HTTP, ou null se ocorrer um erro ao enviar a requisição ou receber a resposta
+	 * @throws IOException se ocorrer um erro ao enviar a requisição ou receber a resposta
+	 */
 	public static ResponseHttp sendHTTPRequestAndGetHttpResponse(RequestHttp requestHttp, String ip) throws IOException {
 
 		OkHttpClient client = new OkHttpClient();
@@ -69,7 +82,13 @@ public class Http {
 		return responseHttp;
 
 	}
-
+	/**
+	 * Formata uma resposta HTTP em um objeto ResponseHttp contendo os dados da resposta.
+	 * 
+	 * @param responseHttp a resposta HTTP a ser formatada
+	 * @return um objeto ResponseHttp contendo os dados da resposta formatada
+	 * @throws IOException se ocorrer]
+	 */
 	public static ResponseHttp formatHTTPResponse(Response responseHttp) throws IOException {
 
 		Map<String, String> headersMap = new HashMap<String, String>();
