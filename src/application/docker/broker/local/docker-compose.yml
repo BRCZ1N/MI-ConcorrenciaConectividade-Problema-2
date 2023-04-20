@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mosquitto-global:
+    image: eclipse-mosquitto
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto_data:/mosquitto/data
+      - ./mosquitto_log:/mosquitto/log
+
+
+

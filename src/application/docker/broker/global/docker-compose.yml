@@ -1,9 +1,9 @@
 version: '3'
 services:
-  mosquitto:
+  mosquitto-local:
     image: eclipse-mosquitto
     ports:
-      - "8100:8100"
+      - "8200:8200"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto_data:/mosquitto/data
