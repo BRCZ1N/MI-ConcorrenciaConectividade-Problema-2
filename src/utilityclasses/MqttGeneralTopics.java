@@ -3,16 +3,8 @@ package utilityclasses;
 
 public enum MqttGeneralTopics {
 
-	/**
-	 * 
-	 * Tópico utilizado para comunicação com as estações IoT.
-	 */
-	MQTT_STATION("station/"),
-	/**
-	 * 
-	 * Tópico utilizado para comunicação com os nós FOG.
-	 */
-	MQTT_FOG("fog/");
+	MQTT_STATION("station/"), MQTT_FOG("fog/"), MQTT_CLOUD("cloud/");
+
 
 	/**
 	 * 
