@@ -28,6 +28,10 @@ public class CloudApp {
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 
+	/**
+	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
+	 * mqttOptions e idClientMqtt.
+	 */
 	public CloudApp() {
 
 			this.executor = Executors.newScheduledThreadPool(2);
@@ -36,33 +40,62 @@ public class CloudApp {
 			this.idClientMqtt = "CLOUD-" + UUID.randomUUID().toString();
 
 		}
-
+	/**
+	 * Método principal da aplicação. Executa a aplicação Spring e o gateway de
+	 * comunicação.
+	 *
+	 * @param args argumentos de entrada do programa
+	 * @throws IOException          em caso de erro de entrada e saída
+	 * @throws InterruptedException se a thread for interrompida
+	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		CloudApp cloud = new CloudApp();
 		cloud.execCloud(ServerConfig.lARSID_2.getAddress());
 
 	}
+	/**
+	 * Método responsável por executar o gateway de comunicação.
+	 *
+	 * @param addressBroker o endereço do broker MQTT
+	 * @throws IOException          em caso de erro de entrada e saída
+	 * @throws InterruptedException se a thread for interrompida
+	 */
 
 	private void execCloud(String addressBroker) throws IOException, InterruptedException {
 
 		generateThreads();
 
 	}
-
+	/**
+	 * 
+	 * Inscreve o cliente MQTT em um tópico específico do broker MQTT para receber
+	 * mensagens.
+	 * 
+	 * @throws MqttException caso ocorra um erro na subscrição do cliente MQTT.
+	 */
 	public void inscribeTopics() throws MqttException {
 
 		clientMqtt.subscribe(MqttGeneralTopics.MQTT_FOG.getTopic() + "#");
 
 	}
 
+	/**
+	 * 
+	 * Gera as threads que irão configurar e executar o cliente MQTT e publicar
+	 * mensagens em tópicos específicos.
+	 */
 	private void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_3.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt), 0, 5, TimeUnit.SECONDS);
 
 	}
-
+	/**
+	 * 
+	 * Gera o callback do cliente MQTT, que será chamado quando uma mensagem for
+	 * recebida.
+	 */
 	public void generateCallBackMqttClient() {
 
 		clientMqtt.setCallback(new MqttCallback() {
@@ -85,7 +118,12 @@ public class CloudApp {
 		});
 
 	}
-
+	/**
+	 * 
+	 * Publica uma mensagem MQTT em um tópico específico do broker MQTT.
+	 * 
+	 * @param topico o tópico MQTT onde a mensagem será publicada.
+	 */
 	public void publishMessageMqtt(String topic) {
 
 		if (clientMqtt != null && clientMqtt.isConnected() && !FogService.getAllStations().isEmpty()) {
@@ -111,7 +149,14 @@ public class CloudApp {
 		}
 
 	}
-
+	/**
+	 * 
+	 * Configura a mensagem MQTT com o nível de qualidade de serviço especificado.
+	 * 
+	 * @param qos o nível de qualidade de serviço da mensagem MQTT
+	 * 
+	 * @return a mensagem MQTT configurada
+	 */
 	public MqttMessage configureMessageMqtt(int qos) {
 
 		MqttMessage mqttMessage = new MqttMessage();
@@ -120,7 +165,12 @@ public class CloudApp {
 		return mqttMessage;
 
 	}
-
+	/**
+	 * 
+	 * Configura as opções de conexão MQTT para limpar sessões anteriores.
+	 * 
+	 * @return as opções de conexão MQTT configuradas
+	 */
 	public MqttConnectOptions configureConnectionOptionsMqtt() {
 
 		MqttConnectOptions options = new MqttConnectOptions();
@@ -129,7 +179,20 @@ public class CloudApp {
 		return options;
 
 	}
-
+	/**
+	 * 
+	 * Configura e executa um cliente MQTT com o broker, o identificador do cliente
+	 * e as opções de conexão especificados,
+	 * 
+	 * inscrevendo-o em tópicos relevantes e configurando um callback para tratar
+	 * mensagens recebidas.
+	 * 
+	 * @param broker      o endereço do broker MQTT
+	 * 
+	 * @param idFog       o identificador do cliente MQTT
+	 * 
+	 * @param mqttOptions as opções de conexão MQTT a serem utilizadas
+	 */
 	public void configureAndExecClientMqtt(String broker, String idFog, MqttConnectOptions mqttOptions) {
 
 		if (clientMqtt == null || !clientMqtt.isConnected()) {
@@ -152,25 +215,10 @@ public class CloudApp {
 
 	}
 
-	/**
-	 * Esse é o método que executa o servidor desde as proprias threads do servidor
-	 * até as proprios sockets UDP e TCP
-	 *
-	 * @param portServerSocket   - Porta TCP para o servidor
-	 * @param portDatagramSocket - Porta UDP para o servidor
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
 
-	/**
-	 * Este é o metodo principal dessa aplicação que inicia a mesma. Ele recebe um
-	 * array de argumentos de linha de comando como entrada.
-	 *
-	 * @param args - O array de argumentos de linhas de comando.
-	 * @throws IOException          Erro de entrada e saida
-	 * @throws InterruptedException
+	/*
+	 * Desconecta o cliente MQTT, encerrando a conexão com o broker.
 	 */
-
 	public void desconnectMqtt() {
 
 		try {
