@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+   app-fog:
+      image: brcz1n/fog-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: fog-app
+      ports:
+         - "8100:8100/tcp"
+      network_mode: "host"
+      
+      
+

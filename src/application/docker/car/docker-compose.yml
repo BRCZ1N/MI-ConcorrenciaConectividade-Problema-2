@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+   app-car:
+      image: brcz1n/car-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: car-app
+      ports:
+         - "8000:8000/tcp"
+      network_mode: "host"
+      
+      
+
+
+      
+
+
+

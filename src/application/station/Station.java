@@ -77,10 +77,8 @@ public class Station {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(),
-				currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),
-				0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(),currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
 

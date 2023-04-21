@@ -52,7 +52,7 @@ public class CloudApp {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		CloudApp cloud = new CloudApp();
-		cloud.execCloud(ServerConfig.LARSID_3.getAddress());
+		cloud.execCloud();
 
 	}
 	/**
@@ -63,7 +63,7 @@ public class CloudApp {
 	 * @throws InterruptedException se a thread for interrompida
 	 */
 
-	private void execCloud(String addressBroker) throws IOException, InterruptedException {
+	private void execCloud() throws IOException, InterruptedException {
 
 		generateThreads();
 

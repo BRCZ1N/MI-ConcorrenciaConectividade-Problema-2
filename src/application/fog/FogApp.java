@@ -22,7 +22,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
+import application.model.FogModel;
 import application.services.ChargingStationService;
+import application.services.FogService;
 import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
@@ -65,7 +67,7 @@ public class FogApp {
 
 		SpringApplication.run(FogApp.class, args);
 		FogApp gateway = new FogApp();
-		gateway.execFog(ServerConfig.LARSID_2.getAddress());
+		gateway.execFog();
 
 	}
 
@@ -76,7 +78,7 @@ public class FogApp {
 	 * @throws IOException          em caso de erro de entrada e saída
 	 * @throws InterruptedException se a thread for interrompida
 	 */
-	private void execFog(String addressBroker) throws IOException, InterruptedException {
+	private void execFog() throws IOException, InterruptedException {
 
 		generateThreads();
 
@@ -110,11 +112,8 @@ public class FogApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(
-				() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,
-				TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,
-				5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
 
 	}
 
@@ -140,7 +139,7 @@ public class FogApp {
 
 				}else {
 					
-					
+					FogService.addFog(FogModel.JsonToFogModel(payload));
 					
 				}
 

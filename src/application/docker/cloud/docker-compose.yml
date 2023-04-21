@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+   app-cloud:
+      image: brcz1n/cloud-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: cloud-app
+      ports:
+         - "8000:8000/tcp"
+      network_mode: "host"
+      
+      
+
+
+

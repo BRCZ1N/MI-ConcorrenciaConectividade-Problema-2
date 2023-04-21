@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MI-ConcorrenciaConectividade-Problema-2</groupId>
 	<artifactId>MI-ConcorrenciaConectividade-Problema-2</artifactId>
@@ -32,7 +30,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>post</id>
+						<id>car</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
@@ -43,16 +41,16 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>post/Post</mainClass>
+									<mainClass>car/CarApp</mainClass>
 								</manifest>
 							</archive>
 							<outputDirectory>
-								${basedir}/src/application/docker/post</outputDirectory>
-							<finalName>Post</finalName>
+								${basedir}/src/application/docker/car</outputDirectory>
+							<finalName>Car</finalName>
 						</configuration>
 					</execution>
 					<execution>
-						<id>client</id>
+						<id>cloud</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
@@ -63,12 +61,32 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>client/Client</mainClass>
+									<mainClass>cloud/CloudApp</mainClass>
 								</manifest>
 							</archive>
 							<outputDirectory>
-								${basedir}/src/application/docker/client</outputDirectory>
-							<finalName>Client</finalName>
+								${basedir}/src/application/docker/cloud</outputDirectory>
+							<finalName>Cloud</finalName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>fog</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>fog/FogApp</mainClass>
+								</manifest>
+							</archive>
+							<outputDirectory>
+								${basedir}/src/application/docker/fog</outputDirectory>
+							<finalName>Fog</finalName>
 						</configuration>
 					</execution>
 				</executions>
