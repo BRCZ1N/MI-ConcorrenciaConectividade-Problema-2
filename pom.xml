@@ -32,6 +32,42 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<fork>true</fork>
+					<start-class>application.fog.CarApp</start-class>
+					<mainClass>${CarApp}</mainClass>
+					<outputDirectory>${basedir}/src/application/docker/car</outputDirectory>
+					<finalName>Car</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<fork>true</fork>
+					<start-class>application.fog.CloudApp</start-class>
+					<mainClass>${CloudApp}</mainClass>
+					<outputDirectory>${basedir}/src/application/docker/cloud</outputDirectory>
+					<finalName>Cloud</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
@@ -85,26 +121,6 @@
 							<outputDirectory>
 								${basedir}/src/application/docker/cloud</outputDirectory>
 							<finalName>Cloud</finalName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>fog</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-							<archive>
-								<manifest>
-									<mainClass>application/fog/FogApp</mainClass>
-								</manifest>
-							</archive>
-							<outputDirectory>
-								${basedir}/src/application/docker/fog</outputDirectory>
-							<finalName>Fog</finalName>
 						</configuration>
 					</execution>
 				</executions>
