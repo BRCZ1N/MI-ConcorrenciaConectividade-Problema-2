@@ -12,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 import application.model.FogModel;
@@ -79,6 +80,13 @@ public class CloudApp {
 		clientMqtt.subscribe(MqttGeneralTopics.MQTT_FOG.getTopic() + "#");
 
 	}
+	
+	public void publishTopics() throws MqttPersistenceException, MqttException {
+
+		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic(), new MqttMessage(new byte[0]));
+
+	}
+
 
 	/**
 	 * 
@@ -202,6 +210,7 @@ public class CloudApp {
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
 				inscribeTopics();
+				publishTopics();
 				generateCallBackMqttClient();
 
 			} catch (MqttException e) {
