@@ -6,7 +6,7 @@ services:
       stdin_open: true
       container_name: fog-app
       ports:
-         - "8100:8100/tcp"
+         - "8000:8000/tcp"
       network_mode: "host"
       
       

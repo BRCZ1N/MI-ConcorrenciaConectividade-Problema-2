@@ -41,7 +41,7 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>car/CarApp</mainClass>
+									<mainClass>application/car/CarApp</mainClass>
 								</manifest>
 							</archive>
 							<outputDirectory>
@@ -61,7 +61,7 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>cloud/CloudApp</mainClass>
+									<mainClass>application/cloud/CloudApp</mainClass>
 								</manifest>
 							</archive>
 							<outputDirectory>
@@ -81,7 +81,7 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>fog/FogApp</mainClass>
+									<mainClass>application/fog/FogApp</mainClass>
 								</manifest>
 							</archive>
 							<outputDirectory>
