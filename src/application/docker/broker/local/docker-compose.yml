@@ -1,6 +1,6 @@
 version: '3'
 services:
-  mosquitto-global:
+  mosquitto-local:
     image: eclipse-mosquitto
     ports:
       - "8100:8100"

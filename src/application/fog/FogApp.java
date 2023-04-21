@@ -12,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
@@ -68,10 +69,19 @@ public class FogApp {
 
 	}
 
+	public void publishTopics() throws MqttPersistenceException, MqttException {
+
+		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic(), new MqttMessage(new byte[0]));
+
+	}
+
 	private void generateThreads() {
-		
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.lARSID_2.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
+
+		executor.scheduleAtFixedRate(
+				() -> configureAndExecClientMqtt(ServerConfig.lARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,
+				TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,
+				5, TimeUnit.SECONDS);
 
 	}
 
@@ -84,9 +94,17 @@ public class FogApp {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
-					
+
 				String payload = new String(message.getPayload());
-				ChargingStationController.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
+				if (topic.contains("station/")) {
+
+					ChargingStationController.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
+
+				}else {
+					
+					
+					
+				}
 
 			}
 
@@ -151,6 +169,7 @@ public class FogApp {
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
 				inscribeTopics();
+				publishTopics();
 				generateCallBackMqttClient();
 
 			} catch (MqttException e) {

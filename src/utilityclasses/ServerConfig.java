@@ -5,7 +5,7 @@ public enum ServerConfig {
 	
 	HTTP_LOCALHOST("http://localhost:8000"),
 	lARSID_2("tcp://localhost:8100"),
-	LARSID_3("tcp://localhost:8100"),
+	LARSID_3("tcp://localhost:8200"),
 	LARSID_4("tcp://localhost:8100"),
 	LARSID_5("tcp://localhost:8100");
 	

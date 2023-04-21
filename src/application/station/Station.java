@@ -182,8 +182,7 @@ public class Station {
 		String name = scanner.nextLine();
 		System.out.println();
 
-		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars,
-				idClientMqtt);
+		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars, idClientMqtt);
 		System.out.println("=====================================================");
 		System.out.println("===============Status inicial do posto===============");
 		System.out.println("=====================================================");
