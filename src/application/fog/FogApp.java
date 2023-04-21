@@ -99,7 +99,7 @@ public class FogApp {
 	public void publishTopics() throws MqttPersistenceException, MqttException {
 
 		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic(), new MqttMessage(new byte[0]));
-
+		
 	}
 
 
