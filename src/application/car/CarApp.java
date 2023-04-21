@@ -31,12 +31,18 @@ public class CarApp {
 	private Scanner scanner = new Scanner(System.in);
 	private volatile String carArea;
 
+	/*
+	 * Starta as Threads de execução da interface do cliente 
+	 */
 	public CarApp() {
 
 		this.executor = Executors.newScheduledThreadPool(3);
 
 	}
 
+	/*
+	 * metodo que irá setar a Geração de um nivel de bateria e uma força de redução de bateria aleatoria  
+	 */
 	private void generateRandomInitialConditions() {
 
 		generateBatteryCar();
@@ -44,6 +50,9 @@ public class CarApp {
 
 	}
 
+	/*
+	 * gera uma força de redução de bateria aleatoria  
+	 */
 	private void generateCurrentDischargeLevel() {
 
 		BatteryConsumptionStatus[] batteryStatusEnum = BatteryConsumptionStatus.values();
@@ -52,6 +61,9 @@ public class CarApp {
 
 	}
 
+	/*
+	 * metodo que irá setar a Geração de um nivel de bateria aleatorio
+	 */
 	private void generateBatteryCar() {
 
 		BatteryLevel[] batteryLevelEnum = BatteryLevel.values();
@@ -59,7 +71,11 @@ public class CarApp {
 		batteryCar = batteryLevelEnum[randomArrayPos].getBatteryLevel();
 
 	}
-
+	/*
+	 * executa os metodos de funcionamento da classe, dentre threads, e as condições iniciais de funcionamento da interface
+	 * @throws IOException
+	 * @throws UnableToConnectException 
+	 */
 	private void execCar() throws IOException, UnableToConnectException {
 
 		generateRandomInitialConditions();
@@ -69,6 +85,10 @@ public class CarApp {
 
 	}
 
+	/**
+	 * 
+	 * Gera as threads que irão configurar e executar o cliente carro, dentre nivel de bateria, nivel de redução e posição relativa do automovel
+	 */
 	public void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
@@ -77,12 +97,19 @@ public class CarApp {
 
 	}
 
+	/**
+	 * 
+	 * metodo de redução do nivel de bateria 
+	 */
 	public void reduceBatteryCar() {
 
 		batteryCar -= 1;
 
 	}
-
+	/**
+	 * 
+	 * Metodo que ira dar a posição relativa do automovel, gerada de forma aleatoria 
+	 */
 	public void generatePosUser() {
 
 		double variationPercentage = 0.1;
@@ -100,7 +127,10 @@ public class CarApp {
 		longitudeUser = Math.random() * (maxLong - minLong) + minLong;
 
 	}
-
+	/**
+	 * 
+	 * Metodo que servira de alerta para o nivel de bateria critico 
+	 */
 	public void listeningBatteryLevel() {
 
 		if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
@@ -127,6 +157,10 @@ public class CarApp {
 		}
 
 	}
+	/**
+	 * 
+	 * Metodo que servira para definir a zona de acesso do cliente  
+	 */
 
 	private void configArea() throws IOException {
 		boolean configConnect = true;
@@ -177,7 +211,10 @@ public class CarApp {
 			}
 		}
 	}
-
+	/**
+	 * 
+	 * Metodo que tera as opções de requisição do cliente 
+	 */
 	private void menuClient() throws IOException {
 
 		while (connected) {
@@ -319,7 +356,10 @@ public class CarApp {
 		}
 
 	}
-
+	/**
+	 * 
+	 * Metodo que ira receber a mensagem de retorno da nevoa 
+	 */
 	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header, String currentIpApi) throws IOException {
 
 		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
