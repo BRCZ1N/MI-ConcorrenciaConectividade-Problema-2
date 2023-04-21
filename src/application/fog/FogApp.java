@@ -16,9 +16,11 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
@@ -31,6 +33,8 @@ import utilityclasses.ServerConfig;
 
 @SpringBootApplication
 @EnableConfigurationProperties
+@Configuration
+@EnableAutoConfiguration
 @ComponentScan("application.controllers")
 @ComponentScan("application.services")
 @Component
