@@ -65,7 +65,7 @@ public class FogApp {
 
 		SpringApplication.run(FogApp.class, args);
 		FogApp gateway = new FogApp();
-		gateway.execFog(ServerConfig.lARSID_2.getAddress());
+		gateway.execFog(ServerConfig.LARSID_2.getAddress());
 
 	}
 
@@ -111,7 +111,7 @@ public class FogApp {
 	private void generateThreads() {
 
 		executor.scheduleAtFixedRate(
-				() -> configureAndExecClientMqtt(ServerConfig.lARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,
+				() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,
 				TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,
 				5, TimeUnit.SECONDS);

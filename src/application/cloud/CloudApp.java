@@ -52,7 +52,7 @@ public class CloudApp {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		CloudApp cloud = new CloudApp();
-		cloud.execCloud(ServerConfig.lARSID_2.getAddress());
+		cloud.execCloud(ServerConfig.LARSID_3.getAddress());
 
 	}
 	/**
