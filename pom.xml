@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MI-ConcorrenciaConectividade-Problema-2</groupId>
 	<artifactId>MI-ConcorrenciaConectividade-Problema-2</artifactId>
@@ -16,54 +18,45 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<start-class>application.fog.FogApp</start-class>
-					<mainClass>${FogApp}</mainClass>
-					<outputDirectory>${basedir}/src/application/docker/fog</outputDirectory>
-					<finalName>Fog</finalName>
-				</configuration>
 				<executions>
 					<execution>
+						<id>car</id>
+						<configuration>
+							<fork>true</fork>
+							<start-class>application.car.CarApp</start-class>
+							<mainClass>${CarApp}</mainClass>
+							<outputDirectory>
+								${basedir}/src/application/docker/car</outputDirectory>
+							<finalName>Car</finalName>
+						</configuration>
 						<goals>
 							<goal>repackage</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<start-class>application.fog.CarApp</start-class>
-					<mainClass>${CarApp}</mainClass>
-					<outputDirectory>${basedir}/src/application/docker/car</outputDirectory>
-					<finalName>Car</finalName>
-				</configuration>
-				<executions>
 					<execution>
+						<id>cloud</id>
+						<configuration>
+							<fork>true</fork>
+							<start-class>application.cloud.CloudApp</start-class>
+							<mainClass>${CloudApp}</mainClass>
+							<outputDirectory>
+								${basedir}/src/application/docker/cloud</outputDirectory>
+							<finalName>Cloud</finalName>
+						</configuration>
 						<goals>
 							<goal>repackage</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<start-class>application.fog.CloudApp</start-class>
-					<mainClass>${CloudApp}</mainClass>
-					<outputDirectory>${basedir}/src/application/docker/cloud</outputDirectory>
-					<finalName>Cloud</finalName>
-				</configuration>
-				<executions>
 					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
+						<id>fog</id>
+						<configuration>
+							<fork>true</fork>
+							<start-class>application.fog.FogApp</start-class>
+							<mainClass>${FogApp}</mainClass>
+							<outputDirectory>
+								${basedir}/src/application/docker/fog</outputDirectory>
+							<finalName>Fog</finalName>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
