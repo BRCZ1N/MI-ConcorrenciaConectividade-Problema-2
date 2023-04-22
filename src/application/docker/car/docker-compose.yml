@@ -5,7 +5,6 @@ services:
       tty: true
       stdin_open: true
       container_name: car-app
-      network_mode: "host"
       
       
 

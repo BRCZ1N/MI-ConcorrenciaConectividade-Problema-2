@@ -3,7 +3,7 @@ services:
    app-cloud:
       image: brcz1n/cloud-app-tec502
       container_name: cloud-app
-      network_mode: "host"
+
       
       
 
