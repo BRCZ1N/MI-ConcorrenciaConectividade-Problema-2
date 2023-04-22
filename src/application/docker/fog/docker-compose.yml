@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+   app-fog:
+      image: brcz1n/fog-app-tec502
+      container_name: fog-app-brcz1n
+      ports:
+         - "8000:8000/tcp"
+      network_mode: "host"
