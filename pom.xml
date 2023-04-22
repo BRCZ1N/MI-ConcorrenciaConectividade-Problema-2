@@ -14,40 +14,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>fog</id>
-						<configuration>
-							<fork>true</fork>
-							<start-class>application.fog.FogApp</start-class>
-							<mainClass>${FogApp}</mainClass>
-							<outputDirectory>
-								${basedir}/src/application/docker/fog</outputDirectory>
-							<finalName>Fog</finalName>
-						</configuration>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>clean-all</id>
-						<phase>pre-clean</phase>
-						<goals>
-							<goal>clean</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
@@ -102,6 +68,26 @@
 								${basedir}/src/application/docker/cloud</outputDirectory>
 							<finalName>Cloud</finalName>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>fog</id>
+						<configuration>
+							<fork>true</fork>
+							<start-class>application.fog.FogApp</start-class>
+							<mainClass>${FogApp}</mainClass>
+							<outputDirectory>
+								${basedir}/src/application/docker/fog</outputDirectory>
+							<finalName>Fog</finalName>
+						</configuration>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
