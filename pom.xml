@@ -35,6 +35,20 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>clean-all</id>
+						<phase>pre-clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
 				<dependencies>
@@ -49,13 +63,6 @@
 					<target>11</target>
 				</configuration>
 				<executions>
-					<execution>
-						<id>purge-local-repository-1</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>purge-local-repository</goal>
-						</goals>
-					</execution>
 					<execution>
 						<id>car</id>
 						<phase>package</phase>
@@ -77,13 +84,6 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>purge-local-repository-2</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>purge-local-repository</goal>
-						</goals>
-					</execution>
-					<execution>
 						<id>cloud</id>
 						<phase>package</phase>
 						<goals>
@@ -102,13 +102,6 @@
 								${basedir}/src/application/docker/cloud</outputDirectory>
 							<finalName>Cloud</finalName>
 						</configuration>
-					</execution>
-					<execution>
-						<id>purge-local-repository-3</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>purge-local-repository</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
