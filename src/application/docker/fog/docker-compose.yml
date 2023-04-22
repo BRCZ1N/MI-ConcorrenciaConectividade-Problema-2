@@ -4,5 +4,5 @@ services:
       image: brcz1n/fog-app-tec502
       container_name: fog-app-brcz1n
       ports:
-         - "8000:8000"
-      network_mode: "host"
+        - "8000:8000"
+   
