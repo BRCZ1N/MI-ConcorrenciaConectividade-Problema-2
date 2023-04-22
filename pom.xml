@@ -18,34 +18,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>car</id>
-						<configuration>
-							<fork>true</fork>
-							<start-class>application.car.CarApp</start-class>
-							<mainClass>${CarApp}</mainClass>
-							<outputDirectory>
-								${basedir}/src/application/docker/car</outputDirectory>
-							<finalName>Car</finalName>
-						</configuration>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>cloud</id>
-						<configuration>
-							<fork>true</fork>
-							<start-class>application.cloud.CloudApp</start-class>
-							<mainClass>${CloudApp}</mainClass>
-							<outputDirectory>
-								${basedir}/src/application/docker/cloud</outputDirectory>
-							<finalName>Cloud</finalName>
-						</configuration>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-					<execution>
 						<id>fog</id>
 						<configuration>
 							<fork>true</fork>
