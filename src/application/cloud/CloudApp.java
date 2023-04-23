@@ -35,12 +35,13 @@ public class CloudApp {
 	 */
 	public CloudApp() {
 
-			this.executor = Executors.newScheduledThreadPool(2);
-			this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
-			this.mqttOptions = configureConnectionOptionsMqtt();
-			this.idClientMqtt = "CLOUD-" + UUID.randomUUID().toString();
+		this.executor = Executors.newScheduledThreadPool(2);
+		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
+		this.mqttOptions = configureConnectionOptionsMqtt();
+		this.idClientMqtt = "CLOUD-" + UUID.randomUUID().toString();
 
-		}
+	}
+
 	/**
 	 * Método principal da aplicação. Executa a aplicação Spring e o gateway de
 	 * comunicação.
@@ -55,6 +56,7 @@ public class CloudApp {
 		cloud.execCloud();
 
 	}
+
 	/**
 	 * Método responsável por executar o gateway de comunicação.
 	 *
@@ -68,6 +70,7 @@ public class CloudApp {
 		generateThreads();
 
 	}
+
 	/**
 	 * 
 	 * Inscreve o cliente MQTT em um tópico específico do broker MQTT para receber
@@ -75,18 +78,20 @@ public class CloudApp {
 	 * 
 	 * @throws MqttException caso ocorra um erro na subscrição do cliente MQTT.
 	 */
-	public void inscribeTopics() throws MqttException {
+	
+	public void subscribeTopics() throws MqttException {
 
-		clientMqtt.subscribe(MqttGeneralTopics.MQTT_FOG.getTopic() + "#");
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_CLOUD.getTopic() + "#",MqttQoS.QoS_2.getQos());
 
 	}
 	
 	public void publishTopics() throws MqttPersistenceException, MqttException {
 
-		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic(), new MqttMessage(new byte[0]));
+		mqttMessage.setPayload(new byte[0]);
+		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic()+idClientMqtt, mqttMessage);
 		
 	}
-
+	
 
 	/**
 	 * 
@@ -95,10 +100,11 @@ public class CloudApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_3.getAddress(), idClientMqtt, mqttOptions),0, 10, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_3.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
+
 	/**
 	 * 
 	 * Gera o callback do cliente MQTT, que será chamado quando uma mensagem for
@@ -126,6 +132,7 @@ public class CloudApp {
 		});
 
 	}
+
 	/**
 	 * 
 	 * Publica uma mensagem MQTT em um tópico específico do broker MQTT.
@@ -134,29 +141,33 @@ public class CloudApp {
 	 */
 	public void publishMessageMqtt(String topic) {
 
-		if (clientMqtt != null && clientMqtt.isConnected() && !FogService.getAllStations().isEmpty()) {
+		if (clientMqtt != null && clientMqtt.isConnected()) {
 
-			try {
+			if (FogService.getAllStations().isPresent()) {
 
-				String message = new JSONObject(FogService.getAllStations().get()).toString();
-				mqttMessage.setPayload(message.getBytes("UTF-8"));
-				clientMqtt.publish(topic, mqttMessage);
+				try {
 
-			} catch (MqttException e) {
+					String message = new JSONObject(FogService.getAllStations().get()).toString();
+					mqttMessage.setPayload(message.getBytes("UTF-8"));
+					clientMqtt.publish(topic, mqttMessage);
 
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				} catch (MqttException e) {
 
-			} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
 
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+
+				}
 			}
 
 		}
 
 	}
+
 	/**
 	 * 
 	 * Configura a mensagem MQTT com o nível de qualidade de serviço especificado.
@@ -173,6 +184,7 @@ public class CloudApp {
 		return mqttMessage;
 
 	}
+
 	/**
 	 * 
 	 * Configura as opções de conexão MQTT para limpar sessões anteriores.
@@ -187,6 +199,7 @@ public class CloudApp {
 		return options;
 
 	}
+
 	/**
 	 * 
 	 * Configura e executa um cliente MQTT com o broker, o identificador do cliente
@@ -209,8 +222,8 @@ public class CloudApp {
 
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
-				inscribeTopics();
 				publishTopics();
+				subscribeTopics();
 				generateCallBackMqttClient();
 
 			} catch (MqttException e) {
@@ -223,7 +236,6 @@ public class CloudApp {
 		}
 
 	}
-
 
 	/*
 	 * Desconecta o cliente MQTT, encerrando a conexão com o broker.

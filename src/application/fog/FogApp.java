@@ -12,7 +12,6 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
@@ -49,13 +48,16 @@ public class FogApp {
 	/**
 	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
 	 * mqttOptions e idClientMqtt.
+	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	public FogApp() {
+	public FogApp() throws IOException, InterruptedException {
 
 		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
 		this.idClientMqtt = "FOG-" + UUID.randomUUID().toString();
+		execFog();
 
 	}
 
@@ -70,8 +72,6 @@ public class FogApp {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		SpringApplication.run(FogApp.class, args);
-		FogApp gateway = new FogApp();
-		gateway.execFog();
 
 	}
 
@@ -97,17 +97,10 @@ public class FogApp {
 	 */
 	public void inscribeTopics() throws MqttException {
 
-		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#");
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#",MqttQoS.QoS_2.getQos());
 
 	}
-
-
-	public void publishTopics() throws MqttPersistenceException, MqttException {
-
-		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic(), new MqttMessage(new byte[0]));
-		
-	}
-
+	
 
 	/**
 	 * 
@@ -167,24 +160,28 @@ public class FogApp {
 
 		if (clientMqtt != null && clientMqtt.isConnected()) {
 
-			try {
+			if(ChargingStationService.getShorterQueueStation().isPresent()) {
+				
+				try {
 
-				String message = new JSONObject(ChargingStationService.getShorterQueueStation().get()).toString();
-				mqttMessage.setPayload(message.getBytes("UTF-8"));
-				clientMqtt.publish(topic, mqttMessage);
+					String message = new JSONObject(ChargingStationService.getShorterQueueStation().get()).toString();
+					mqttMessage.setPayload(message.getBytes("UTF-8"));
+					clientMqtt.publish(topic, mqttMessage);
 
-			} catch (MqttException e) {
+				} catch (MqttException e) {
 
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 
-			} catch (UnsupportedEncodingException e) {
+				} catch (UnsupportedEncodingException e) {
 
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 
+				}
+				
 			}
-
+		
 		}
 
 	}
@@ -244,7 +241,6 @@ public class FogApp {
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
 				inscribeTopics();
-				publishTopics();
 				generateCallBackMqttClient();
 
 			} catch (MqttException e) {
