@@ -2,6 +2,7 @@ package application.cloud;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,6 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import application.model.ChargingStationModel;
@@ -29,6 +31,7 @@ public class CloudApp {
 	private String idClientMqtt;
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
+	private FogService fogService;
 
 	/**
 	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
@@ -40,6 +43,7 @@ public class CloudApp {
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
 		this.mqttOptions = configureConnectionOptionsMqtt();
 		this.idClientMqtt = "CLOUD-" + UUID.randomUUID().toString();
+		this.fogService = new FogService();
 
 	}
 
@@ -112,8 +116,8 @@ public class CloudApp {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
-
-				if (topic.contains("/fog")) {
+				
+				if (topic.contains("fog/")) {
 
 					String[] topicArray = topic.split("/");
 					String payload = new String(message.getPayload());
@@ -139,14 +143,14 @@ public class CloudApp {
 	 * @param topico o tópico MQTT onde a mensagem será publicada.
 	 */
 	public void publishMessageMqtt(String topic) {
-
+		
 		if (clientMqtt != null && clientMqtt.isConnected()) {
-
+			
 			if (FogService.getAllStations().isPresent()) {
 
 				try {
 
-					String message = new JSONObject(FogService.getAllStations().get()).toString();
+					String message = new JSONArray(FogService.getAllStations().get()).toString();
 					mqttMessage.setPayload(message.getBytes("UTF-8"));
 					clientMqtt.publish(topic, mqttMessage);
 
