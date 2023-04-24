@@ -98,6 +98,7 @@ public class FogApp {
 	public void inscribeTopics() throws MqttException {
 
 		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#",MqttQoS.QoS_2.getQos());
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_CLOUD.getTopic() + "#",MqttQoS.QoS_2.getQos());
 
 	}
 	

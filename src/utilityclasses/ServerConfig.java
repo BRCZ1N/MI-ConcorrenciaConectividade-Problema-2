@@ -3,11 +3,11 @@ package utilityclasses;
 public enum ServerConfig {
 	
 	
-	HTTP_LOCALHOST("http://192.168.0.151:8000"),
-	LARSID_2("tcp://192.168.0.151:8100"),
-	LARSID_3("tcp://192.168.0.151:8200"),
-	LARSID_4("tcp://192.168.0.151:8100"),
-	LARSID_5("tcp://192.168.0.151:8100");
+	HTTP_LOCALHOST("http://192.168.56.1:8000"),
+	LARSID_2("tcp://192.168.56.1:8100"),
+	LARSID_3("tcp://192.168.56.1:8200"),
+	LARSID_4("tcp://192.168.56.1:8100"),
+	LARSID_5("tcp://192.168.56.1:8100");
 	
 	private String address;
 	 /**

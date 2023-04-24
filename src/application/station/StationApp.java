@@ -17,7 +17,7 @@ import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
 
-public class Station {
+public class StationApp {
 
 	private Double latitudeStation;
 	private Double longitudeStation;
@@ -31,7 +31,7 @@ public class Station {
 	private String message;
 	private String idClientMqtt;
 
-	public Station() {
+	public StationApp() {
 
 		this.executor = Executors.newScheduledThreadPool(2);
 		this.mqttMessage = configureMessageMqtt(MqttQoS.QoS_2.getQos());
@@ -40,21 +40,15 @@ public class Station {
 
 	}
 
-	public void incrementAmountCar() {
+	public void queueRefresh() {
 		
-		amountCars += 1;
-		
-	}
-	
-	public void decrementAmountCar() {
-		
-		amountCars -= 1;
+		amountCars = (int) (Math.random()*30);
 		
 	}
 
 	public static void main(String[] args) {
 
-		Station station = new Station();
+		StationApp station = new StationApp();
 		station.execStation();
 
 	}
@@ -78,6 +72,7 @@ public class Station {
 	private void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(),currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> queueRefresh(), 0, 15, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
@@ -94,6 +89,7 @@ public class Station {
 
 			try {
 
+				currentStatusStation.setTotalAmountCars(amountCars);
 				message = new JSONObject(currentStatusStation).toString();
 				mqttMessage.setPayload(message.getBytes("UTF-8"));
 				clientMqtt.publish(topic, mqttMessage);

@@ -56,7 +56,7 @@ public class CarApp {
 	private void generateCurrentDischargeLevel() {
 
 		BatteryConsumptionStatus[] batteryStatusEnum = BatteryConsumptionStatus.values();
-		int randomArrayPos = (int) Math.random() * batteryStatusEnum.length;
+		int randomArrayPos = (int) (Math.random() * batteryStatusEnum.length);
 		currentDischargeLevel = batteryStatusEnum[randomArrayPos];
 
 	}
@@ -67,7 +67,7 @@ public class CarApp {
 	private void generateBatteryCar() {
 
 		BatteryLevel[] batteryLevelEnum = BatteryLevel.values();
-		int randomArrayPos = (int) Math.random() * batteryLevelEnum.length;
+		int randomArrayPos = (int) (Math.random() * batteryLevelEnum.length);
 		batteryCar = batteryLevelEnum[randomArrayPos].getBatteryLevel();
 
 	}

@@ -12,9 +12,10 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
+
+import application.model.ChargingStationModel;
 import application.model.FogModel;
 import application.services.FogService;
 import utilityclasses.MqttGeneralTopics;
@@ -78,20 +79,12 @@ public class CloudApp {
 	 * 
 	 * @throws MqttException caso ocorra um erro na subscrição do cliente MQTT.
 	 */
-	
+
 	public void subscribeTopics() throws MqttException {
 
-		clientMqtt.subscribe(MqttGeneralTopics.MQTT_CLOUD.getTopic() + "#",MqttQoS.QoS_2.getQos());
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_FOG.getTopic() + "#", MqttQoS.QoS_2.getQos());
 
 	}
-	
-	public void publishTopics() throws MqttPersistenceException, MqttException {
-
-		mqttMessage.setPayload(new byte[0]);
-		clientMqtt.publish(MqttGeneralTopics.MQTT_CLOUD.getTopic()+idClientMqtt, mqttMessage);
-		
-	}
-	
 
 	/**
 	 * 
@@ -120,8 +113,14 @@ public class CloudApp {
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
 
-				String payload = new String(message.getPayload());
-				FogService.addFog(FogModel.JsonToFogModel(payload));
+				if (topic.contains("/fog")) {
+
+					String[] topicArray = topic.split("/");
+					String payload = new String(message.getPayload());
+					FogModel fog = new FogModel(topicArray[1],ChargingStationModel.JsonToChargingStationModel(payload));
+					FogService.addFog(fog);
+
+				}
 
 			}
 
@@ -222,7 +221,6 @@ public class CloudApp {
 
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
-				publishTopics();
 				subscribeTopics();
 				generateCallBackMqttClient();
 
