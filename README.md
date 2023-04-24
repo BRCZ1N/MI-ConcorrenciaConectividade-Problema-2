@@ -35,64 +35,56 @@ O presente projeto foi desenvolvido a partir do uso da comunicação MQTT em uma
 <li>Mosquitto é um broker MQTT, ele fornece um serviço de mensagens que permite que os dispositivos se comuniquem entre si usando o protocolo MQTT.
 <li>MQTT (Message Queuing Telemetry Transport) é amplamente utilizado em aplicações de IoT para coletar e enviar dados de sensores, monitorar dispositivos remotos e controlar dispositivos conectados.
 <li>TCP (Transmission Control Protocol) é um protocolo de comunicação de rede que oferece uma transmissão confiável de dados entre dois dispositivos em uma rede, estabelecendo uma conexão antes da transferência de dados, além de verificar a entrega dos dados. 
- 
+<li> Nuvem tem como principal vantagem, a flexibilidade e escalabilidade que ela oferece, permitindo que as empresas aumentem ou reduzam seus recursos de computação de acordo com suas necessidades em tempo real. Esses recursos são gerenciados e mantidos por provedores de serviços em nuvem e são distribuídos em diferentes locais ao redor do mundo, permitindo que os usuários acessem e utilizem esses serviços a partir de qualquer dispositivo conectado à internet.
+<li> Nevoa, mais conhecido como computação de borda, refere-se a uma arquitetura de rede que processa e armazena dados localmente, perto dos dispositivos de origem ou dos usuários finais, em vez de enviá-los para processamento em servidores remotos em nuvem.
+<li> Bridge (ponte em português) é um dispositivo de rede que conecta dois ou mais segmentos de rede local (LAN) para permitir a comunicação entre eles.
 # Metodologia geral
 
-Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
+//Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
  
 Após a criação da aplicação servidor criou-se a aplicação medidor que conta com um datagram socket para gerar comunicação entre o medidor e o próprio servidor, nessa aplicação utilizou-se de threads para enviar o consumo a cada intervalo e para a simulação da medição em tempo real, além disso, na thread principal ficou a entrada de dados responsável por alterar o ritmo de consumo, a mesma possui uma interface simples que pede o identificador do cliente final e a senha do mesmo, além de exigir a autenticação para acessar as threads que auxiliam na geração de consumo mencionadas anteriormente.
  
 Com a criação da aplicação servidor e medidor, surge a necessidade da aplicação cliente que recorrerá aos dados da aplicação servidor, isto é, o cliente pode enviar solicitações ao servidor que serão processadas e serão retornadas ao cliente, então temos também uma nova necessidade de comunicação, neste caso é uma comunicação que exige confiabilidade, isto é, protocolo TCP, utilizando desse protocolo e de requisições o cliente envia pedidos para o servidor e aguarda as respostas com dados que ele pode utilizar em formato de resposta.
  
-Para auxiliar as necessidades do projeto foram criadas algumas componentes de serviços, isto é, entidades que armazenam dados temporários e/ou processam dados que serão transmitidos na rede.
+Para auxiliar as necessidades do projeto foram criadas algumas componentes de serviços, isto é, entidades que armazenam dados temporários e/ou processam dados que serão transmitidos na rede.// 
  
 # Solução para os requisitos principais 
 
 <h2>Requisitos principais do projeto</h2>
 
-   1. Interface para gerenciamento dos medidores;
-   2. Acompanhamento do consumo de energia;
-   3. Gerar e pegar fatura;
-   4. Alerta sobre consumo excessivo;
+   1. Interface para gerenciamento de postos disponiveis;
+   2. Acompanhamento do consumo de energia do automovel;
+<h2>1. Interface para gerenciamento de postos disponiveis.</h2>
    
-<h2>1. Interface para gerenciamento dos medidores.</h2>
-   
- &emsp;Para esse requisito foi desenvolvido uma interface simples que possui uma entrada para o identificador do usuário e a sua senha que serão enviados para a autenticação de usuário pelo servidor, produziu-se threads para a interface medidor onde uma delas incrementa o contador do medidor e a secundária envia dados ao servidor após um intervalo especificado, e no método ao qual essas threads são iniciadas tem-se a entrada de dados para alterar o ritmo de consumo do medidor.
-  
-<h2>2. Acompanhar consumo de energia.</h2>
+&emsp;Para esse requisito foi desenvolvido uma interface simples que possui uma entrada para a definição da região onde o carro esta presente, após isso um menu para as consultas do nivel de bateria e para os menus onde estão postos o metodos de busca de postos para recarga do carro, dos quais estão os postos com menor fila, postos mais proximos do veiculo e para buscar todos os postos na proximidade, assim uma requisição em formato JSON pode ser feita e enviada a nevoa. 
+<h2>2. Acompanhamento do consumo de energia do automovel.</h2>
 
-&emsp;Objetivando o acompanhamento do consumo de energia, essa funcionalidade foi desenvolvida para buscar os consumos do usuário armazenados na estrutura de dados dos serviços de consumo no servidor usando o identificador do usuário como chave e pegando os consumos associados a ele, unido-se a esses consumos, pega-se o consumo total do usuário e também o identificador do usuário, finalmente a partir desses atributos é possível gerar um JSON que represente os consumos do cliente que poderá ser repassado na resposta da requisição.
+&emsp;Objetivando o acompanhamento do consumo de energia, e assim avisar ao motorista quando o automovel estiver com a bateria em situação critica e necessite de abastecimento, este acompanhamento é feito por meio de uma variavel que recebe um valor aleatorio, do qual tem três fazes, dentre elas alta, media e baixa.
 
-<h2>3. Gerar fatura.</h2>
 
-&emsp;Para efetuar a geração de faturas prevalece a necessidade de pegar consumos que ainda não foram contabilizados em faturas anteriores, sendo assim no momento de geração da fatura pega-se a data de geração da última fatura e utiliza a mesma para contabilizar os consumos posteriores a ela, além desse aspecto ainda há a necessidade do nome de usuário, identificador do usuário, tarifa e o consumo atual do cliente, por fim a partir desses dados é possível gerar um JSON que poderá ser repassado na resposta da requisição da fatura para representar a entidade de fatura.
- 
-<h2>4. Alerta sobre consumo excessivo.</h2>
-
-&emsp;Para essa funcionalidade é necessário entender que para cada consumo gerado nos serviços de consumo é feito uma média dos consumos anteriores e incrementado a uma certo valor, se o valor do consumo que será adicionado atualmente for superior a essa média incrementada então o usuário é classificado como tendo um alto consumo, do contrário consumo normal, finalmente então atualizando o estado de consumo do usuário. Utilizando-se de toda essa lógica para atualização, tem-se que essa funcionalidade é disponível por uma instância de usuário da estrutura de dados relacionado a classe serviço de usuário, isto é, na resposta da requisição é repassado o estado de consumo relacionado a instância de um usuário e o seu identificador.
- 
  
 # Componentes do projeto
 
-<h2>- Servidor</h2>
-<p2> O servidor processa as requisições, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, além de exibi-las no terminal, ainda se considera a sua função de gerar threads para cada tipo de componente no servidor, isto é, seja medidor(UDP) ou usuário(TCP).</p2>
+<h2>- Servidor Nevoa</h2>
+<p2> O servidor processa as requisições, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, ainda se considera a sua função de gerar threads para cada tipo de componente no servidor, isto é, seja posto(MQTT) ou usuário(TCP).</p2>
+ <h2>- Servidor Nuvem</h2>
+<p2> O servidor processa as requisições, e faz o papel de roteamento das informações que foram geradas por todos os postos presentes nas nevoas e enviados para ele.</p2>
 
 <h2>- Interface do usuário</h2>
-<p2> O usuário se conecta ao servidor e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
+<p2> O usuário se conecta ao servidor da nevoa e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
  <ul>
-  <li>1. Visualizar historico de consumo </li>
-  <li>2. Gerar fatura </li>
-  <li>3. Visualizar fatura </li>
-  <li>4. Visualizar todas as faturas geradas</li>
-  <li>5. Status de consumo do usuário</li>
-  <li>6. Desconectar</li>
+  <li>1. Visualizar Nivel de carga de energia</li>
+  <li>2. Buscar posto com menor fila </li>
+  <li>3. Buscar posto mais proximo </li>
+  <li>4. Buscar todos os postos proximos</li>
+  <li>5. Desconectar</li>
 </ul>
 
-<h2>- Interface do medidor </h2>
-<p2> O medidor realiza o envio dos dados ao servidor de forma continua</p2>
+<h2>- Interface do posto </h2>
+<p2> O posto realiza o envio dos dados ao servidor  da nevoa de forma continua e randomica </p2>
  <ul>
-  <li>1. Envia as medições e os dados necessários para armazenar a medição no servidor são eles: o identificador do usuário, a data e hora da medição e o consumo do usuário</li>
-  <li>2. Altera o ritmo de consumo das medições</li>
+  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a medição no servidor são eles: quantidade na fila, sua identificação e sição relativa</li>
+  <li>2. Altera o a quantidade de carros na fila de forma randomica</li>
 </ul>
  
 # Utilização do projeto
