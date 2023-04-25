@@ -2,7 +2,6 @@ package utilityclasses;
 
 public enum ServerConfig {
 	
-	HTTP_FOG("http://192.168.56.1:8000"),
 	REGIONAL_BROKER("tcp://192.168.56.1:8100"),
 	GLOBAL_BROKER("tcp://172.16.103.3:8200");
 	
