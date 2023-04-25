@@ -1,16 +1,12 @@
 version: '3.5'
 services:
   mosquitto-local:
-    image: eclipse-mosquitto
+    image: brcz1n/eclipse-mqtt-local
     network_mode: bridge
     expose:
       - "8100"
     ports:
       - "8100:8100"
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto_data:/mosquitto/data
-      - ./mosquitto_log:/mosquitto/log
      
 
 
