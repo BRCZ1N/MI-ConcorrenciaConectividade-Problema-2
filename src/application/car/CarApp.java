@@ -50,7 +50,7 @@ public class CarApp {
 	}
 
 	/*
-	 * gera uma força de redução de bateria aleatoria
+	 * gera uma força de redução de bateria aleatoriaa
 	 */
 	private void generateCurrentDischargeLevel() {
 
