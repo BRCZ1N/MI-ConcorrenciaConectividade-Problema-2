@@ -7,13 +7,12 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import application.exceptions.UnableToConnectException;
 import utilityclasses.BatteryConsumptionStatus;
 import utilityclasses.BatteryLevel;
+import utilityclasses.ConfigLarsidIps;
 import utilityclasses.Http;
 import utilityclasses.HttpCodes;
 import utilityclasses.RequestHttp;
@@ -32,7 +31,7 @@ public class CarApp {
 	private volatile String carArea;
 
 	/*
-	 * Starta as Threads de execução da interface do cliente 
+	 * Starta as Threads de execução da interface do cliente
 	 */
 	public CarApp() {
 
@@ -41,7 +40,8 @@ public class CarApp {
 	}
 
 	/*
-	 * metodo que irá setar a Geração de um nivel de bateria e uma força de redução de bateria aleatoria  
+	 * metodo que irá setar a Geração de um nivel de bateria e uma força de redução
+	 * de bateria aleatoria
 	 */
 	private void generateRandomInitialConditions() {
 
@@ -51,7 +51,7 @@ public class CarApp {
 	}
 
 	/*
-	 * gera uma força de redução de bateria aleatoria  
+	 * gera uma força de redução de bateria aleatoria
 	 */
 	private void generateCurrentDischargeLevel() {
 
@@ -71,15 +71,19 @@ public class CarApp {
 		batteryCar = batteryLevelEnum[randomArrayPos].getBatteryLevel();
 
 	}
+
 	/*
-	 * executa os metodos de funcionamento da classe, dentre threads, e as condições iniciais de funcionamento da interface
+	 * executa os metodos de funcionamento da classe, dentre threads, e as condições
+	 * iniciais de funcionamento da interface
+	 * 
 	 * @throws IOException
-	 * @throws UnableToConnectException 
+	 * 
+	 * @throws UnableToConnectException
 	 */
 	private void execCar() throws IOException, UnableToConnectException {
 
 		generateRandomInitialConditions();
-		configArea();
+		generatePosUser();
 		generateThreads();
 		menuClient();
 
@@ -87,49 +91,45 @@ public class CarApp {
 
 	/**
 	 * 
-	 * Gera as threads que irão configurar e executar o cliente carro, dentre nivel de bateria, nivel de redução e posição relativa do automovel
+	 * Gera as threads que irão configurar e executar o cliente carro, dentre nivel
+	 * de bateria, nivel de redução e posição relativa do automovel
 	 */
 	public void generateThreads() {
 
 		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> generatePosUser(), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> trackingAreaFog(), 0, 5, TimeUnit.SECONDS);
 
 	}
 
 	/**
 	 * 
-	 * metodo de redução do nivel de bateria 
+	 * metodo de redução do nivel de bateria
 	 */
 	public void reduceBatteryCar() {
 
-		batteryCar -= 1;
+		if (batteryCar != 0) {
+
+			batteryCar -= 1;
+			
+		}
 
 	}
+
 	/**
 	 * 
-	 * Metodo que ira dar a posição relativa do automovel, gerada de forma aleatoria 
+	 * Metodo que ira dar a posição relativa do automovel, gerada de forma aleatoria
 	 */
 	public void generatePosUser() {
-
-		double variationPercentage = 0.1;
 
 		latitudeUser = Math.random() * 100;
 		longitudeUser = Math.random() * 100;
 
-		double minLat = latitudeUser - (latitudeUser * variationPercentage);
-		double maxLat = latitudeUser + (latitudeUser * variationPercentage);
-
-		double minLong = longitudeUser - (longitudeUser * variationPercentage);
-		double maxLong = longitudeUser + (longitudeUser * variationPercentage);
-
-		latitudeUser = Math.random() * (maxLat - minLat) + minLat;
-		longitudeUser = Math.random() * (maxLong - minLong) + minLong;
-
 	}
+
 	/**
 	 * 
-	 * Metodo que servira de alerta para o nivel de bateria critico 
+	 * Metodo que servira de alerta para o nivel de bateria critico
 	 */
 	public void listeningBatteryLevel() {
 
@@ -157,63 +157,37 @@ public class CarApp {
 		}
 
 	}
+
 	/**
 	 * 
-	 * Metodo que servira para definir a zona de acesso do cliente  
+	 * Metodo que servira para definir a zona de acesso do cliente
 	 */
 
-	private void configArea() throws IOException {
-		boolean configConnect = true;
-		
-		while (configConnect) {
-			
-			System.out.println("===================================================");
-			System.out.println("============ Escolha a zona do carro ==============");
-			System.out.println("===================================================");
-			System.out.println("====== (1) - Norte");
-			System.out.println("====== (2) - Leste");
-			System.out.println("====== (3) - Oeste");
-			System.out.println("====== (4) - Sul");
-			System.out.println("=========== Digite a opcao desejada ===============");
-			String opcao = scanner.next();
-			
-			switch (opcao) {
-			
-			case "1":
-				
-				carArea = ServerConfig.HTTP_LOCALHOST.getAddress();
-				configConnect = false;
-				break;
-				
-			case "2":
-				
-				carArea = ServerConfig.LARSID_4.getAddress();
-				configConnect = false;
-				break;
-				
-			case "3":
-				
-				carArea = ServerConfig.LARSID_3.getAddress();
-				configConnect = false;
-				break;
-				
-			case "4":
-				
-				carArea = ServerConfig.LARSID_5.getAddress();
-				configConnect = false;
-				break;
-				
-			default:
-				
-				System.out.println("Digite uma zona valida");
-				break;
-				
-			}
+	private void trackingAreaFog() {
+
+		if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 25 && longitudeUser <= 50)) {
+
+			carArea = ConfigLarsidIps.FOG_REGION_Q1.getAddress();
+
+		} else if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 0 && longitudeUser <= 25)) {
+
+			carArea = ConfigLarsidIps.FOG_REGION_Q2.getAddress();
+
+		} else if ((latitudeUser >= 75 && latitudeUser <= 100) && (longitudeUser >= 0 && longitudeUser <= 25)) {
+
+			carArea = ConfigLarsidIps.FOG_REGION_Q3.getAddress();
+
+		} else {
+
+			carArea = ConfigLarsidIps.FOG_REGION_Q4.getAddress();
+
 		}
+
 	}
+
 	/**
 	 * 
-	 * Metodo que tera as opções de requisição do cliente 
+	 * Metodo que tera as opções de requisição do cliente
 	 */
 	private void menuClient() throws IOException {
 
@@ -250,15 +224,15 @@ public class CarApp {
 //				System.out.println("====== (4) - Buscar melhor posto");
 				System.out.println("=========== Digite a opcao desejada ===============");
 				String opcaoMenuReq = scanner.next();
-				
+
 				Map<String, String> header = new HashMap<String, String>();
 				header.put("Content-Lenght", "0");
-				
+
 				ResponseHttp response;
 				JSONObject jsonObject;
 
 				switch (opcaoMenuReq) {
-				
+
 				case "1":
 
 					response = messageReturn("GET", "/station/shorterQueue", "HTTP/1.1", header, carArea);
@@ -281,7 +255,9 @@ public class CarApp {
 
 				case "2":
 
-					response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}","HTTP/1.1", header, carArea);
+					response = messageReturn("GET",
+							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
+							"HTTP/1.1", header, carArea);
 
 					if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
 
@@ -318,7 +294,8 @@ public class CarApp {
 								System.out.println("Nome do posto:" + jsonObject.getString("name"));
 								System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 								System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
-								System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+								System.out.println(
+										"Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
 								System.out.println("===================================================");
 
 							}
@@ -356,13 +333,16 @@ public class CarApp {
 		}
 
 	}
+
 	/**
 	 * 
-	 * Metodo que ira receber a mensagem de retorno da nevoa 
+	 * Metodo que ira receber a mensagem de retorno da nevoa
 	 */
-	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header, String currentIpApi) throws IOException {
+	public ResponseHttp messageReturn(String method, String endpoint, String httpVersion, Map<String, String> header,
+			String currentIpApi) throws IOException {
 
-		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
+		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
+				new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
 		return response;
 
 	}

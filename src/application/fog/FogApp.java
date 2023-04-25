@@ -110,7 +110,7 @@ public class FogApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_2.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LOCAL_FOG.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
 
 	}

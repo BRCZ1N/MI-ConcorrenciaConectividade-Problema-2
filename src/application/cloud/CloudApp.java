@@ -2,7 +2,6 @@ package application.cloud;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,8 +14,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONArray;
-import org.json.JSONObject;
-
 import application.model.ChargingStationModel;
 import application.model.FogModel;
 import application.services.FogService;
@@ -97,7 +94,7 @@ public class CloudApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.LARSID_3.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.GLOBAL_FOG.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}

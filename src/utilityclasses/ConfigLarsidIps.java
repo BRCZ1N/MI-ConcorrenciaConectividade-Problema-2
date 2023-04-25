@@ -1,17 +1,18 @@
 package utilityclasses;
 
-public enum ServerConfig {
+public enum ConfigLarsidIps {
 	
-	HTTP_FOG("http://192.168.56.1:8000"),
-	LOCAL_FOG("tcp://192.168.56.1:8100"),
-	GLOBAL_FOG("tcp://172.16.103.3:8200");
+	FOG_REGION_Q1("tcp://172.16.103.4:8000"),
+	FOG_REGION_Q2("tcp://172.16.103.5:8000"),
+	FOG_REGION_Q3("tcp://172.16.103.6:8000"),
+	FOG_REGION_Q4("tcp://172.16.103.7:8000");
 	
 	private String address;
 	 /**
      * Construtor do enum ServerConfig.
      * @param address o endereço do servidor
      */
-	private ServerConfig(String address) {
+	private ConfigLarsidIps(String address) {
 		
 		this.address = address;
 	}
