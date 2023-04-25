@@ -17,7 +17,6 @@ import utilityclasses.Http;
 import utilityclasses.HttpCodes;
 import utilityclasses.RequestHttp;
 import utilityclasses.ResponseHttp;
-import utilityclasses.ServerConfig;
 
 public class CarApp {
 
@@ -167,19 +166,19 @@ public class CarApp {
 
 		if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 25 && longitudeUser <= 50)) {
 
-			carArea = ConfigLarsidIps.FOG_REGION_Q1.getAddress();
+			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q1.getAddress();
 
 		} else if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 0 && longitudeUser <= 25)) {
 
-			carArea = ConfigLarsidIps.FOG_REGION_Q2.getAddress();
+			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q2.getAddress();
 
 		} else if ((latitudeUser >= 75 && latitudeUser <= 100) && (longitudeUser >= 0 && longitudeUser <= 25)) {
 
-			carArea = ConfigLarsidIps.FOG_REGION_Q3.getAddress();
+			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q3.getAddress();
 
 		} else {
 
-			carArea = ConfigLarsidIps.FOG_REGION_Q4.getAddress();
+			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q4.getAddress();
 
 		}
 
@@ -221,7 +220,6 @@ public class CarApp {
 				System.out.println("====== (1) - Buscar posto com menor fila");
 				System.out.println("====== (2) - Buscar posto mais proximo");
 				System.out.println("====== (3) - Buscar todos os postos proximos");
-//				System.out.println("====== (4) - Buscar melhor posto");
 				System.out.println("=========== Digite a opcao desejada ===============");
 				String opcaoMenuReq = scanner.next();
 

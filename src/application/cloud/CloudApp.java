@@ -94,7 +94,7 @@ public class CloudApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.GLOBAL_FOG.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.GLOBAL_BROKER.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
 	}
