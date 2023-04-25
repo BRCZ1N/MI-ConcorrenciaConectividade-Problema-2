@@ -71,6 +71,26 @@
 							<finalName>Cloud</finalName>
 						</configuration>
 					</execution>
+					<execution>
+						<id>station</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>application/station/StationApp</mainClass>
+								</manifest>
+							</archive>
+							<outputDirectory>
+								${basedir}/src/application/docker/station</outputDirectory>
+							<finalName>Station</finalName>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>

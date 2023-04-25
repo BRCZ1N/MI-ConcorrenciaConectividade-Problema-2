@@ -4,6 +4,7 @@ C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\uti
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\RequestHttp.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\ResponseHttp.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\model\FogModel.java
+C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\ConfigLarsidIpsFog.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\Http.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\MqttGeneralTopics.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\services\FogService.java
@@ -12,9 +13,11 @@ C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\app
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\model\UserModel.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\MqttQoS.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\controllers\ChargingStationController.java
+C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\controllers\FogController.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\ServerConfig.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\BatteryLevel.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\services\ChargingStationService.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\exceptions\UnableToConnectException.java
-C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\station\Station.java
+C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\utilityclasses\ConfigLarsidIpsHttp.java
+C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\station\StationApp.java
 C:\Users\Bruno\eclipse-workspace\MI-ConcorrenciaConectividade-Problema-2\src\application\cloud\CloudApp.java

@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import application.exceptions.UnableToConnectException;
 import utilityclasses.BatteryConsumptionStatus;
 import utilityclasses.BatteryLevel;
-import utilityclasses.ConfigLarsidIps;
+import utilityclasses.ConfigLarsidIpsHttp;
 import utilityclasses.Http;
 import utilityclasses.HttpCodes;
 import utilityclasses.RequestHttp;
@@ -166,19 +166,19 @@ public class CarApp {
 
 		if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 25 && longitudeUser <= 50)) {
 
-			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q1.getAddress();
+			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q1.getAddress();
 
 		} else if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 0 && longitudeUser <= 25)) {
 
-			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q2.getAddress();
+			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q2.getAddress();
 
 		} else if ((latitudeUser >= 75 && latitudeUser <= 100) && (longitudeUser >= 0 && longitudeUser <= 25)) {
 
-			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q3.getAddress();
+			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q3.getAddress();
 
 		} else {
 
-			carArea = ConfigLarsidIps.HTTP_FOG_REGION_Q4.getAddress();
+			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q4.getAddress();
 
 		}
 

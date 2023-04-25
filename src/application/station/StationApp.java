@@ -13,9 +13,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
 import application.model.ChargingStationModel;
+import utilityclasses.ConfigLarsidIpsFog;
 import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
-import utilityclasses.ServerConfig;
 
 public class StationApp {
 
@@ -30,6 +30,7 @@ public class StationApp {
 	private Scanner scanner = new Scanner(System.in);
 	private String message;
 	private String idClientMqtt;
+	private String ipAddressBroker;
 
 	public StationApp() {
 
@@ -71,7 +72,7 @@ public class StationApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.REGIONAL_BROKER.getAddress(),currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ipAddressBroker,currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> queueRefresh(), 0, 15, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
 
@@ -171,6 +172,7 @@ public class StationApp {
 	public void initialConfigurationStation() {
 
 		generatePosStation();
+		trackingAreaFog();
 
 		System.out.println("Digite o nome do posto:");
 		String name = scanner.nextLine();
@@ -188,6 +190,29 @@ public class StationApp {
 		System.out.println("=====================================================");
 
 	}
+	
+	private void trackingAreaFog() {
+
+		if ((latitudeStation >= 0 && latitudeStation <= 25) && (longitudeStation >= 25 && longitudeStation <= 50)) {
+
+			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q1.getAddress();
+
+		} else if ((latitudeStation >= 0 && latitudeStation <= 25) && (longitudeStation >= 0 && longitudeStation <= 25)) {
+
+			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q2.getAddress();
+
+		} else if ((latitudeStation >= 75 && latitudeStation <= 100) && (longitudeStation >= 0 && longitudeStation <= 25)) {
+
+			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q3.getAddress();
+
+		} else {
+
+			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q4.getAddress();
+
+		}
+
+	}
+	
 
 	/**
 	 * responsável por gerar a posição aleatória de uma estação de carregamento de

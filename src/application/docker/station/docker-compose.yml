@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+   app-station:
+      image: brcz1n/station-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: station-app
+      
+      
+
+
+      
+
+
+
