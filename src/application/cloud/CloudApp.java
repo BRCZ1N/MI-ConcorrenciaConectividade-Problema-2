@@ -143,11 +143,11 @@ public class CloudApp {
 		
 		if (clientMqtt != null && clientMqtt.isConnected()) {
 			
-			if (FogService.getAllStations().isPresent()) {
+			if (FogService.getOrdersListAllRegionsForQueue().isPresent()) {
 
 				try {
 
-					String message = new JSONArray(FogService.getAllStations().get()).toString();
+					String message = new JSONArray(FogService.getOrdersListAllRegionsForQueue().get()).toString();
 					mqttMessage.setPayload(message.getBytes("UTF-8"));
 					clientMqtt.publish(topic, mqttMessage);
 

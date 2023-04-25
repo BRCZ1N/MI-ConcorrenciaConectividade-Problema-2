@@ -70,16 +70,4 @@ public class ChargingStationController {
 
 	}
 
-/**
- * Endpoint para obter todas as estações de carregamento disponíveis.
- * 
- * @return uma HttpEntity contendo as informações de todas as estações de carregamento em formato JSON.
- */
-	@GetMapping("/all")
-	public HttpEntity<String> getAllStations() {
-
-		return ChargingStationService.getAllStations().map(stations -> ResponseEntity.ok(stations.toString())).orElse(ResponseEntity.notFound().build());
-
-	}
-
 }

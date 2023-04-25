@@ -13,6 +13,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -22,10 +23,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import application.controllers.ChargingStationController;
+import application.controllers.FogController;
 import application.model.ChargingStationModel;
 import application.model.FogModel;
 import application.services.ChargingStationService;
-import application.services.FogService;
 import utilityclasses.MqttGeneralTopics;
 import utilityclasses.MqttQoS;
 import utilityclasses.ServerConfig;
@@ -137,7 +138,18 @@ public class FogApp {
 
 				}else {
 					
-					FogService.addFog(FogModel.JsonToFogModel(payload));
+					JSONArray jsonArray = new JSONArray(payload);
+					JSONObject jsonObject = new JSONObject();
+					if (!jsonArray.isEmpty()) {
+
+						for (int i = 0; i < jsonArray.length(); i++) {
+
+							jsonObject = jsonArray.getJSONObject(i);
+							FogController.addFog(FogModel.JsonToFogModel(jsonObject.toString()));
+
+						}
+
+					}
 					
 				}
 

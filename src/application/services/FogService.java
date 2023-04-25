@@ -1,6 +1,8 @@
 package application.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +32,7 @@ public class FogService {
 
 	}
 
-	public static Optional<ArrayList<FogModel>> getAllStations() {
+	public static Optional<ArrayList<FogModel>> getOrdersListAllRegionsForQueue() {
 
 		if (fogs.isEmpty()) {
 
@@ -40,6 +42,22 @@ public class FogService {
 
 		ArrayList<FogModel> stationsList = new ArrayList<>();
 		stationsList.addAll(fogs.values());
+		
+		Comparator<FogModel> comparator = new Comparator<FogModel>() {
+
+			@Override
+			public int compare(FogModel f1, FogModel f2) {
+				
+				Integer queue1 = f1.getBestStation().getTotalAmountCars();
+				Integer queue2 = f2.getBestStation().getTotalAmountCars();
+				return queue1.compareTo(queue2);
+				
+			}
+			
+		};
+		
+		
+		Collections.sort(stationsList,comparator);
 		return Optional.of(stationsList);
 
 	}

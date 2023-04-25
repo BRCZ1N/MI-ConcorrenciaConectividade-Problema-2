@@ -219,7 +219,7 @@ public class CarApp {
 				System.out.println("===================================================");
 				System.out.println("====== (1) - Buscar posto com menor fila");
 				System.out.println("====== (2) - Buscar posto mais proximo");
-				System.out.println("====== (3) - Buscar todos os postos proximos");
+				System.out.println("====== (3) - Buscar os melhores postos de outras regiões");
 				System.out.println("=========== Digite a opcao desejada ===============");
 				String opcaoMenuReq = scanner.next();
 
@@ -276,13 +276,13 @@ public class CarApp {
 
 				case "3":
 
-					response = messageReturn("GET", "/station/all", "HTTP/1.1", header, carArea);
+					response = messageReturn("GET", "/fog/all", "HTTP/1.1", header, carArea);
 
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
 						JSONObject jsonBody = new JSONObject(response.getBody());
 						JSONArray jsonArray = jsonBody.getJSONArray("postos");
-						System.out.println("================ TODOS OS POSTOS DISPONIVEIS NA REGIÃO ==================");
+						System.out.println("================ MELHORES POSTOS DE OUTRAS REGIÕES ==================");
 
 						if (!jsonArray.isEmpty()) {
 
@@ -292,8 +292,7 @@ public class CarApp {
 								System.out.println("Nome do posto:" + jsonObject.getString("name"));
 								System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 								System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
-								System.out.println(
-										"Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+								System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
 								System.out.println("===================================================");
 
 							}

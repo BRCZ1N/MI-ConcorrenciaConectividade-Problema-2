@@ -11,14 +11,14 @@ import application.model.ChargingStationModel;
 @Component
 public class ChargingStationService {
 
-	private static Map<String, ChargingStationModel> stations;
+	private static Map<String, ChargingStationModel> stationsLocal;
 
 	/**
 	 * Construtor padrão da classe, que inicializa o mapa de estações.
 	 */
 	public ChargingStationService() {
 
-		ChargingStationService.stations = new ConcurrentHashMap<String, ChargingStationModel>();
+		ChargingStationService.stationsLocal = new ConcurrentHashMap<String, ChargingStationModel>();
 
 	}
 
@@ -28,7 +28,7 @@ public class ChargingStationService {
 	 * @return o mapa de estações.
 	 */
 	public static Map<String, ChargingStationModel> getStations() {
-		return stations;
+		return stationsLocal;
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class ChargingStationService {
 	 * @param stations o mapa de estações.
 	 */
 	public static void setStations(Map<String, ChargingStationModel> stations) {
-		ChargingStationService.stations = stations;
+		ChargingStationService.stationsLocal = stations;
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class ChargingStationService {
 	 */
 	public static void addStation(ChargingStationModel station) {
 
-		stations.put(station.getId(), station);
+		stationsLocal.put(station.getId(), station);
 
 	}
 
@@ -60,13 +60,13 @@ public class ChargingStationService {
 
 		ChargingStationModel stationShorterQueue = null;
 
-		if (stations.isEmpty()) {
+		if (stationsLocal.isEmpty()) {
 
 			return Optional.empty();
 
 		}
 
-		for (Map.Entry<String, ChargingStationModel> station : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStationModel> station : stationsLocal.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
@@ -101,13 +101,13 @@ public class ChargingStationService {
 		double currentDistance = 0;
 		double previousDistance = 0;
 
-		if (stations.isEmpty()) {
+		if (stationsLocal.isEmpty()) {
 
 			return Optional.empty();
 
 		}
 
-		for (Map.Entry<String, ChargingStationModel> currentStation : stations.entrySet()) {
+		for (Map.Entry<String, ChargingStationModel> currentStation : stationsLocal.entrySet()) {
 
 			if (stationShorterQueue == null) {
 
@@ -141,14 +141,14 @@ public class ChargingStationService {
      */
 	public static Optional<ArrayList<ChargingStationModel>> getAllStations() {
 
-		if (stations.isEmpty()) {
+		if (stationsLocal.isEmpty()) {
 
 			return Optional.empty();
 
 		}
 
 		ArrayList<ChargingStationModel> stationsList = new ArrayList<>();
-		stationsList.addAll(stations.values());
+		stationsList.addAll(stationsLocal.values());
 		return Optional.of(stationsList);
 
 	}
@@ -159,9 +159,9 @@ public class ChargingStationService {
      */
 	public static void editStation(ChargingStationModel station) {
 
-		if (stations.containsKey(station.getId())) {
+		if (stationsLocal.containsKey(station.getId())) {
 
-			stations.replace(station.getId(), station);
+			stationsLocal.replace(station.getId(), station);
 
 		}
 
@@ -173,9 +173,9 @@ public class ChargingStationService {
      */
 	public static void removeStation(String id) {
 
-		if (stations.containsKey(id)) {
+		if (stationsLocal.containsKey(id)) {
 
-			stations.remove(id);
+			stationsLocal.remove(id);
 
 		}
 
