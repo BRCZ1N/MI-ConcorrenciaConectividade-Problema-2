@@ -52,29 +52,15 @@ A aplicação que corresponde aos carros foram desenvolvidos com uma interface q
 Com o objetivo de rotear informações para as diferentes nevoas de cada região, uma nuvem foi construída com uma estrutura que permite o recebimento de dados enviados por cada nevoa no formato MQTT e o envio posterior desses dados para outras nevoas presentes no sistema. Para fazer isso, foram utilizadas duas threads, uma para receber dados de todas as nevoas, que possuem um identificador único para evitar a duplicação de dados, e outra para enviar esses dados para cada nevoa.É importante destacar que apenas os dados dos melhores postos de cada região são trocados pelas nevoas. Esses dados são compartilhados para eventual necessidade de acesso a um posto presente em uma região diferente.
  
  O posto de recarga utiliza a geolocalização para determinar sua posição relativa e se conectar à nevoa presente na área. Além disso, ele possui uma interface que permite ao usuário inserir o nome do estabelecimento. Após a inserção do nome, as threads são iniciadas para configurar a conexão MQTT, atualizar a quantidade de carros na fila e enviar esses dados para a nevoa presente na região.
-# Solução para os requisitos principais 
-
-<h2>Requisitos principais do projeto</h2>
-
-   1. Interface para gerenciamento de postos disponiveis;
-   2. Acompanhamento do consumo de energia do automovel;
-   
-<h2>1. Interface para gerenciamento de postos disponiveis.</h2>
-   
-&emsp;Para esse requisito foi desenvolvido uma interface simples que possui uma entrada para a definição da região onde o carro esta presente, após isso um menu para as consultas do nivel de bateria e para os menus onde estão postos o metodos de busca de postos para recarga do carro, dos quais estão os postos com menor fila, postos mais proximos do veiculo e para buscar todos os postos na proximidade, assim uma requisição em formato JSON pode ser feita e enviada a nevoa. 
-
-<h2>2. Acompanhamento do consumo de energia do automovel.</h2>
-
-&emsp;Objetivando o acompanhamento do consumo de energia, e assim avisar ao motorista quando o automovel estiver com a bateria em situação critica e necessite de abastecimento, este acompanhamento é feito por meio de uma interface que possui uma variavel que recebe um valor para simular a quantidade de bateria, com o passar do tempo a variavel é decrementada, do qual ela pode ser decrementada a partir de três fases, dentre elas alta, media e baixa.
 
 # Componentes do projeto
 
-<h2>- Servidor Nevoa</h2>
+<h2>- Nevoa</h2>
 <p2> O servidor processa as requisições, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, ainda se considera a sua função de gerar threads para cada tipo de componente no servidor, isto é, seja posto(MQTT) ou usuário(TCP).</p2>
- <h2>- Servidor Nuvem</h2>
+ <h2>- Nuvem</h2>
 <p2> O servidor faz o papel de roteamento das informações que foram geradas por todos os postos presentes nas nevoas e enviados para ele.</p2>
 
-<h2>- Interface do usuário</h2>
+<h2>- Interface do Carro</h2>
 <p2> O usuário se conecta ao servidor da nevoa e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
  <ul>
   <li>1. Visualizar nivel de carga de energia</li>
@@ -85,7 +71,7 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
 </ul>
 
 <h2>- Interface do posto </h2>
-<p2> O posto realiza o envio dos dados ao servidor  da nevoa de forma continua</p2>
+<p2> O posto realiza o envio dos dados ao servidor da nevoa de forma continua</p2>
  <ul>
   <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e sição relativa</li>
   <li>2. Altera o a quantidade de carros na fila de forma randomica</li>
