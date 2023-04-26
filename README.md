@@ -40,13 +40,13 @@ O presente projeto foi desenvolvido a partir do uso da comunicação MQTT em uma
 <li> Bridge (ponte em português) é um dispositivo de rede que conecta dois ou mais segmentos de rede local (LAN) para permitir a comunicação entre eles.
 # Metodologia geral
 
-//Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
+Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
  
 Após a criação da aplicação servidor criou-se a aplicação medidor que conta com um datagram socket para gerar comunicação entre o medidor e o próprio servidor, nessa aplicação utilizou-se de threads para enviar o consumo a cada intervalo e para a simulação da medição em tempo real, além disso, na thread principal ficou a entrada de dados responsável por alterar o ritmo de consumo, a mesma possui uma interface simples que pede o identificador do cliente final e a senha do mesmo, além de exigir a autenticação para acessar as threads que auxiliam na geração de consumo mencionadas anteriormente.
  
 Com a criação da aplicação servidor e medidor, surge a necessidade da aplicação cliente que recorrerá aos dados da aplicação servidor, isto é, o cliente pode enviar solicitações ao servidor que serão processadas e serão retornadas ao cliente, então temos também uma nova necessidade de comunicação, neste caso é uma comunicação que exige confiabilidade, isto é, protocolo TCP, utilizando desse protocolo e de requisições o cliente envia pedidos para o servidor e aguarda as respostas com dados que ele pode utilizar em formato de resposta.
  
-Para auxiliar as necessidades do projeto foram criadas algumas componentes de serviços, isto é, entidades que armazenam dados temporários e/ou processam dados que serão transmitidos na rede.// 
+Para auxiliar as necessidades do projeto foram criadas algumas componentes de serviços, isto é, entidades que armazenam dados temporários e/ou processam dados que serão transmitidos na rede. 
  
 # Solução para os requisitos principais 
 
@@ -76,14 +76,14 @@ Para auxiliar as necessidades do projeto foram criadas algumas componentes de se
   <li>1. Visualizar Nivel de carga de energia</li>
   <li>2. Buscar posto com menor fila </li>
   <li>3. Buscar posto mais proximo </li>
-  <li>4. Buscar todos os postos proximos</li>
+  <li>4. Buscar melhores postos de outras regiões</li>
   <li>5. Desconectar</li>
 </ul>
 
 <h2>- Interface do posto </h2>
-<p2> O posto realiza o envio dos dados ao servidor  da nevoa de forma continua e randomica </p2>
+<p2> O posto realiza o envio dos dados ao servidor  da nevoa de forma continua</p2>
  <ul>
-  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a medição no servidor são eles: quantidade na fila, sua identificação e sição relativa</li>
+  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e sição relativa</li>
   <li>2. Altera o a quantidade de carros na fila de forma randomica</li>
 </ul>
  
