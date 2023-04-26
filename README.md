@@ -70,7 +70,7 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
 <h2>- Interface do posto </h2>
 <p2> O posto realiza o envio dos dados ao servidor da nevoa de forma continua</p2>
  <ul>
-  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e posição/li>
+  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e posição</li>
   <li>2. Altera o a quantidade de carros na fila</li>
 </ul>
  
