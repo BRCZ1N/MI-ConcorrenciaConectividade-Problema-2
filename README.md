@@ -68,7 +68,7 @@ Para auxiliar as necessidades do projeto foram criadas algumas componentes de se
 <h2>- Servidor Nevoa</h2>
 <p2> O servidor processa as requisições, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, ainda se considera a sua função de gerar threads para cada tipo de componente no servidor, isto é, seja posto(MQTT) ou usuário(TCP).</p2>
  <h2>- Servidor Nuvem</h2>
-<p2> O servidor processa as requisições, e faz o papel de roteamento das informações que foram geradas por todos os postos presentes nas nevoas e enviados para ele.</p2>
+<p2> O servidor faz o papel de roteamento das informações que foram geradas por todos os postos presentes nas nevoas e enviados para ele.</p2>
 
 <h2>- Interface do usuário</h2>
 <p2> O usuário se conecta ao servidor da nevoa e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
