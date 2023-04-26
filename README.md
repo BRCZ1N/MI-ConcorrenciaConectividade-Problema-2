@@ -41,6 +41,20 @@ O presente projeto foi desenvolvido a partir do uso da comunicação MQTT em uma
 
  # Metodologia geral
 
+Para realização deste projeto a prori pensou-se no emprego de um tipo de arquitetura que poderia se adequar ao projeto, e ficou acordado que a arquitetura utilizada seria de névoa, afinal considerou-se que esse tipo arquitetural poderia fornecer um melhor desempenho com relação ao excesso de dados enviados, tendo em vista que o problema considera que o cenário proposto é na casa dos milhares de veículos, e portanto se sua concentração fosse na núvem isso poderia gerar diversas problemáticas de desemepenho na aplicação com relação a quantidade de dados trocados.
+
+
+considerou-se portanto que cada região deveria ter uma névoa para efetuar a comunicação com os usuários finais via API Rest, isto é, os carros dos usuários enviariam as solicitações HTTP para a névoa e a mesma retornaria os dados requisitados ao usuário.
+
+
+além disso a comunicação entre a névoa e os postos deveria ser feitas através de outro protocolo para ajudar nos processos de latência visto que, o projeto estipulou um cenário de milhares de veiculos, e que a comunicação deveria ser feito em tempo real nessa parte da comunicação com os postos utilizou-se o protocolo de comunicação MQTT, onde cada posto envia seus dados de filas e outras informações cruciais como: identificador do posto, dados de localização e o nome do proprio posto, para a mesma, com esses dados a névoa já poderia realizar os calculos e processamentos quando uma requisição do usuário chegasse. 
+
+
+Com relação aos processos de integração dos nós da rede utilizou-se de uma bridge que conecta a névoa utilizando o protocolo MQTT com a núvem para fazer com que as outras névoas da rede tivessem acesso aos dados das melhores filas de cada região, sendo assim a quantidade de dados enviados para núvem era minima, visto que apenas eram enviados para a núvem qual era a melhor estação regional, isto é, a melhor estação calculada por cada névoa, portanto reunindo-se a melhor estação na núvem realizou-se o envio dessa lista para cada névoa regional pela bridge, isto é, cada nó névoa da rede  tinha acesso a melhor estação de cada região.
+
+
+
+
 Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
  
 Após a criação da aplicação servidor criou-se a aplicação medidor que conta com um datagram socket para gerar comunicação entre o medidor e o próprio servidor, nessa aplicação utilizou-se de threads para enviar o consumo a cada intervalo e para a simulação da medição em tempo real, além disso, na thread principal ficou a entrada de dados responsável por alterar o ritmo de consumo, a mesma possui uma interface simples que pede o identificador do cliente final e a senha do mesmo, além de exigir a autenticação para acessar as threads que auxiliam na geração de consumo mencionadas anteriormente.
