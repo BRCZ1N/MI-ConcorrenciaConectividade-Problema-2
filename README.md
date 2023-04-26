@@ -49,23 +49,7 @@ Com relação as névoas regionais a sua implementação ocorreu da seguinte for
 
 A aplicação que corresponde aos carros foram desenvolvidos com uma interface que utiliza o método generateBatteryCar para gerar o nível inicial da bateria do automóvel, juntamente com o método generateCurrentDischargeLevel, que geraria o nível de descarga que o carro teria. Além disso, o método generatePosUser é usado para definir a posição relativa aleatória do automóvel. Esses métodos gerariam números aleatórios para cada automóvel que existisse no sistema, então 3 threads são criadas com o objetivo de reduzir o nível de bateria do carro, monitorar o nível de bateria para gerar alertas ao motorista e a thread que irá definir qual estação de rádio o carro se comunicará, dependendo da latitude e longitude gerada automaticamente anteriormente. Finalmente, o motorista tem acesso a um menu que exibe o nível de carga da bateria do carro e também possui um menu com opções para buscar postos com as filas mais curtas na região, buscar os postos mais próximos do carro e até mesmo buscar postos em outras regiões que tenham as melhores condições de acesso.
 
-
-
-
-
-além disso a comunicação entre a névoa e os postos deveria ser feitas através de outro protocolo para ajudar nos processos de latência visto que, o projeto estipulou um cenário de milhares de veiculos, e que a comunicação deveria ser feito em tempo real nessa parte da comunicação com os postos utilizou-se o protocolo de comunicação MQTT, onde cada posto envia seus dados de filas e outras informações cruciais como: identificador do posto, dados de localização e o nome do proprio posto, para a mesma, com esses dados a névoa já poderia realizar os calculos e processamentos quando uma requisição do usuário chegasse. 
-
-
-Com relação aos processos de integração dos nós da rede utilizou-se de uma bridge que conecta a névoa utilizando o protocolo MQTT com a núvem para fazer com que as outras névoas da rede tivessem acesso aos dados das melhores filas de cada região, sendo assim a quantidade de dados enviados para núvem era minima, visto que apenas eram enviados para a núvem qual era a melhor estação regional, isto é, a melhor estação calculada por cada névoa, portanto reunindo-se a melhor estação na núvem realizou-se o envio dessa lista para cada névoa regional pela bridge, isto é, cada nó névoa da rede  tinha acesso a melhor estação de cada região.
-
-
-Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
- 
-Após a criação da aplicação servidor criou-se a aplicação medidor que conta com um datagram socket para gerar comunicação entre o medidor e o próprio servidor, nessa aplicação utilizou-se de threads para enviar o consumo a cada intervalo e para a simulação da medição em tempo real, além disso, na thread principal ficou a entrada de dados responsável por alterar o ritmo de consumo, a mesma possui uma interface simples que pede o identificador do cliente final e a senha do mesmo, além de exigir a autenticação para acessar as threads que auxiliam na geração de consumo mencionadas anteriormente.
- 
-Com a criação da aplicação servidor e medidor, surge a necessidade da aplicação cliente que recorrerá aos dados da aplicação servidor, isto é, o cliente pode enviar solicitações ao servidor que serão processadas e serão retornadas ao cliente, então temos também uma nova necessidade de comunicação, neste caso é uma comunicação que exige confiabilidade, isto é, protocolo TCP, utilizando desse protocolo e de requisições o cliente envia pedidos para o servidor e aguarda as respostas com dados que ele pode utilizar em formato de resposta.
- 
-Para auxiliar as necessidades do projeto foram criadas algumas componentes de serviços, isto é, entidades que armazenam dados temporários e/ou processam dados que serão transmitidos na rede. 
+Com o objetivo de rotear informações para as diferentes nevoas de cada região, uma nuvem foi construída com uma estrutura que permite o recebimento de dados enviados por cada nevoa no formato MQTT e o envio posterior desses dados para outras nevoas presentes no sistema. Para fazer isso, foram utilizadas duas threads, uma para receber dados de todas as nevoas, que possuem um identificador único para evitar a duplicação de dados, e outra para enviar esses dados para cada nevoa.É importante destacar que apenas os dados dos melhores postos de cada região são trocados pelas nevoas. Esses dados são compartilhados para eventual necessidade de acesso a um posto presente em uma região diferente.
  
 # Solução para os requisitos principais 
 
@@ -73,15 +57,15 @@ Para auxiliar as necessidades do projeto foram criadas algumas componentes de se
 
    1. Interface para gerenciamento de postos disponiveis;
    2. Acompanhamento do consumo de energia do automovel;
+   
 <h2>1. Interface para gerenciamento de postos disponiveis.</h2>
    
 &emsp;Para esse requisito foi desenvolvido uma interface simples que possui uma entrada para a definição da região onde o carro esta presente, após isso um menu para as consultas do nivel de bateria e para os menus onde estão postos o metodos de busca de postos para recarga do carro, dos quais estão os postos com menor fila, postos mais proximos do veiculo e para buscar todos os postos na proximidade, assim uma requisição em formato JSON pode ser feita e enviada a nevoa. 
+
 <h2>2. Acompanhamento do consumo de energia do automovel.</h2>
 
-&emsp;Objetivando o acompanhamento do consumo de energia, e assim avisar ao motorista quando o automovel estiver com a bateria em situação critica e necessite de abastecimento, este acompanhamento é feito por meio de uma variavel que recebe um valor aleatorio, do qual tem três fazes, dentre elas alta, media e baixa.
+&emsp;Objetivando o acompanhamento do consumo de energia, e assim avisar ao motorista quando o automovel estiver com a bateria em situação critica e necessite de abastecimento, este acompanhamento é feito por meio de uma interface que possui uma variavel que recebe um valor para simular a quantidade de bateria, com o passar do tempo a variavel é decrementada, do qual ela pode ser decrementada a partir de três fases, dentre elas alta, media e baixa.
 
-
- 
 # Componentes do projeto
 
 <h2>- Servidor Nevoa</h2>
@@ -92,7 +76,7 @@ Para auxiliar as necessidades do projeto foram criadas algumas componentes de se
 <h2>- Interface do usuário</h2>
 <p2> O usuário se conecta ao servidor da nevoa e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
  <ul>
-  <li>1. Visualizar Nivel de carga de energia</li>
+  <li>1. Visualizar nivel de carga de energia</li>
   <li>2. Buscar posto com menor fila </li>
   <li>3. Buscar posto mais proximo </li>
   <li>4. Buscar melhores postos de outras regiões</li>
