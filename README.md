@@ -51,6 +51,7 @@ A aplicação que corresponde aos carros foram desenvolvidos com uma interface q
 
 Com o objetivo de rotear informações para as diferentes nevoas de cada região, uma nuvem foi construída com uma estrutura que permite o recebimento de dados enviados por cada nevoa no formato MQTT e o envio posterior desses dados para outras nevoas presentes no sistema. Para fazer isso, foram utilizadas duas threads, uma para receber dados de todas as nevoas, que possuem um identificador único para evitar a duplicação de dados, e outra para enviar esses dados para cada nevoa.É importante destacar que apenas os dados dos melhores postos de cada região são trocados pelas nevoas. Esses dados são compartilhados para eventual necessidade de acesso a um posto presente em uma região diferente.
  
+ O posto de recarga utiliza a geolocalização para determinar sua posição relativa e se conectar à nevoa presente na área. Além disso, ele possui uma interface que permite ao usuário inserir o nome do estabelecimento. Após a inserção do nome, as threads são iniciadas para configurar a conexão MQTT, atualizar a quantidade de carros na fila e enviar esses dados para a nevoa presente na região.
 # Solução para os requisitos principais 
 
 <h2>Requisitos principais do projeto</h2>
