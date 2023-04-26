@@ -40,9 +40,15 @@ public class ChargingStationController {
 	 * 
 	 * @param station a estação de carregamento a ser adicionada.
 	 */
-	public static void addStation(ChargingStationModel station) {
+	public static void addStationLocal(ChargingStationModel station) {
 	
-		ChargingStationService.addStation(station);
+		ChargingStationService.addStationLocal(station);
+	
+	}
+	
+	public static void addStationGlobal(String id, ChargingStationModel station) {
+		
+		ChargingStationService.addStationGlobal(id,station);
 	
 	}
 	/**
@@ -67,6 +73,13 @@ public class ChargingStationController {
 	public HttpEntity<String> getBestLocationStation(@RequestParam double locationX, @RequestParam double locationY) {
 
 		return ChargingStationService.getBestLocationStation(locationX, locationY).map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
+
+	}
+	
+	@GetMapping("/global/bestStations")
+	public HttpEntity<String> getBestLocationStation() {
+
+		return ChargingStationService.getAllGlobalBestStations().map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 

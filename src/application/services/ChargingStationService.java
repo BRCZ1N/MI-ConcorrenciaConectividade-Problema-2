@@ -12,6 +12,7 @@ import application.model.ChargingStationModel;
 public class ChargingStationService {
 
 	private static Map<String, ChargingStationModel> stationsLocal;
+	private static Map<String, ChargingStationModel> stationsGlobal;
 
 	/**
 	 * Construtor padrão da classe, que inicializa o mapa de estações.
@@ -19,6 +20,7 @@ public class ChargingStationService {
 	public ChargingStationService() {
 
 		ChargingStationService.stationsLocal = new ConcurrentHashMap<String, ChargingStationModel>();
+		ChargingStationService.stationsGlobal = new ConcurrentHashMap<String, ChargingStationModel>();
 
 	}
 
@@ -45,12 +47,18 @@ public class ChargingStationService {
 	 * 
 	 * @param station a estação a ser adicionada.
 	 */
-	public static void addStation(ChargingStationModel station) {
+	public static void addStationLocal(ChargingStationModel station) {
 
 		stationsLocal.put(station.getId(), station);
 
 	}
 
+	public static void addStationGlobal(String id, ChargingStationModel station) {
+
+		stationsGlobal.put(id, station);
+
+	}
+	
 	/**
 	 * Retorna a estação com a menor fila de carros aguardando carregamento.
 	 * 
@@ -139,7 +147,7 @@ public class ChargingStationService {
      *
      * @return Optional contendo ArrayList de ChargingStationModel, vazio se não houver estações cadastradas.
      */
-	public static Optional<ArrayList<ChargingStationModel>> getAllStations() {
+	public static Optional<ArrayList<ChargingStationModel>> getAllGlobalBestStations() {
 
 		if (stationsLocal.isEmpty()) {
 
@@ -148,7 +156,7 @@ public class ChargingStationService {
 		}
 
 		ArrayList<ChargingStationModel> stationsList = new ArrayList<>();
-		stationsList.addAll(stationsLocal.values());
+		stationsList.addAll(stationsGlobal.values());
 		return Optional.of(stationsList);
 
 	}

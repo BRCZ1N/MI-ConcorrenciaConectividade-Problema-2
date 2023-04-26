@@ -23,7 +23,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import application.controllers.ChargingStationController;
-import application.controllers.FogController;
 import application.model.ChargingStationModel;
 import application.model.FogModel;
 import application.services.ChargingStationService;
@@ -49,8 +48,9 @@ public class FogApp {
 	/**
 	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
 	 * mqttOptions e idClientMqtt.
-	 * @throws InterruptedException 
-	 * @throws IOException 
+	 * 
+	 * @throws InterruptedException
+	 * @throws IOException
 	 */
 	public FogApp() throws IOException, InterruptedException {
 
@@ -98,11 +98,10 @@ public class FogApp {
 	 */
 	public void inscribeTopics() throws MqttException {
 
-		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#",MqttQoS.QoS_2.getQos());
-		clientMqtt.subscribe(MqttGeneralTopics.MQTT_CLOUD.getTopic() + "#",MqttQoS.QoS_2.getQos());
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_STATION.getTopic() + "#", MqttQoS.QoS_2.getQos());
+		clientMqtt.subscribe(MqttGeneralTopics.MQTT_CLOUD.getTopic() + "#", MqttQoS.QoS_2.getQos());
 
 	}
-	
 
 	/**
 	 * 
@@ -111,8 +110,11 @@ public class FogApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.REGIONAL_BROKER.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(
+				() -> configureAndExecClientMqtt(ServerConfig.REGIONAL_BROKER.getAddress(), idClientMqtt, mqttOptions),
+				0, 10, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_FOG.getTopic() + idClientMqtt), 0,
+				5, TimeUnit.SECONDS);
 
 	}
 
@@ -134,10 +136,10 @@ public class FogApp {
 				String payload = new String(message.getPayload());
 				if (topic.contains("station/")) {
 
-					ChargingStationController.addStation(ChargingStationModel.JsonToChargingStationModel(payload));
+					ChargingStationController.addStationLocal(ChargingStationModel.JsonToChargingStationModel(payload));
 
-				}else {
-					
+				} else {
+
 					JSONArray jsonArray = new JSONArray(payload);
 					JSONObject jsonObject = new JSONObject();
 					if (!jsonArray.isEmpty()) {
@@ -145,12 +147,17 @@ public class FogApp {
 						for (int i = 0; i < jsonArray.length(); i++) {
 
 							jsonObject = jsonArray.getJSONObject(i);
-							FogController.addFog(FogModel.JsonToFogModel(jsonObject.toString()));
+							FogModel fogObject = FogModel.JsonToFogModel(jsonObject.toString());
+							if (fogObject.getId().equals(idClientMqtt)) {
+
+								ChargingStationController.addStationGlobal(fogObject.getId(),fogObject.getBestStation());
+
+							}
 
 						}
 
 					}
-					
+
 				}
 
 			}
@@ -173,8 +180,8 @@ public class FogApp {
 
 		if (clientMqtt != null && clientMqtt.isConnected()) {
 
-			if(ChargingStationService.getShorterQueueStation().isPresent()) {
-				
+			if (ChargingStationService.getShorterQueueStation().isPresent()) {
+
 				try {
 
 					String message = new JSONObject(ChargingStationService.getShorterQueueStation().get()).toString();
@@ -192,9 +199,9 @@ public class FogApp {
 					e.printStackTrace();
 
 				}
-				
+
 			}
-		
+
 		}
 
 	}
