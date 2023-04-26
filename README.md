@@ -38,7 +38,8 @@ O presente projeto foi desenvolvido a partir do uso da comunicação MQTT em uma
 <li> Nuvem tem como principal vantagem, a flexibilidade e escalabilidade que ela oferece, permitindo que as empresas aumentem ou reduzam seus recursos de computação de acordo com suas necessidades em tempo real. Esses recursos são gerenciados e mantidos por provedores de serviços em nuvem e são distribuídos em diferentes locais ao redor do mundo, permitindo que os usuários acessem e utilizem esses serviços a partir de qualquer dispositivo conectado à internet.
 <li> Nevoa, mais conhecido como computação de borda, refere-se a uma arquitetura de rede que processa e armazena dados localmente, perto dos dispositivos de origem ou dos usuários finais, em vez de enviá-los para processamento em servidores remotos em nuvem.
 <li> Bridge (ponte em português) é um dispositivo de rede que conecta dois ou mais segmentos de rede local (LAN) para permitir a comunicação entre eles.
-# Metodologia geral
+
+ # Metodologia geral
 
 Primeiramente criou-se uma aplicação server que se utilizou do server socket para gerar a comunicação de rede entre o servidor e os clientes TCP, neste caso os clientes finais, após isso criou-se um datagram socket para gerar a comunicação entre os clientes UDP, neste caso os medidores. Com isso foram implementados APIs Rest para tratar as requisições recebidas pelos clientes finais, utilizando como padrão de corpo de resposta de requisição o formato JSON(Javascript Object Notation). Além disso, foram criadas entradas de threads para as possíveis conexões de medidor e cliente, isto é, threads UDP e threads TCP respectivamente.
  
