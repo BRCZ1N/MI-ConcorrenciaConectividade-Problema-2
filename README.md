@@ -1,4 +1,4 @@
-<h2 align="center">Postos de Recarga inteligentes </h2>
+<h2 align="center">Postos de recarga inteligentes </h2>
  
 # Índice
 
@@ -7,9 +7,8 @@
 - [Componentes](#Componentes)
    - [Posto](#Posto)
    - [Névoa](#Névoa)
-   - [Cliente](#Cliente)
+   - [Carro](#Carro)
    - [Nuvem](#Nuvem)
-   - [API Rest](#APIRest)
 - [Considerações finais](#consideracoes)
 
 # Desenvolvedor
@@ -74,22 +73,6 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
   <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e posição/li>
   <li>2. Altera o a quantidade de carros na fila</li>
 </ul>
- 
-# Utilização do projeto
-O ip de conexão das aplicações medidor e cliente estão setados para máquina 3 do laboratório de IP: 172.16.103.3, visto que a execução foi feita tendo o servidor na máquina 3 e as demais aplicações da maquina 4 a 6, se quiser alterar a maquina do servidor, basta alterar manualmente o ip setados nas aplicações.
- 
-Segue a descrição para a alteração manual:
-<li>Passo 1 - Deverá ir nessa classe MI-ConcorrenciaConectividade-Problema-1/src/client/Client.java no método "main" e apenas alterar o IP de 172.16.103.3   para a sua preferência e depois gerar o .jar e a imagem, ou se preferir executar localmente basta alterar o ip para localhost e executar na IDE.
-<li>Passo 2 - Deverá ir nessa classe MI-ConcorrenciaConectividade-Problema-1/src/measurer/MeasurerClient.java no método "execMeasurer" e  no metodo "startMeasurer" e alterar o IP de 172.16.103.3 para a sua preferência e depois gerar o .jar e a imagem, ou se preferir executar localmente basta alterar o ip  para localhost e executar na IDE.
-<li>Obs: Mas se já quiser testar direto na maquina 3 do larsid basta pegar as imagens que estão no dockerhub através desse link https://hub.docker.com/u/brcz1n ou então executar os docker-compose que estão no projeto na aba stack do portainer
-<li> Obs2: Os usuários de testes podem ter suas senhas mostrada na classe de serviço para usuarios e o login é o id do mesmo que é sequencial na mesma ordem que estão setados.
-<h2> Exemplo de requisição para um usuário :</h2>
-   <li>Para o usuário de id:0 e senha:Test1 para a maquina 3 do larsid no insomnia:</p2>
-   <li> 172.16.103.3:8000/user/statusConsumption/0 - Pega o alerta de consumo para o usuário de id = 0;
-   <li> 172.16.103.3:8000/consumption/historic/0 - Pega o histórico de consumo para o usuário de id = 0;
-   <li> 172.16.103.3:8000/invoice/newInvoice/0 - Gera uma nova fatura para o usuário de id = 0;
-   <li> 172.16.103.3:8000/invoice/0 - Pega a fatura que possui possui id = 0;
-   <li> 172.16.103.3:8000/invoice/all/0 - Pega todas as faturas para o usuario de id:0.
  
  # Considerações finais 
 <p2> &emsp; O projeto consegue realizar tudo dentro das obrigações mínimas. Na implementação surgiu desafios com relação à compreensão da API Rest, o mesmo também possibilitou aprofundamento em questões relacionadas no que diz respeito ao que é uma API Restful e a tipos de conexões(TCP e UDP). Em versões posteriores, poderiam ser adicionado um melhoramento entre as trocas de dados das conexões. Apesar disso, tem-se que o estado atual é apenas de um protótipo simples e que não deve refletir em um possível produto
