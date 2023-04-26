@@ -55,11 +55,10 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
 
 # Componentes do projeto
 
-<h2>- Nevoa</h2>
-<p2> O servidor processa as requisições, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, ainda se considera a sua função de gerar threads para cada tipo de componente no servidor, isto é, seja posto(MQTT) ou usuário(TCP).</p2>
+<h2>- Névoa</h2>
+<p2> A névoa processa as requisições advindas dos carros, realiza o tratamento das mesmas, e por fim retorna a resposta da requisição, ainda se considera a sua função de processar os dados advindos dos postos de recarga e comunica-se diretamente com a núvem para envio de dados que devem ser utilizados por outras partes da rede.</p2>
  <h2>- Nuvem</h2>
-<p2> O servidor faz o papel de roteamento das informações que foram geradas por todos os postos presentes nas nevoas e enviados para ele.</p2>
-
+<p2> A nuvem faz o papel de processamento das informações advindos das névoas e passa-se essas informações processadas para cada névoa, isto é, para cada nó da rede para o usuário ter acesso a essas informações globais .</p2>
 <h2>- Interface do Carro</h2>
 <p2> O usuário se conecta ao servidor da nevoa e aos serviços através da API Rest. O mesmo, por conseguinte, apresenta as seguintes funcionalidades:</p2>
  <ul>
@@ -69,12 +68,11 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
   <li>4. Buscar melhores postos de outras regiões</li>
   <li>5. Desconectar</li>
 </ul>
-
 <h2>- Interface do posto </h2>
 <p2> O posto realiza o envio dos dados ao servidor da nevoa de forma continua</p2>
  <ul>
-  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e sição relativa</li>
-  <li>2. Altera o a quantidade de carros na fila de forma randomica</li>
+  <li>1. Envia a quantidade na fila e os dados necessários para armazenar a quantidade no servidor são eles: quantidade na fila, sua identificação e posição/li>
+  <li>2. Altera o a quantidade de carros na fila</li>
 </ul>
  
 # Utilização do projeto
