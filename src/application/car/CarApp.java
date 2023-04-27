@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import application.exceptions.UnableToConnectException;
+import application.model.ChargingStationModel;
 import utilityclasses.BatteryConsumptionStatus;
 import utilityclasses.BatteryLevel;
 import utilityclasses.ConfigLarsidIpsHttp;
@@ -28,6 +29,8 @@ public class CarApp {
 	private volatile double longitudeUser;
 	private Scanner scanner = new Scanner(System.in);
 	private volatile String carArea;
+	private volatile ChargingStationModel currentStationBest;
+	private Thread simulateCoordThread;
 
 	/*
 	 * Starta as Threads de execução da interface do cliente
@@ -35,6 +38,10 @@ public class CarApp {
 	public CarApp() {
 
 		this.executor = Executors.newScheduledThreadPool(3);
+		this.simulateCoordThread = new Thread(() -> {
+			simulateApproach(latitudeUser, longitudeUser, currentStationBest.getLatitude(),
+					currentStationBest.getLongitude());
+		});
 
 	}
 
@@ -45,6 +52,7 @@ public class CarApp {
 	private void generateRandomInitialConditions() {
 
 		generateCurrentDischargeLevel();
+		generatePosUser();
 
 	}
 
@@ -79,7 +87,6 @@ public class CarApp {
 	private void execCar() throws IOException, UnableToConnectException {
 
 		generateRandomInitialConditions();
-		generatePosUser();
 		generateThreads();
 		menuClient();
 
@@ -92,10 +99,10 @@ public class CarApp {
 	 */
 	public void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
-				TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> trackingAreaFog(), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> autoOff(), 0, 5, TimeUnit.SECONDS);
 
 	}
 
@@ -105,11 +112,7 @@ public class CarApp {
 	 */
 	public void reduceBatteryCar() {
 
-		if (batteryCar != 0) {
-
-			batteryCar -= 1;
-
-		}
+		batteryCar -= 1;
 
 	}
 
@@ -119,8 +122,8 @@ public class CarApp {
 	 */
 	public void generatePosUser() {
 
-		latitudeUser = Math.round((Math.random() * 100)*100)/100;
-		longitudeUser = Math.round((Math.random() * 100)*100)/100;
+		latitudeUser = Math.round((Math.random() * 100) * 100) / 100;
+		longitudeUser = Math.round((Math.random() * 100) * 100) / 100;
 
 	}
 
@@ -140,17 +143,46 @@ public class CarApp {
 				System.out.println("=======================Nivel de bateria baixo=========================");
 				System.out.println("Nivel de bateria atual: " + batteryCar + "%");
 				System.out.println("================ Posto mais proximo da localizacao ===================");
-				ResponseHttp response = messageReturn("GET",
-						"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",
-						header, carArea);
+				ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",header, carArea);
 				JSONObject jsonObject = new JSONObject(response.getBody());
 				System.out.println("Nome do posto:" + jsonObject.getString("name"));
 				System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 				System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
 				System.out.println("Quantidade de carros na fila:" + jsonObject.getString("totalAmountCars"));
+				System.out.println("Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
+				currentStationBest = ChargingStationModel.JsonToChargingStationModel(response.getBody());
+
+				if (!((Double) latitudeUser).equals(currentStationBest.getLatitude())
+						&& !((Double) longitudeUser).equals(currentStationBest.getLongitude())
+						&& !simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+
+					simulateCoordThread.start();
+
+				} else if (((Double) latitudeUser).equals(currentStationBest.getLatitude())
+						&& ((Double) longitudeUser).equals(currentStationBest.getLongitude())
+						&& !simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+
+					resetBatteryLevel();
+					generatePosUser();
+					System.out.println("Você chegou ao destino");
+					System.out.println("Bateria recarregada");
+
+				} else if (((Double) latitudeUser).equals(currentStationBest.getLatitude())
+						&& ((Double) longitudeUser).equals(currentStationBest.getLongitude())
+						&& simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+
+					simulateCoordThread.interrupt();
+					resetBatteryLevel();
+					generatePosUser();
+					System.out.println("Você chegou ao destino");
+					System.out.println("Bateria recarregada");
+
+				}
 
 			} catch (IOException e) {
+
 				e.printStackTrace();
+
 			}
 
 		}
@@ -243,6 +275,8 @@ public class CarApp {
 						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 						System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
 						System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+						System.out.println(
+								"Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
 
 					} else {
 
@@ -265,6 +299,8 @@ public class CarApp {
 						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 						System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
 						System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+						System.out.println(
+								"Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
 
 					} else {
 
@@ -276,13 +312,13 @@ public class CarApp {
 
 				case "3":
 
-					response = messageReturn("GET", "/fog/all", "HTTP/1.1", header, carArea);
+					response = messageReturn("GET", "/station/global/bestStations", "HTTP/1.1", header, carArea);
 
 					if (response.getStatusLine().equals(HttpCodes.HTTP_200.getCodeHttp())) {
 
 						JSONObject jsonBody = new JSONObject(response.getBody());
 						JSONArray jsonArray = jsonBody.getJSONArray("postos");
-						System.out.println("================ MELHORES POSTOS DE OUTRAS REGIÕES ==================");
+						System.out.println("================ Melhores postos de outras regiões ==================");
 
 						if (!jsonArray.isEmpty()) {
 
@@ -294,6 +330,8 @@ public class CarApp {
 								System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
 								System.out.println(
 										"Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+								System.out.println("Tempo de espera na fila em minutos:"
+										+ jsonObject.getDouble("queueWaitingTime"));
 								System.out.println("===================================================");
 
 							}
@@ -332,6 +370,41 @@ public class CarApp {
 
 	}
 
+	private void simulateApproach(double latCar, double longCar, double latSta, double longSta) {
+
+		boolean threadOn = true;
+
+		while (threadOn) {
+
+			if (simulateCoordThread.isInterrupted()) {
+
+				threadOn = false;
+
+			}
+
+			if (latCar < latSta) {
+
+				latCar += 0.01;
+
+			} else if (latCar > latSta) {
+
+				latCar -= 0.01;
+
+			}
+
+			if (longCar < longSta) {
+
+				longCar += 0.01;
+
+			} else if (longCar > longSta) {
+
+				longCar -= 0.01;
+			}
+
+		}
+
+	}
+
 	/**
 	 * 
 	 * Metodo que ira receber a mensagem de retorno da nevoa
@@ -342,6 +415,19 @@ public class CarApp {
 		ResponseHttp response = Http.sendHTTPRequestAndGetHttpResponse(
 				new RequestHttp(method, endpoint, httpVersion, header), currentIpApi);
 		return response;
+
+	}
+
+	public void autoOff() {
+
+		if (batteryCar == BatteryLevel.DISCHARGED.getBatteryLevel()) {
+
+			System.out.println("Bateria zerada programa encerrado");
+			simulateCoordThread.interrupt();
+			executor.shutdownNow();
+			connected = false;
+
+		}
 
 	}
 

@@ -1,10 +1,26 @@
 version: '3.7'
 services:
-   app-station:
+   app-station-1:
       image: brcz1n/station-app-tec502
       tty: true
       stdin_open: true
-      container_name: station-app
+      container_name: station-app-1
+   app-station-2:
+      image: brcz1n/station-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: station-app-2
+   app-station-3:
+      image: brcz1n/station-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: station-app-3
+   app-station-4:
+      image: brcz1n/station-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: station-app-4
+   
       
       
 

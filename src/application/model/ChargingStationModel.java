@@ -10,6 +10,7 @@ public class ChargingStationModel {
 	private Double longitude;
 	private int totalAmountCars;
 	private String id;
+	private double queueWaitingTime;
 
 	/**
 	 * 
@@ -17,20 +18,23 @@ public class ChargingStationModel {
 	 * 
 	 * @param name            nome da estação
 	 * 
-	 * @param addressX        coordenada X da localização da estação
+	 * @param latitude        longitude da localização da estação
 	 * 
-	 * @param addressY        coordenada Y da localização da estação
+	 * @param longitude       latitude da localização da estação
 	 * 
-	 * @param totalAmountCars quantidade total de carros que a estação pode carregar
+	 * @param totalAmountCars quantidade total de carros na fila
+	 * 
+	 * @param queueWaitingTime tempo de espera na fila
 	 * 
 	 * @param id              identificador único da estação
 	 */
-	public ChargingStationModel(String name, Double addressX, Double addressY, int totalAmountCars, String id) {
+	public ChargingStationModel(String name, Double latitude, Double longitude, int totalAmountCars, double queueWaitingTime, String id) {
 
 		this.name = name;
-		this.latitude = addressX;
-		this.longitude = addressY;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.totalAmountCars = totalAmountCars;
+		this.queueWaitingTime = queueWaitingTime;
 		this.id = id;
 
 	}
@@ -105,9 +109,9 @@ public class ChargingStationModel {
 
 	/**
 	 * 
-	 * Método que retorna a quantidade total de carros que a estação pode carregar.
+	 * Método que retorna a quantidade total de carros na fila.
 	 * 
-	 * @return quantidade total de carros que a estação pode carregar
+	 * @return quantidade total de carros na fila
 	 */
 	public int getTotalAmountCars() {
 
@@ -117,9 +121,9 @@ public class ChargingStationModel {
 
 	/**
 	 * 
-	 * Método que define a quantidade total de carros que a estação pode carregar.
+	 * Método que define a quantidade total de carros na fila
 	 * 
-	 * @param totalAmountCars quantidade total de carros que a estação pode carregar
+	 * @param totalAmountCars quantidade total de carros na fila
 	 */
 	public void setTotalAmountCars(int totalAmountCars) {
 
@@ -151,6 +155,26 @@ public class ChargingStationModel {
 
 	}
 
+	/**
+	 * 
+	 * Método que retorna o identificador único da estação.
+	 * 
+	 * @return tempo de espera na fila
+	 */
+	public double getQueueWaitingTime() {
+		return queueWaitingTime;
+	}
+
+	/**
+	 * 
+	 * Método que define tempo de espera na fila
+	 * 
+	 * @param queueWaitingTime tempo de espera na fila
+	 */
+	public void setQueueWaitingTime(double queueWaitingTime) {
+		this.queueWaitingTime = queueWaitingTime;
+	}
+
 	public static ChargingStationModel JsonToChargingStationModel(String stationJson) throws JSONException {
 
 		JSONObject json = new JSONObject(stationJson);
@@ -160,8 +184,9 @@ public class ChargingStationModel {
 		Double longitude = json.getDouble("longitude");
 		int totalAmountCars = json.getInt("totalAmountCars");
 		String id = json.getString("id");
+		double queueWaitingTime = json.getDouble("queueWaitingTime");
 
-		ChargingStationModel station = new ChargingStationModel(name, latitude, longitude, totalAmountCars, id);
+		ChargingStationModel station = new ChargingStationModel(name, latitude, longitude, totalAmountCars, queueWaitingTime, id);
 		return station;
 
 	}

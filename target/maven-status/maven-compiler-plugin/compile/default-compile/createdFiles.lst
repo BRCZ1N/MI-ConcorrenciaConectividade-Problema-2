@@ -21,6 +21,5 @@ application\station\StationApp.class
 utilityclasses\MqttQoS.class
 application\exceptions\UnableToConnectException.class
 application\fog\FogApp$1.class
-application\controllers\FogController.class
 application\model\UserModel.class
 utilityclasses\ResponseHttp.class

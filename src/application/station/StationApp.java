@@ -1,4 +1,5 @@
 package application.station;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import utilityclasses.MqttQoS;
 
 public class StationApp {
 
+	private double queueWaitingTime = 0;
 	private double latitudeStation;
 	private double longitudeStation;
 	private int amountCars = 0;
@@ -31,6 +33,8 @@ public class StationApp {
 	private String message;
 	private String idClientMqtt;
 	private String ipAddressBroker;
+	private int rechargeTime = 5;
+	private int amountCarsPerRound = 4;
 
 	public StationApp() {
 
@@ -42,9 +46,9 @@ public class StationApp {
 	}
 
 	public void queueRefresh() {
-		
-		amountCars = (int) (Math.random()*15);
-		
+
+		amountCars = (int) (Math.random() * 15);
+
 	}
 
 	public static void main(String[] args) {
@@ -72,10 +76,10 @@ public class StationApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ipAddressBroker,currentStatusStation.getName(), mqttOptions), 0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ipAddressBroker, currentStatusStation.getName(), mqttOptions), 0, 5,TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> queueRefresh(), 0, 15, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_STATION.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
-
+		executor.scheduleAtFixedRate(() -> statusStation(), 0, 10, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -91,6 +95,8 @@ public class StationApp {
 			try {
 
 				currentStatusStation.setTotalAmountCars(amountCars);
+				queueWaitingTime = calculateQueueWaitingTime();
+				currentStatusStation.setQueueWaitingTime(queueWaitingTime);
 				message = new JSONObject(currentStatusStation).toString();
 				mqttMessage.setPayload(message.getBytes("UTF-8"));
 				clientMqtt.publish(topic, mqttMessage);
@@ -126,6 +132,11 @@ public class StationApp {
 
 		return mqttMessage;
 
+	}
+	
+	public double calculateQueueWaitingTime() {
+		
+		return (Math.floor(amountCars / amountCarsPerRound)) * rechargeTime;
 	}
 
 	public MqttConnectOptions configureConnectionOptionsMqtt() {
@@ -178,19 +189,10 @@ public class StationApp {
 		String name = scanner.nextLine();
 		System.out.println();
 
-		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars, idClientMqtt);
-		System.out.println("=====================================================");
-		System.out.println("===============Status inicial do posto===============");
-		System.out.println("=====================================================");
-		System.out.println("Nome do posto: " + currentStatusStation.getName());
-		System.out.println("ID do posto: " + currentStatusStation.getId());
-		System.out.println("Latitude do posto: " + currentStatusStation.getLatitude());
-		System.out.println("Longitude do posto: " + currentStatusStation.getLongitude());
-		System.out.println("Quantidade inicial de carros no posto: " + currentStatusStation.getTotalAmountCars());
-		System.out.println("=====================================================");
+		currentStatusStation = new ChargingStationModel(name, latitudeStation, longitudeStation, amountCars, queueWaitingTime, idClientMqtt);
 
 	}
-	
+
 	private void trackingAreaFog() {
 
 		if ((latitudeStation >= 0 && latitudeStation <= 25) && (longitudeStation >= 25 && longitudeStation <= 50)) {
@@ -201,7 +203,7 @@ public class StationApp {
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q2.getAddress();
 
-		} else if ((latitudeStation >= 75 && latitudeStation <= 100) && (longitudeStation >= 0 && longitudeStation <= 25)) {
+		} else if ((latitudeStation >= 75 && latitudeStation <= 100)&& (longitudeStation >= 0 && longitudeStation <= 25)) {
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q3.getAddress();
 
@@ -212,7 +214,21 @@ public class StationApp {
 		}
 
 	}
-	
+
+	public void statusStation() {
+
+		System.out.println("=====================================================");
+		System.out.println("====================Status do posto==================");
+		System.out.println("=====================================================");
+		System.out.println("Nome do posto: " + currentStatusStation.getName());
+		System.out.println("ID do posto: " + currentStatusStation.getId());
+		System.out.println("Latitude do posto: " + currentStatusStation.getLatitude());
+		System.out.println("Longitude do posto: " + currentStatusStation.getLongitude());
+		System.out.println("Quantidade inicial de carros no posto: " + currentStatusStation.getTotalAmountCars());
+		System.out.println("Tempo de espera na fila em minutos: " + currentStatusStation.getQueueWaitingTime());
+		System.out.println("=====================================================");
+
+	}
 
 	/**
 	 * responsável por gerar a posição aleatória de uma estação de carregamento de
@@ -220,8 +236,8 @@ public class StationApp {
 	 */
 	public void generatePosStation() {
 
-		latitudeStation = Math.round((Math.random() * 100)*100)/100;
-		longitudeStation = Math.round((Math.random() * 100)*100)/100;
+		latitudeStation = Math.round((Math.random() * 100) * 100) / 100;
+		longitudeStation = Math.round((Math.random() * 100) * 100) / 100;
 
 	}
 

@@ -1,10 +1,25 @@
 version: '3.7'
 services:
-   app-car:
+   app-car-1:
       image: brcz1n/car-app-tec502
       tty: true
       stdin_open: true
-      container_name: car-app
+      container_name: car-app-1
+   app-car-2:
+      image: brcz1n/car-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: car-app-2
+   app-car-3:
+      image: brcz1n/car-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: car-app-3
+   app-car-4:
+      image: brcz1n/car-app-tec502
+      tty: true
+      stdin_open: true
+      container_name: car-app-4
       
       
 

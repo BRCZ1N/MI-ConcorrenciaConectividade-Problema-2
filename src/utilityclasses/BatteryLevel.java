@@ -8,7 +8,7 @@ LOW: um nível baixo de bateria com um valor de 25
 */
 public enum BatteryLevel {
 
-	DEFAULT(100), MEDIUM(50), LOW(25);
+	DEFAULT(100), MEDIUM(50), LOW(25) , DISCHARGED(0);
 
 	private int batteryLevel;
 	
