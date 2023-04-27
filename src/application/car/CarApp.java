@@ -20,7 +20,7 @@ import utilityclasses.ResponseHttp;
 
 public class CarApp {
 
-	private volatile int batteryCar;
+	private volatile int batteryCar = BatteryLevel.DEFAULT.getBatteryLevel();
 	private ScheduledExecutorService executor;
 	private BatteryConsumptionStatus currentDischargeLevel;
 	private boolean connected = true;
@@ -44,13 +44,12 @@ public class CarApp {
 	 */
 	private void generateRandomInitialConditions() {
 
-		generateBatteryCar();
 		generateCurrentDischargeLevel();
 
 	}
 
 	/*
-	 * gera uma força de redução de bateria aleatoriaa
+	 * gera uma força de redução de bateria aleatoria
 	 */
 	private void generateCurrentDischargeLevel() {
 
@@ -61,13 +60,11 @@ public class CarApp {
 	}
 
 	/*
-	 * metodo que irá setar a Geração de um nivel de bateria aleatorio
+	 * reseta o nivel de bateria
 	 */
-	private void generateBatteryCar() {
+	private void resetBatteryLevel() {
 
-		BatteryLevel[] batteryLevelEnum = BatteryLevel.values();
-		int randomArrayPos = (int) (Math.random() * batteryLevelEnum.length);
-		batteryCar = batteryLevelEnum[randomArrayPos].getBatteryLevel();
+		batteryCar = BatteryLevel.DEFAULT.getBatteryLevel();
 
 	}
 
@@ -95,7 +92,8 @@ public class CarApp {
 	 */
 	public void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
+				TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> trackingAreaFog(), 0, 5, TimeUnit.SECONDS);
 
@@ -110,7 +108,7 @@ public class CarApp {
 		if (batteryCar != 0) {
 
 			batteryCar -= 1;
-			
+
 		}
 
 	}
@@ -121,8 +119,8 @@ public class CarApp {
 	 */
 	public void generatePosUser() {
 
-		latitudeUser = Math.random() * 100;
-		longitudeUser = Math.random() * 100;
+		latitudeUser = Math.round((Math.random() * 100)*100)/100;
+		longitudeUser = Math.round((Math.random() * 100)*100)/100;
 
 	}
 
@@ -142,7 +140,9 @@ public class CarApp {
 				System.out.println("=======================Nivel de bateria baixo=========================");
 				System.out.println("Nivel de bateria atual: " + batteryCar + "%");
 				System.out.println("================ Posto mais proximo da localizacao ===================");
-				ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",header, carArea);
+				ResponseHttp response = messageReturn("GET",
+						"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",
+						header, carArea);
 				JSONObject jsonObject = new JSONObject(response.getBody());
 				System.out.println("Nome do posto:" + jsonObject.getString("name"));
 				System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
@@ -292,7 +292,8 @@ public class CarApp {
 								System.out.println("Nome do posto:" + jsonObject.getString("name"));
 								System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 								System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
-								System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+								System.out.println(
+										"Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
 								System.out.println("===================================================");
 
 							}

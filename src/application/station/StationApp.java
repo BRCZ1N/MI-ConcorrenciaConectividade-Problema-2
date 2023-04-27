@@ -19,8 +19,8 @@ import utilityclasses.MqttQoS;
 
 public class StationApp {
 
-	private Double latitudeStation;
-	private Double longitudeStation;
+	private double latitudeStation;
+	private double longitudeStation;
 	private int amountCars = 0;
 	private ScheduledExecutorService executor;
 	private MqttMessage mqttMessage;
@@ -43,7 +43,7 @@ public class StationApp {
 
 	public void queueRefresh() {
 		
-		amountCars = (int) (Math.random()*30);
+		amountCars = (int) (Math.random()*15);
 		
 	}
 
@@ -220,8 +220,8 @@ public class StationApp {
 	 */
 	public void generatePosStation() {
 
-		latitudeStation = Math.random() * 100;
-		longitudeStation = Math.random() * 100;
+		latitudeStation = Math.round((Math.random() * 100)*100)/100;
+		longitudeStation = Math.round((Math.random() * 100)*100)/100;
 
 	}
 
