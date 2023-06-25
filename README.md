@@ -75,4 +75,4 @@ Com o objetivo de rotear informações para as diferentes nevoas de cada região
 </ul>
  
  # Considerações finais 
-<p2> &emsp; O projeto consegue realizar tudo dentro das obrigações mínimas. Na implementação surgiu desafios com relação à compreensão da API Rest, o mesmo também possibilitou aprofundamento em questões relacionadas no que diz respeito ao que é uma API Restful e a tipos de conexões(TCP e UDP). Em versões posteriores, poderiam ser adicionado um melhoramento entre as trocas de dados das conexões. Apesar disso, tem-se que o estado atual é apenas de um protótipo simples e que não deve refletir em um possível produto
+<p2> &emsp; O projeto consegue realizar tudo dentro das obrigações mínimas. Na implementação surgiu desafios com relação à compreensão da aplicação do framework Spring boot e no desevolvimento da comunicação MQTT, este projeto pode ainda ser escalavel, com o desenvolvimento da comunicação entre as nevoas sem a utilização de uma nuvem para mediar, assim diminuindo a latencia e deixando as informações fluirem de forma mais eficaz.
