@@ -1,6 +1,5 @@
 package application.model;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ChargingStationModel {
@@ -39,6 +38,17 @@ public class ChargingStationModel {
 
 	}
 
+	public ChargingStationModel(JSONObject json) {
+		
+		this.name = json.getString("name");
+		this.latitude = json.getDouble("latitude");
+		this.longitude = json.getDouble("longitude");
+		this.totalAmountCars = json.getInt("totalAmountCars");
+		this.queueWaitingTime = json.getDouble("queueWaitingTime");
+		this.id = json.getString("id");
+		
+	}
+	
 	/**
 	 * 
 	 * Método que retorna o nome da estação.
@@ -173,22 +183,6 @@ public class ChargingStationModel {
 	 */
 	public void setQueueWaitingTime(double queueWaitingTime) {
 		this.queueWaitingTime = queueWaitingTime;
-	}
-
-	public static ChargingStationModel JsonToChargingStationModel(String stationJson) throws JSONException {
-
-		JSONObject json = new JSONObject(stationJson);
-
-		String name = json.getString("name");
-		Double latitude = json.getDouble("latitude");
-		Double longitude = json.getDouble("longitude");
-		int totalAmountCars = json.getInt("totalAmountCars");
-		String id = json.getString("id");
-		double queueWaitingTime = json.getDouble("queueWaitingTime");
-
-		ChargingStationModel station = new ChargingStationModel(name, latitude, longitude, totalAmountCars, queueWaitingTime, id);
-		return station;
-
 	}
 
 }

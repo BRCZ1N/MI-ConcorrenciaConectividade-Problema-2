@@ -5,14 +5,15 @@ Os endpoints implementam os métodos HTTP GET para retornar informações sobre 
 Os métodos desta classe utilizam a classe ChargingStationService para acessar os dados das estações de carregamento e retornar as informações solicitadas em formato JSON.
 */
 package application.controllers;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import application.model.ChargingStationModel;
@@ -69,8 +70,8 @@ public class ChargingStationController {
 	 * @param locationY a coordenada y do ponto de referência.
 	 * @return uma HttpEntity contendo as informações da estação de carregamento com a melhor localização em formato JSON.
 	 */
-	@GetMapping("/bestLocation/location?x={locationX}&y={locationY}")
-	public HttpEntity<String> getBestLocationStation(@RequestParam double locationX, @RequestParam double locationY) {
+	@GetMapping("/bestLocation/locationX={locationX}&locationY={locationY}")
+	public HttpEntity<String> getBestLocationStation(@PathVariable double locationX, @PathVariable double locationY) {
 
 		return ChargingStationService.getBestLocationStation(locationX, locationY).map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
 
@@ -79,7 +80,7 @@ public class ChargingStationController {
 	@GetMapping("/global/bestStations")
 	public HttpEntity<String> getBestLocationStation() {
 
-		return ChargingStationService.getAllGlobalBestStations().map(station -> ResponseEntity.ok(new JSONObject(station).toString())).orElse(ResponseEntity.notFound().build());
+		return ChargingStationService.getAllGlobalBestStations().map(station -> ResponseEntity.ok(new JSONArray(station).toString())).orElse(ResponseEntity.notFound().build());
 
 	}
 

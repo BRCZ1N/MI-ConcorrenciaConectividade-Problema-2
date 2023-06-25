@@ -1,17 +1,27 @@
 package application.model;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FogModel {
 
 	private String id;
 	private ChargingStationModel bestStation;
+	
+	public FogModel() {
+		super();
+	}
 
 	public FogModel(String id, ChargingStationModel bestStation) {
 
 		this.id = id;
 		this.bestStation = bestStation;
+
+	}
+	
+	public FogModel(JSONObject json) {
+
+		this.id = json.getString("id");
+		this.bestStation = new ChargingStationModel(json.getJSONObject("bestStation"));
 
 	}
 
@@ -29,18 +39,6 @@ public class FogModel {
 
 	public void setBestStation(ChargingStationModel bestStation) {
 		this.bestStation = bestStation;
-	}
-	
-	public static FogModel JsonToFogModel(String stationJson) throws JSONException {
-
-		JSONObject json = new JSONObject(stationJson);
-
-		ChargingStationModel bestStation = (ChargingStationModel) json.get("bestStation");
-		String id = json.getString("id");
-
-		FogModel fog = new FogModel(id,bestStation);
-		return fog;
-
 	}
 
 }

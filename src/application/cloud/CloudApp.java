@@ -8,13 +8,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import application.model.ChargingStationModel;
 import application.model.FogModel;
@@ -31,6 +32,7 @@ public class CloudApp {
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
 	private FogService fogService;
+	private boolean connected;
 
 	/**
 	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
@@ -96,8 +98,11 @@ public class CloudApp {
 	 */
 	private void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> configureAndExecClientMqtt(ServerConfig.GLOBAL_BROKER.getAddress(), idClientMqtt, mqttOptions), 0, 10,TimeUnit.SECONDS);
-		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt),0, 5, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(
+				() -> configureAndExecClientMqtt(ServerConfig.GLOBAL_BROKER.getAddress(), idClientMqtt, mqttOptions), 0,
+				10, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> publishMessageMqtt(MqttGeneralTopics.MQTT_CLOUD.getTopic() + idClientMqtt),
+				0, 5, TimeUnit.SECONDS);
 
 	}
 
@@ -108,19 +113,23 @@ public class CloudApp {
 	 */
 	public void generateCallBackMqttClient() {
 
-		clientMqtt.setCallback(new MqttCallback() {
+		clientMqtt.setCallback(new MqttCallbackExtended() {
 			@Override
 			public void connectionLost(Throwable cause) {
+
+				connected = false;
+				
 			}
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
-				
+
 				if (topic.contains("fog/")) {
 
 					String[] topicArray = topic.split("/");
 					String payload = new String(message.getPayload());
-					FogModel fog = new FogModel(topicArray[1],ChargingStationModel.JsonToChargingStationModel(payload));
+					JSONObject payloadJson = new JSONObject(payload);
+					FogModel fog = new FogModel(topicArray[1], new ChargingStationModel(payloadJson));
 					FogService.addFog(fog);
 
 				}
@@ -129,6 +138,17 @@ public class CloudApp {
 
 			@Override
 			public void deliveryComplete(IMqttDeliveryToken token) {
+			}
+
+			@Override
+			public void connectComplete(boolean reconnect, String serverURI) {
+
+				if (reconnect) {
+
+					connected = true;
+
+				}
+
 			}
 
 		});
@@ -142,9 +162,9 @@ public class CloudApp {
 	 * @param topico o tópico MQTT onde a mensagem será publicada.
 	 */
 	public void publishMessageMqtt(String topic) {
-		
-		if (clientMqtt != null && clientMqtt.isConnected()) {
-			
+
+		if (clientMqtt != null && connected) {
+
 			if (FogService.getOrdersListAllRegionsForQueue().isPresent()) {
 
 				try {
@@ -164,6 +184,7 @@ public class CloudApp {
 					e.printStackTrace();
 
 				}
+
 			}
 
 		}
@@ -197,7 +218,7 @@ public class CloudApp {
 
 		MqttConnectOptions options = new MqttConnectOptions();
 		options.setCleanSession(true);
-
+		
 		return options;
 
 	}
@@ -224,6 +245,7 @@ public class CloudApp {
 
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
+				connected = true;
 				subscribeTopics();
 				generateCallBackMqttClient();
 

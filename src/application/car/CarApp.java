@@ -1,14 +1,18 @@
 package application.car;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import application.exceptions.UnableToConnectException;
 import application.model.ChargingStationModel;
 import utilityclasses.BatteryConsumptionStatus;
@@ -24,24 +28,20 @@ public class CarApp {
 	private volatile int batteryCar = BatteryLevel.DEFAULT.getBatteryLevel();
 	private ScheduledExecutorService executor;
 	private BatteryConsumptionStatus currentDischargeLevel;
-	private boolean connected = true;
-	private volatile double latitudeUser;
-	private volatile double longitudeUser;
+	private volatile boolean connected = true;
+	private volatile double latitudeCar;
+	private volatile double longitudeCar;
 	private Scanner scanner = new Scanner(System.in);
 	private volatile String carArea;
 	private volatile ChargingStationModel currentStationBest;
-	private Thread simulateCoordThread;
+	private Future<?> future;
 
 	/*
 	 * Starta as Threads de execução da interface do cliente
 	 */
 	public CarApp() {
 
-		this.executor = Executors.newScheduledThreadPool(3);
-		this.simulateCoordThread = new Thread(() -> {
-			simulateApproach(latitudeUser, longitudeUser, currentStationBest.getLatitude(),
-					currentStationBest.getLongitude());
-		});
+		this.executor = Executors.newScheduledThreadPool(5);
 
 	}
 
@@ -76,6 +76,14 @@ public class CarApp {
 
 	}
 
+	public Double approximateNumber(double num) {
+
+		DecimalFormat df = new DecimalFormat("#.##");
+		String formattedNum = df.format(num);
+		return Double.parseDouble(formattedNum.replace(",", "."));
+
+	}
+
 	/*
 	 * executa os metodos de funcionamento da classe, dentre threads, e as condições
 	 * iniciais de funcionamento da interface
@@ -99,7 +107,8 @@ public class CarApp {
 	 */
 	public void generateThreads() {
 
-		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(() -> reduceBatteryCar(), 0, currentDischargeLevel.getDischargeLevel(),
+				TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> listeningBatteryLevel(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> trackingAreaFog(), 0, 5, TimeUnit.SECONDS);
 		executor.scheduleAtFixedRate(() -> autoOff(), 0, 5, TimeUnit.SECONDS);
@@ -122,8 +131,15 @@ public class CarApp {
 	 */
 	public void generatePosUser() {
 
-		latitudeUser = Math.round((Math.random() * 100) * 100) / 100;
-		longitudeUser = Math.round((Math.random() * 100) * 100) / 100;
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		latitudeCar = Math.random() * 100;
+		String latitudeFormatada = df.format(latitudeCar);
+		latitudeCar = Double.parseDouble(latitudeFormatada.replace(",", "."));
+
+		longitudeCar = Math.random() * 100;
+		String longitudeFormatada = df.format(longitudeCar);
+		longitudeCar = Double.parseDouble(longitudeFormatada.replace(",", "."));
 
 	}
 
@@ -133,49 +149,58 @@ public class CarApp {
 	 */
 	public void listeningBatteryLevel() {
 
-		if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()) {
+		if (batteryCar <= BatteryLevel.LOW.getBatteryLevel()
+				&& batteryCar != BatteryLevel.DISCHARGED.getBatteryLevel()) {
 
 			try {
 
+				System.out.println("===================== Alerta =======================");
+				System.out.println("============= Nivel de bateria baixo ===============");
+				System.out.println("Nivel de bateria atual: " + batteryCar + "%");
+				System.out.println("======= Posto mais proximo da localizacao ==========");
 				Map<String, String> header = new HashMap<String, String>();
 				header.put("Content-Lenght", "0");
-				System.out.println("===============================Alerta=================================");
-				System.out.println("=======================Nivel de bateria baixo=========================");
-				System.out.println("Nivel de bateria atual: " + batteryCar + "%");
-				System.out.println("================ Posto mais proximo da localizacao ===================");
-				ResponseHttp response = messageReturn("GET","/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}", "HTTP/1.1",header, carArea);
-				JSONObject jsonObject = new JSONObject(response.getBody());
-				System.out.println("Nome do posto:" + jsonObject.getString("name"));
-				System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
-				System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
-				System.out.println("Quantidade de carros na fila:" + jsonObject.getString("totalAmountCars"));
-				System.out.println("Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
-				currentStationBest = ChargingStationModel.JsonToChargingStationModel(response.getBody());
+				ResponseHttp response = messageReturn("GET","/station/bestLocation/locationX=" + latitudeCar + "&locationY=" + longitudeCar, "HTTP/1.1",header, carArea);
+				System.out.println("Buscando posto mais próximo");
 
-				if (!((Double) latitudeUser).equals(currentStationBest.getLatitude())
-						&& !((Double) longitudeUser).equals(currentStationBest.getLongitude())
-						&& !simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+				if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
 
-					simulateCoordThread.start();
+					JSONObject jsonObject = new JSONObject(response.getBody());
+					System.out.println("====================================================");
+					System.out.println("Nome do posto:" + jsonObject.getString("name"));
+					System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
+					System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
+					System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
+					System.out.println("Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
+					currentStationBest = new ChargingStationModel(jsonObject);
+					System.out.println("====================================================");
+					
+					System.out.println("====================================================");
+					System.out.println("Posicao atual do carro:");
+					System.out.println("Latitude do carro: "+approximateNumber(latitudeCar));
+					System.out.println("Longitude do carro: "+approximateNumber(longitudeCar));
+					System.out.println("====================================================");
+					
+					if (future == null || !future.isDone()) {
 
-				} else if (((Double) latitudeUser).equals(currentStationBest.getLatitude())
-						&& ((Double) longitudeUser).equals(currentStationBest.getLongitude())
-						&& !simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+						future = executor.submit(() -> {
 
-					resetBatteryLevel();
-					generatePosUser();
-					System.out.println("Você chegou ao destino");
-					System.out.println("Bateria recarregada");
+							simulateApproach(currentStationBest.getLatitude(), currentStationBest.getLongitude());
 
-				} else if (((Double) latitudeUser).equals(currentStationBest.getLatitude())
-						&& ((Double) longitudeUser).equals(currentStationBest.getLongitude())
-						&& simulateCoordThread.getState().equals(Thread.State.RUNNABLE)) {
+						});
+					
+					}else if((((Double)(approximateNumber(latitudeCar))).equals(currentStationBest.getLatitude())) && (((Double)(approximateNumber(longitudeCar))).equals(currentStationBest.getLongitude()))){
+						
+						future.cancel(true);
+						resetBatteryLevel();
+						generatePosUser();
+						
+					}
 
-					simulateCoordThread.interrupt();
-					resetBatteryLevel();
-					generatePosUser();
-					System.out.println("Você chegou ao destino");
-					System.out.println("Bateria recarregada");
+				} else {
+
+					System.out.println("Erro:");
+					System.out.println(response.toString());
 
 				}
 
@@ -196,19 +221,19 @@ public class CarApp {
 
 	private void trackingAreaFog() {
 
-		if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 25 && longitudeUser <= 50)) {
+		if ((latitudeCar >= 0 && latitudeCar <= 50) && (longitudeCar >= 0 && longitudeCar <= 50)) {
 
 			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q1.getAddress();
 
-		} else if ((latitudeUser >= 0 && latitudeUser <= 25) && (longitudeUser >= 0 && longitudeUser <= 25)) {
+		} else if ((latitudeCar >= 0 && latitudeCar <= 50) && (longitudeCar >= 51 && longitudeCar <= 100)) {
 
 			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q2.getAddress();
 
-		} else if ((latitudeUser >= 75 && latitudeUser <= 100) && (longitudeUser >= 0 && longitudeUser <= 25)) {
+		} else if ((latitudeCar >= 51 && latitudeCar <= 100) && (longitudeCar >= 0 && longitudeCar <= 50)) {
 
 			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q3.getAddress();
 
-		} else {
+		} else if((latitudeCar >= 51 && latitudeCar <= 100) && (longitudeCar >= 51 && longitudeCar <= 100)) {
 
 			carArea = ConfigLarsidIpsHttp.HTTP_FOG_REGION_Q4.getAddress();
 
@@ -232,6 +257,7 @@ public class CarApp {
 			System.out.println("====== (1) - Nivel de carga de energia");
 			System.out.println("====== (2) - Menu de requisicoes");
 			System.out.println("====== (3) - Desconectar");
+			System.out.println("====== (4) - Informações de conexão");
 			System.out.println("=========== Digite a opcao desejada ===============");
 			String opcao = scanner.next();
 
@@ -269,7 +295,7 @@ public class CarApp {
 
 					if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
 
-						System.out.print("================ Posto com a menor fila ==================");
+						System.out.println("================ Posto com a menor fila ==================");
 						jsonObject = new JSONObject(response.getBody());
 						System.out.println("Nome do posto:" + jsonObject.getString("name"));
 						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
@@ -280,6 +306,7 @@ public class CarApp {
 
 					} else {
 
+						System.out.println("Erro:");
 						System.out.println(response.toString());
 
 					}
@@ -288,8 +315,8 @@ public class CarApp {
 				case "2":
 
 					response = messageReturn("GET",
-							"/station/bestLocation/location?x={" + latitudeUser + "}&y={" + longitudeUser + "}",
-							"HTTP/1.1", header, carArea);
+							"/station/bestLocation/locationX=" + latitudeCar + "&locationY=" + longitudeCar, "HTTP/1.1",
+							header, carArea);
 
 					if (HttpCodes.HTTP_200.getCodeHttp().equals(response.getStatusLine())) {
 
@@ -299,11 +326,11 @@ public class CarApp {
 						System.out.println("Latitude:" + jsonObject.getDouble("latitude"));
 						System.out.println("Longitude:" + jsonObject.getDouble("longitude"));
 						System.out.println("Quantidade de carros na fila:" + jsonObject.getInt("totalAmountCars"));
-						System.out.println(
-								"Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
+						System.out.println("Tempo de espera na fila em minutos:" + jsonObject.getDouble("queueWaitingTime"));
 
 					} else {
 
+						System.out.println("Erro:");
 						System.out.println(response.toString());
 
 					}
@@ -340,6 +367,7 @@ public class CarApp {
 
 					} else {
 
+						System.out.println("Erro:");
 						System.out.println(response.toString());
 
 					}
@@ -358,6 +386,10 @@ public class CarApp {
 
 				connected = false;
 				break;
+				
+			case "4":
+				
+				System.out.println("Informações de conexão:"+carArea);
 
 			default:
 
@@ -370,35 +402,27 @@ public class CarApp {
 
 	}
 
-	private void simulateApproach(double latCar, double longCar, double latSta, double longSta) {
+	private void simulateApproach(Double latSta, Double longSta) {
 
-		boolean threadOn = true;
+		while (!(approximateNumber(latitudeCar).equals(latSta) && approximateNumber(longitudeCar).equals(longSta))) {
 
-		while (threadOn) {
+			if (approximateNumber(latitudeCar) < latSta) {
 
-			if (simulateCoordThread.isInterrupted()) {
+				latitudeCar += 0.01;
 
-				threadOn = false;
+			} else if (approximateNumber(latitudeCar) > latSta) {
 
-			}
-
-			if (latCar < latSta) {
-
-				latCar += 0.01;
-
-			} else if (latCar > latSta) {
-
-				latCar -= 0.01;
+				latitudeCar -= 0.01;
 
 			}
 
-			if (longCar < longSta) {
+			if (approximateNumber(longitudeCar) < longSta) {
 
-				longCar += 0.01;
+				longitudeCar += 0.01;
 
-			} else if (longCar > longSta) {
+			} else if (approximateNumber(longitudeCar) > longSta) {
 
-				longCar -= 0.01;
+				longitudeCar -= 0.01;
 			}
 
 		}
@@ -420,12 +444,11 @@ public class CarApp {
 
 	public void autoOff() {
 
-		if (batteryCar == BatteryLevel.DISCHARGED.getBatteryLevel()) {
+		if (batteryCar == BatteryLevel.DISCHARGED.getBatteryLevel() && !executor.isShutdown()) {
 
 			System.out.println("Bateria zerada programa encerrado");
-			simulateCoordThread.interrupt();
-			executor.shutdownNow();
 			connected = false;
+			executor.shutdown();
 
 		}
 

@@ -6,8 +6,9 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -22,6 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+
 import application.controllers.ChargingStationController;
 import application.model.ChargingStationModel;
 import application.model.FogModel;
@@ -44,6 +46,7 @@ public class FogApp {
 	private String idClientMqtt;
 	private MqttMessage mqttMessage;
 	private MqttConnectOptions mqttOptions;
+	private boolean connected;
 
 	/**
 	 * Construtor padrão da classe. Inicializa as variáveis executor, mqttMessage,
@@ -125,29 +128,39 @@ public class FogApp {
 	 */
 	public void generateCallBackMqttClient() {
 
-		clientMqtt.setCallback(new MqttCallback() {
+		clientMqtt.setCallback(new MqttCallbackExtended() {
+
 			@Override
 			public void connectionLost(Throwable cause) {
+
+				connected = false;
+				System.out.println(cause.getCause());
+				
 			}
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
-
+				
 				String payload = new String(message.getPayload());
+				
 				if (topic.contains("station/")) {
 
-					ChargingStationController.addStationLocal(ChargingStationModel.JsonToChargingStationModel(payload));
+					JSONObject payloadJson = new JSONObject(payload);
+					ChargingStationController.addStationLocal(new ChargingStationModel(payloadJson));
 
 				} else {
 
 					JSONArray jsonArray = new JSONArray(payload);
-					JSONObject jsonObject = new JSONObject();
+					JSONObject jsonObject;
+					
 					if (!jsonArray.isEmpty()) {
 
 						for (int i = 0; i < jsonArray.length(); i++) {
 
-							jsonObject = jsonArray.getJSONObject(i);
-							FogModel fogObject = FogModel.JsonToFogModel(jsonObject.toString());
+							jsonObject = new JSONObject(jsonArray.get(i).toString());
+							
+							FogModel fogObject = new FogModel(jsonObject);
+							
 							if (fogObject.getId().equals(idClientMqtt)) {
 
 								ChargingStationController.addStationGlobal(fogObject.getId(),fogObject.getBestStation());
@@ -166,6 +179,17 @@ public class FogApp {
 			public void deliveryComplete(IMqttDeliveryToken token) {
 			}
 
+			@Override
+			public void connectComplete(boolean reconnect, String serverURI) {
+
+				if (reconnect) {
+
+					connected = true;
+
+				}
+
+			}
+
 		});
 
 	}
@@ -177,11 +201,11 @@ public class FogApp {
 	 * @param topico o tópico MQTT onde a mensagem será publicada.
 	 */
 	public void publishMessageMqtt(String topic) {
-
-		if (clientMqtt != null && clientMqtt.isConnected()) {
-
+		
+		if (clientMqtt != null && connected) {
+			
 			if (ChargingStationService.getShorterQueueStation().isPresent()) {
-
+				
 				try {
 
 					String message = new JSONObject(ChargingStationService.getShorterQueueStation().get()).toString();
@@ -260,6 +284,7 @@ public class FogApp {
 
 				clientMqtt = new MqttClient(broker, idFog, new MemoryPersistence());
 				clientMqtt.connect(mqttOptions);
+				connected = true;
 				inscribeTopics();
 				generateCallBackMqttClient();
 

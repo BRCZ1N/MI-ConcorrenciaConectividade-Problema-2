@@ -1,11 +1,13 @@
 package application.station;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -195,23 +197,25 @@ public class StationApp {
 
 	private void trackingAreaFog() {
 
-		if ((latitudeStation >= 0 && latitudeStation <= 25) && (longitudeStation >= 25 && longitudeStation <= 50)) {
+		if ((latitudeStation >= 0 && latitudeStation <= 50) && (longitudeStation >= 0 && longitudeStation <= 50)) {
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q1.getAddress();
 
-		} else if ((latitudeStation >= 0 && latitudeStation <= 25) && (longitudeStation >= 0 && longitudeStation <= 25)) {
+		} else if ((latitudeStation >= 0 && latitudeStation <= 50) && (longitudeStation >= 51 && longitudeStation <= 100)) {
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q2.getAddress();
 
-		} else if ((latitudeStation >= 75 && latitudeStation <= 100)&& (longitudeStation >= 0 && longitudeStation <= 25)) {
+		} else if ((latitudeStation >= 51 && latitudeStation <= 100)&& (longitudeStation >= 0 && longitudeStation <= 50)) {
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q3.getAddress();
 
-		} else {
+		} else if((latitudeStation >= 51 && latitudeStation <= 100) && (longitudeStation >= 51 && longitudeStation <= 100)){
 
 			ipAddressBroker = ConfigLarsidIpsFog.FOG_REGION_Q4.getAddress();
 
 		}
+		
+		System.out.println(ipAddressBroker);
 
 	}
 
@@ -236,8 +240,15 @@ public class StationApp {
 	 */
 	public void generatePosStation() {
 
-		latitudeStation = Math.round((Math.random() * 100) * 100) / 100;
-		longitudeStation = Math.round((Math.random() * 100) * 100) / 100;
+			DecimalFormat df = new DecimalFormat("0.00");
+			
+			latitudeStation = Math.random() * 100;
+	        String latitudeFormatada = df.format(latitudeStation);
+	        latitudeStation = Double.parseDouble(latitudeFormatada.replace(",", "."));
+	        
+	        longitudeStation = Math.random() * 100;
+			String longitudeFormatada = df.format(longitudeStation);
+			longitudeStation = Double.parseDouble(longitudeFormatada.replace(",", "."));
 
 	}
 

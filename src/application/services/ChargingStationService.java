@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.stereotype.Component;
+
 import application.model.ChargingStationModel;
 
 @Component
@@ -120,13 +122,11 @@ public class ChargingStationService {
 			if (stationShorterQueue == null) {
 
 				stationShorterQueue = currentStation.getValue();
-				previousDistance = distanceValue(locationX, locationY, stationShorterQueue.getLatitude(),
-						stationShorterQueue.getLongitude());
+				previousDistance = distanceValue(locationX, locationY, stationShorterQueue.getLatitude(),stationShorterQueue.getLongitude());
 
 			} else {
 
-				currentDistance = distanceValue(locationX, locationY, currentStation.getValue().getLatitude(),
-						currentStation.getValue().getLongitude());
+				currentDistance = distanceValue(locationX, locationY, currentStation.getValue().getLatitude(),currentStation.getValue().getLongitude());
 
 				if (previousDistance > currentDistance) {
 
@@ -149,14 +149,21 @@ public class ChargingStationService {
      */
 	public static Optional<ArrayList<ChargingStationModel>> getAllGlobalBestStations() {
 
-		if (stationsLocal.isEmpty()) {
+		
+		if (stationsGlobal.isEmpty()) {
 
 			return Optional.empty();
 
 		}
 
 		ArrayList<ChargingStationModel> stationsList = new ArrayList<>();
-		stationsList.addAll(stationsGlobal.values());
+		
+		for(ChargingStationModel station:stationsGlobal.values()) {
+			
+			stationsList.add(station);
+			
+		}
+
 		return Optional.of(stationsList);
 
 	}
@@ -197,8 +204,7 @@ public class ChargingStationService {
      * @param currentStationLocationY Double contendo a coordenada Y do ponto 2.
      * @return Double contendo a distância entre os pontos.
      */
-	public static double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,
-			Double currentStationLocationY) {
+	public static double distanceValue(Double locationX, Double locationY, Double currentStationLocationX,Double currentStationLocationY) {
 
 		double distance = Point2D.distance(locationX, locationY, currentStationLocationX, currentStationLocationY);
 
